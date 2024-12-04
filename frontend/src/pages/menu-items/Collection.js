@@ -6,8 +6,8 @@ function Collection() {
     const { loadRoses, setMessage } = useContext(DataContext);
 
     useEffect(() => {
-        setMessage(null)
-        loadRoses();
+        setMessage(null);
+        loadRoses(1, null, null); // reset all filters
     }, []);
 
     return <RoseGrid />;

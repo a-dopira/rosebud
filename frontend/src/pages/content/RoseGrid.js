@@ -12,7 +12,7 @@ function RoseGrid() {
     const [modal, setShowModal] = useState(false)
     const [roseId, setRoseId] = useState(null)
     const [notification, setNotification] = useState(null);
-    const { rosesList, setRosesList, message } = useContext(DataContext)
+    const { rosesList, setRosesList, message, currentPage, totalPages, loadRoses } = useContext(DataContext)
 
     const openModal = (id) => {
         setRoseId(id);
@@ -33,6 +33,18 @@ function RoseGrid() {
             </motion.div>
         )
     }
+
+    const goToPreviousPage = () => {
+        if (currentPage > 1) {
+            loadRoses(currentPage - 1);
+        }
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            loadRoses(currentPage + 1);
+        }
+    };
 
     return (
         <motion.div
@@ -58,6 +70,33 @@ function RoseGrid() {
                 </div>
             ))}
         </div>
+        { rosesList.length > 0 ? (
+            <div className="pagination mt-5 flex justify-center items-center space-x-4">
+                <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
+                        ${currentPage === 1 ? 'bg-rose-800 cursor-not-allowed' : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl'}`}
+                >
+                    &#60;
+                </button>
+                <span 
+                    className="bg-rose-500 border-solid hover:cursor-default border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md text-center" 
+                    style={{ minWidth: '3.5rem' }}
+                >
+                    { currentPage }
+                </span>
+                <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
+                        ${currentPage === totalPages ? 'bg-rose-800 cursor-not-allowed' : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl'}`}
+                >
+                    &#62;
+                </button>
+            </div>
+        ) : null
+        }
         {modal && (
             <DeleteRoseModal roseId={roseId} setRosesList={setRosesList} setShowModal={setShowModal} setNotification={setNotification} />
         )}

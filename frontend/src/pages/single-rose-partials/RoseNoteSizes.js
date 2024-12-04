@@ -113,9 +113,11 @@ const NewProductForm = ({setRose, apiEndpoint, setShowForm}) => {
     const [notification, setNotification] = useState(null);
     const { roseId } = useParams()
 
+    console.log(roseId, typeof(roseId));
+
     const validationSchema = Yup.object({
         height: Yup.string().required('Обязательное поле'),
-        width: Yup.date().required('Обязательное поле'),
+        width: Yup.string().required('Обязательное поле'),
         date_added: Yup.string().required('Обязательное поле'),
     });
 
@@ -127,7 +129,7 @@ const NewProductForm = ({setRose, apiEndpoint, setShowForm}) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            const newProduct = {  rose: roseId, height: values.height, width: values.width, date_added: values.date_added }
+            const newProduct = {  rose: +roseId, height: values.height, width: values.width, date_added: values.date_added }
             await api.post(`/${apiEndpoint}/`, newProduct)
             .then(response => {
                 setNotification('Обрезка успешна добавлена')

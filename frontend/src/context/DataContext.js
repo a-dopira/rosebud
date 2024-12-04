@@ -4,14 +4,20 @@ import useAxios from "../utils/useAxios";
 const DataContext = createContext()
 
 export function DataProvider({ children }) {
-    const [groupList, setGroupList] = useState([])
-    const [breederList, setBreederList] = useState([])
-    const [pests, setPests] = useState([])
-    const [fungi, setFungi] = useState([])
-    const [rosesList, setRosesList] = useState([])
-    const [rose, setRose] = useState([])
+    const [groupList, setGroupList] = useState([]);
+    const [breederList, setBreederList] = useState([]);
+    const [pests, setPests] = useState([]);
+    const [fungi, setFungi] = useState([]);
+    const [rosesList, setRosesList] = useState([]);
+    const [rose, setRose] = useState([]);
 
-    const [message, setMessage] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [adjFilter, setAdjFilter] = useState({})
+    const [filterTitle, setFilterTitle] = useState(null)
+
+    const [message, setMessage] = useState(null);
     const api = useAxios();
 
     const loadGroups = async () => {
@@ -34,27 +40,40 @@ export function DataProvider({ children }) {
         setFungi(response.data)
     }
 
-    const loadRoses = async () => {
-        const response = await api.get('roses/')
-        setRosesList(response.data)
+    const loadRoses = async (page=1, filters=adjFilter, filter=filterTitle) => {
+        try {
+            const params = new URLSearchParams({
+                ...filters,
+                page,
+            })
+
+            setAdjFilter(filters)
+            setFilterTitle(filter)
+
+            const response = await api.get(`roses/?${params.toString()}`);
+
+            setRosesList(response.data.results);
+            setCurrentPage(page);
+            setTotalPages(response.data.total_pages)
+
+            setMessage(
+                response.data.results.length > 0
+                ? (filters && filter)
+                    ? `Все розы по поиску ${ filter }`
+                    : null
+                : 'Нет роз по заданному поиску. Попробуй что то другое...'
+            )
+
+            return 
+        } catch (error) {
+            setMessage('Что-то пошло не так... Нужно пробывать нечто другоеы')
+        }
     }
 
     const loadRose = async (id) => {
         const response = await api.get(`roses/${id}/`)
         setRose(response.data)
     }
-
-    const handleCategorySelect = async (groupId, groupName) => {
-        api.get(`/roses/?group=${groupId}`)
-        .then(response => {
-            setRosesList(response.data);
-            if (response.data.length <= 0) {
-                setMessage(null)
-            } else {
-                setMessage('Все розы из группы ' + groupName)
-            }
-        })
-    };
 
     const contextData = {
         groupList,
@@ -64,6 +83,8 @@ export function DataProvider({ children }) {
         rosesList,
         rose,
         message,
+        currentPage,
+        totalPages,
         setGroupList,
         setBreederList,
         setPests,
@@ -77,7 +98,6 @@ export function DataProvider({ children }) {
         loadFungi,
         loadRoses,
         loadRose,
-        handleCategorySelect
     }
 
     return (

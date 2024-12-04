@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: ./backrose
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backrose:/app
+      - ./backrose/db.sqlite3:/app/db.sqlite3
+    env_file:
+      - ./.env
+    ports:
+      - 8000:8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - ./nginx:/etc/nginx/conf.d

@@ -6,10 +6,10 @@ import dropdown_arrow from '../../assets/icons/down-arrow-svgrepo-com.svg'
 
 function CategorySelect() {
 
-    const { groupList, loadGroups, handleCategorySelect } = useContext(DataContext);
+    const { groupList, loadGroups, loadRoses } = useContext(DataContext);
     const [isOpen, setIsOpen] = useState(false)
 
-    const node = useRef(); 
+    const node = useRef();
 
 
     useEffect(() => {
@@ -29,28 +29,28 @@ function CategorySelect() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [node]);
-    
+
     const groupClasses = 'rounded border-[1px] border-gray-300 bg-white absolute top-[50px] w-full shadow-md z-10'
 
     return (
         <div className="menu" ref={node}>
-            <div className="relative group" 
+            <div className="relative group"
                 onClick={() => setIsOpen(!isOpen)}>
                 <div
                     className="dotted-back px-5 py-2 rounded cursor-pointer font-bold
                     text-xl flex justify-between w-full bg-white shadow-sm gap-3.5"
                 >
                     Категории
-                    <img width="10" src={dropdown_arrow} alt="dropdown-arrow"/>
+                    <img width="10" src={dropdown_arrow} alt="dropdown-arrow" />
                 </div>
-                <ul 
+                <ul
                     className={isOpen ? groupClasses + ' group-hover:block' : groupClasses + ' hidden'}
                 >
                     {groupList.map(group => (
                         <li key={group.id} className="drop-menu-item w-full hover:bg-gray-100 z-10">
-                            <Link to={`/home/group/${group.name}`} onClick={() => handleCategorySelect(group.id, group.name)}>
+                            <Link to={`/home/group/${group.name}`} onClick={() => loadRoses(1, { group: group.id }, group.name)}>
                                 <div className="cursor-pointer hover:bg-gray-300 p-3">
-                                    {group.name}
+                                    {group.name} ({group.rose_count})
                                 </div>
                             </Link>
                         </li>

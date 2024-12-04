@@ -13,8 +13,8 @@ function RoseNote() {
 
     const api = useAxios()
 
-    const [observation, setObservation] = useState()
-    const [susceptibility, setSusceptibility] = useState()
+    const [observation, setObservation] = useState(rose.observation)
+    const [susceptibility, setSusceptibility] = useState(rose.susceptibility)
     const [notification, setNotification] = useState()
 
     const [isEditing, setIsEditing] = useState(false)
@@ -22,7 +22,10 @@ function RoseNote() {
     const updateRose = async (event) => {
         event.preventDefault()
         setNotification(null)
-        const updatedRose = new FormData(event.target);
+        const updatedRose = {
+            observation,
+            susceptibility
+        };
 
         await api.patch(`roses/${rose.id}/`, updatedRose)
         .then(response => {
@@ -66,11 +69,11 @@ function RoseNote() {
                         <label className="text-xl font-bold">
                             Наблюдение:
                         </label>
-                        <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="text" value={observation} onChange={e => setObservation(e.target.value)} />
+                        <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" name={observation} type="text" value={observation} onChange={e => setObservation(e.target.value)} />
                         <label className="text-xl font-bold">
                             Уязвимости:
                         </label>
-                        <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="text" value={susceptibility} onChange={e => setSusceptibility(e.target.value)} />
+                        <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" name={susceptibility} type="text" value={susceptibility} onChange={e => setSusceptibility(e.target.value)} />
                         <button type="submit" className="btn-red mt-2">Изменить</button>
                     </motion.form>
                 )}
