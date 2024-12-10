@@ -41,9 +41,7 @@ function Profile() {
     }
 
     useEffect(() => {
-        if (!profile) {
-            fetchProfile();
-        }
+          fetchProfile();
       }, []);
 
       const handleUpdateProfile = async (newData) => {

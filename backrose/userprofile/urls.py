@@ -10,5 +10,4 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', views.RegisterView.as_view(), name='auth_register'),
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
-    path('test/', views.testEndPoint, name='test'),
 ]

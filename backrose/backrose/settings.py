@@ -9,17 +9,24 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv
 
-import os
+def load_env(path):
+    with open(path) as file:
+        for line in file:
+            line = line.strip()
+            if not line.startswith('#'):
+                key, value = line.split('=', 1)
+                os.environ.setdefault(key, value)
 
-load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env_path = BASE_DIR.parent / '.env'
+
+load_env(env_path)
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
