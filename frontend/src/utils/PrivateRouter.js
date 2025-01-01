@@ -4,8 +4,8 @@ import AuthContext from "../context/AuthContext"
 
 
 const PrivateRouter = ({children}) => {
-    let {user} = useContext(AuthContext)
-    return user ? children : <Navigate to="/login" replace /> 
+    let {isAuthenticated} = useContext(AuthContext)
+    return isAuthenticated ? children : <Navigate to="/login" replace /> 
 }
 
 export default PrivateRouter

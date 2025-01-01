@@ -9,10 +9,10 @@ class RosePagination(PageNumberPagination):
     max_page_size = 18
 
     def get_paginated_response(self, data):
-        total_pages = math.ceil(self.page.paginator.count / self.page_size)  # Вычисляем общее количество страниц
+        total_pages = math.ceil(self.page.paginator.count / self.page_size)
         return Response({
-            'current_page': self.page.number,  # Текущая страница
-            'total_pages': total_pages,  # Общее количество страниц
-            'total_items': self.page.paginator.count,  # Общее количество элементов
-            'results': data  # Данные текущей страницы
+            'current_page': self.page.number,  
+            'total_pages': total_pages,  
+            'total_items': self.page.paginator.count, 
+            'results': data  
         })

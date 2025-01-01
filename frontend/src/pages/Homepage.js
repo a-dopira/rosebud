@@ -5,7 +5,7 @@ import { useContext, useEffect } from 'react';
 
 import { motion } from 'framer-motion';
 
-import Profile from "./profile/Profile";
+// import Profile from "./profile/Profile";
 import Menu from "./menu/Menu";
 import RoseGrid from "./content/RoseGrid";
 import AddRose from "./content/AddRose";
@@ -30,7 +30,6 @@ export default function Homepage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
         >
-            <Profile/>
             <Menu/>
             <Routes>
                 <Route path="/" element={<RoseGrid key={location.pathname}/>}/>
@@ -40,7 +39,6 @@ export default function Homepage() {
                 <Route path="addrose/" element={<AddRose/>}/>
                 <Route path="adjusting/" element={<Adjusting/>}/>
                 <Route path="/:roseId/*" element={<RoseLayout/>}/>
-                {/* Добавьте другие маршруты по необходимости */}
             </Routes>
         </motion.div>
     )

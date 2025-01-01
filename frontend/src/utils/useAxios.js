@@ -1,42 +1,39 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import dayjs from "dayjs";
-import { useContext } from "react";
-import AuthContext from "../context/AuthContext";
+
 
 const baseURL = "http://127.0.0.1:8000/api/";
 
 const useAxios = () => {
-  const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
-
-  const axiosInstance = axios.create({
-    baseURL,
-    headers: { Authorization: `Bearer ${authTokens?.access}` }
+  const instance = axios.create({
+    baseURL: baseURL,
+    withCredentials: true, 
   });
+  
+  instance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
 
-  axiosInstance.interceptors.request.use(async req => {
-    const user = jwtDecode(authTokens.access);
-    const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
+      if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
 
-    if (!isExpired) return req;
+        try {
+          await instance.post('/token/refresh/', {}, { withCredentials: true });
+          console.log('Poop is happening');
+          return instance(originalRequest);
+        } catch (refreshError) {
+          console.log('Refresh token is invalid. Logging out...');
+          return Promise.reject(refreshError);
+        }
+      }
 
-    const response = await axios.post(`${baseURL}token/refresh/`, {
-      refresh: authTokens.refresh
-    });
-    localStorage.setItem("authTokens", JSON.stringify(response.data));
-    
-    await Promise.all([
-      setAuthTokens(response.data),
-      setUser(jwtDecode(response.data.access))
-    ]
-    )
+      return Promise.reject(error);
+    }
+  );
 
-    req.headers.Authorization = `Bearer ${response.data.access}`;
-    return req;
-});
-
-
-  return axiosInstance;
+  return instance;
 };
 
 export default useAxios;

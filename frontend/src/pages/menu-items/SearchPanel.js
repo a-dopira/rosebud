@@ -14,9 +14,9 @@ function SearchPanel() {
       const searchValue = inputValue.trim();
       if (!searchValue) return;
 
-      const results = await loadRoses(1, {search: searchValue}, searchValue); // Передаём query как строку поиска
+      const results = await loadRoses(1, {search: searchValue}, searchValue);
       if (results?.length > 0) {
-          navigate(`/home/search/?search=${searchValue}`); // Навигация к результатам
+          navigate(`/home/search/?search=${searchValue}`);
       } else {
           navigate('/home/');
       }

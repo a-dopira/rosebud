@@ -1,41 +1,84 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from userprofile.models import User
+from django.conf import settings
 
-from userprofile.serializer import MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer
-
-from rest_framework.decorators import api_view
+from userprofile.serializer import LoginSerializer, UserSerializer
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = ProfileSerializer
+        user = serializer.validated_data["user"]
+        refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+
+        response = Response({"message": "Login successful"})
+        response.set_cookie(
+            key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+            value=str(access_token),
+            httponly=True,
+            secure=True,
+            samesite='None',
+        )
+        response.set_cookie(
+            key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite='None',
+        )
+        return response
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"message": "Logout successful"})
+        response.delete_cookie(
+            key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+            domain=settings.SIMPLE_JWT["AUTH_COOKIE_DOMAIN"],
+            path=settings.SIMPLE_JWT["AUTH_COOKIE_PATH"],
+        )
+        response.delete_cookie(
+            key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+            domain=settings.SIMPLE_JWT["AUTH_COOKIE_DOMAIN"],
+            path=settings.SIMPLE_JWT["AUTH_COOKIE_PATH"],
+        )
+        return response
+
+
+class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        return self.request.user.profile
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def testEndPoint(request):
-    if request.method == 'GET':
-        data = f"Congratulation {request.user}, your API just responded to GET request"
-        return Response({'response': data}, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        text = "Hello buddy"
-        data = f'Congratulation your API just responded to POST request with text: {text}'
-        return Response({'response': data}, status=status.HTTP_200_OK)
-    return Response({}, status.HTTP_400_BAD_REQUEST)
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh')
+        if not refresh_token:
+            return Response({"error": "No refresh token found"}, status=401)
+
+        serializer = self.get_serializer(data={"refresh": refresh_token})
+        serializer.is_valid(raise_exception=True)
+        access_token = serializer.validated_data['access']
+
+        response = Response({"message": "Token refreshed"})
+        response.set_cookie(
+            key="access",
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite='None',
+        )
+        
+        return response
+    

@@ -31,7 +31,7 @@ class RoseViewSet(viewsets.ModelViewSet):
     queryset = Rose.objects.all().order_by('id')
     serializer_class = RoseSerializer
     pagination_class = RosePagination
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['title', 'title_eng', 'breeder__name']
     filterset_class = RoseFilter
@@ -87,7 +87,7 @@ class PesticideViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.annotate(rose_count=Count('roses'))
     serializer_class = GroupSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     filter_fields = ['name']
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
@@ -123,7 +123,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
 class SizeViewSet(viewsets.ModelViewSet):
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
