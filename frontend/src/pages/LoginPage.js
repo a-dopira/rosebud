@@ -15,7 +15,7 @@ const schema = yup.object().shape({
 });
 
 function LoginPage() {
-  const { checkAuth,isAuthenticated } = useContext(AuthContext);
+  const { checkAuth, user } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [loginErrors, setLoginError] = useState(null);
@@ -25,10 +25,10 @@ function LoginPage() {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       navigate('/home');
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
 
   const login = async (email, password) => {
     try {
@@ -47,7 +47,6 @@ function LoginPage() {
         return false;
       }
     } catch (error) {
-      console.error("Ошибка при логине:", error);
       setLoginError("Ошибка соединения с сервером");
       return false;
     }

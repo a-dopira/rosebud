@@ -66,7 +66,7 @@ export function DataProvider({ children }) {
 
             return 
         } catch (error) {
-            setMessage('Что-то пошло не так... Нужно пробывать нечто другоеы')
+            setMessage('Что-то пошло не так... Нужно пробывать нечто другое...')
         }
     }
 

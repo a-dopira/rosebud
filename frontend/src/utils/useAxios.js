@@ -21,10 +21,10 @@ const useAxios = () => {
 
         try {
           await instance.post('/token/refresh/', {}, { withCredentials: true });
-          console.log('Poop is happening');
+          console.log('poop1')
           return instance(originalRequest);
         } catch (refreshError) {
-          console.log('Refresh token is invalid. Logging out...');
+          console.log('poop2')
           return Promise.reject(refreshError);
         }
       }

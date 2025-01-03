@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from userprofile.serializer import LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer, ProfileSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenRefreshView

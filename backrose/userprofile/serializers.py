@@ -5,26 +5,26 @@ from rest_framework import serializers
 
 
 
-# class ProfileSerializer(serializers.ModelSerializer):
-#     username = serializers.CharField(source='user.username', required=False)
-#     app_header = serializers.CharField(required=False)
-#     image = serializers.ImageField(required=False)
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', required=False)
+    app_header = serializers.CharField(required=False)
+    image = serializers.ImageField(required=False)
 
-#     class Meta:
-#         model = Profile
-#         fields = ('username', 'image', 'app_header')
+    class Meta:
+        model = Profile
+        fields = ('username', 'image', 'app_header')
 
-#     def update(self, instance, validated_data):
-#         user_data = validated_data.pop('user', None)
-#         if user_data:
-#             instance.user.username = user_data.get('username', instance.user.username)
-#             instance.user.save()
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            instance.user.username = user_data.get('username', instance.user.username)
+            instance.user.save()
 
-#         for attr, value in validated_data.items():
-#             setattr(instance, attr, value)
-#         instance.save()
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
 
-#         return instance
+        return instance
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

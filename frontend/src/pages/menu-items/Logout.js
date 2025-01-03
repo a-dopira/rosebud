@@ -4,7 +4,7 @@ import AuthContext from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
 function Logout() {
-    const { setIsAuthenticated, setUser } = useContext(AuthContext);
+    const { setUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = async (event) => {
@@ -14,7 +14,6 @@ function Logout() {
                 method: "POST",
                 credentials: "include",
         });
-            setIsAuthenticated(false);
             setUser(null); 
             navigate('/login');
         } catch (error) {

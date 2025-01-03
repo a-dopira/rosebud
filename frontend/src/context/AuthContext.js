@@ -5,7 +5,7 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [user, setUser] = useState(null);
 
   const checkAuth = async () => {
@@ -17,24 +17,24 @@ export const AuthProvider = ({ children }) => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setUser(data);
-        setIsAuthenticated(true);
       } else {
-        setIsAuthenticated(false);
+        setUser(null);
       }
     } catch (err) {
-      setIsAuthenticated(false);
+      setUser(null);
     }
   };
 
   useEffect(() => {
-    checkAuth();
-  }, [isAuthenticated]);
+    if (!user) {      
+      checkAuth();
+    }
+  }, [user]);
 
   const context = {
-    isAuthenticated,
     user,
-    setIsAuthenticated,
     setUser,
     checkAuth,
   }
