@@ -1,6 +1,7 @@
 node_modules/
 .venv
 startproject.bat
+src/utils/Loading.js
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
