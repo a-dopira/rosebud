@@ -1,7 +1,8 @@
 node_modules/
 .venv
 startproject.bat
-frontend/src/utils/Loading.js
+frontend/assets/fonts/*
+frontend/assets/icons/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
