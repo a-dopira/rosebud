@@ -3,6 +3,7 @@ node_modules/
 startproject.bat
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
+frontend/src/utils/Loading.js
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
