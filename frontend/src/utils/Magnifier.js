@@ -6,9 +6,7 @@ const Magnifier = () => (
         xmlns="http://www.w3.org/2000/svg"
         fill="#ffffff"
     >
-        <title>search</title>
-        <desc>Created with Sketch Beta.</desc>
-        <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+        <g id="Page-1" stroke="none" strokeWidth="1" fillRule="evenodd">
         <g
             id="Icon-Set"
             transform="translate(-256.000000, -1139.000000)"
