@@ -1,8 +1,8 @@
 node_modules/
 .venv
 startproject.bat
-frontend/assets/fonts/*
-frontend/assets/icons/*
+frontend/src/assets/fonts/*
+frontend/src/assets/icons/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
