@@ -1,12 +1,11 @@
 import { useContext, useState, useEffect } from "react"
 import DataContext from "../../context/DataContext"
 import { Link } from "react-router-dom"
-import useAxios from "../../utils/useAxios"
+import useAxios from "../../hooks/useAxios"
 import Notification from "../../utils/Notification";
-import { useNotification } from "../../utils/useNotification";
+import { useNotification } from "../../hooks/useNotification";
 import { AnimatePresence, motion } from "framer-motion";
-import DeleteRoseModal from "../../utils/DeleteRoseModal"
-import ConfirmPhotoDeleteModal from "../../utils/DeleteRosePhotoModal";
+import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 function RoseHeader() {
 
@@ -175,11 +174,30 @@ function RoseHeader() {
             </div>
         </div>
         {modal && (
-            <DeleteRoseModal roseId={rose.id} setRosesList={setRosesList} setShowModal={setShowModal} setNotification={setNotificationMessage} />
+            <DeleteNotificationModal
+                itemId={rose.id}
+                itemType="розу"
+                apiEndpoint="roses"
+                setShowModal={setShowModal}
+                setNotification={setNotificationMessage}
+                updateState={setRosesList}
+            />
         )}
         {showDeletePhotoModal && (
-            <ConfirmPhotoDeleteModal roseId={rose.id} setShowModal={setShowDeletePhotoModal} setNotification={setNotificationMessage} />
-        )}
+            <DeleteNotificationModal
+                itemId={rose.id}
+                itemType="фото"
+                apiEndpoint={`roses/${rose.id}/delete_photo`}
+                setShowModal={setShowDeletePhotoModal}
+                setNotification={setNotificationMessage}
+                updateState={prevState =>
+                    setRose((prevRose) => ({
+                        ...prevRose,
+                        photo: null,
+                    }))
+                }
+            />
+)}
         {notification && <Notification message={notification}/>}
     </div>
     )

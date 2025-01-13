@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import useAxios from "../utils/useAxios";
+import useAxios from "../hooks/useAxios";
 
 const DataContext = createContext()
 

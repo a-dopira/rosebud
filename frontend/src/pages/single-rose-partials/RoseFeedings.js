@@ -1,13 +1,13 @@
 import { useState, useContext } from "react";
 import DataContext from "../../context/DataContext";
-import useAxios from "../../utils/useAxios";
+import useAxios from "../../hooks/useAxios";
 import Notification from "../../utils/Notification";
-import DeleteProductModal from "../../utils/DeleteProductModal";
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
 import { useFormik } from 'formik'
 import { Helmet } from 'react-helmet'
 import { motion } from "framer-motion";
+import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 const ProductForm = ({ product, onSubmit }) => {
     const [basal, setBasal] = useState(product.basal);
@@ -108,7 +108,21 @@ const Product = ({ product, productType, apiEndpoint }) => {
             </button>
             <button className="btn-red" onClick={() => openModal(product.id)}>Удалить</button>
             {modal && (
-                <DeleteProductModal productId={productId} productType={productType} setShowModal={setShowModal} setNotification={setNotification} apiEndpoint={apiEndpoint} />
+                <DeleteNotificationModal
+                    itemId={productId}
+                    itemType={productType}
+                    apiEndpoint={apiEndpoint}
+                    setShowModal={setShowModal}
+                    setNotification={setNotification}
+                    updateState={prevState =>
+                        setRose((prevRose) => ({
+                            ...prevRose,
+                            [apiEndpoint]: prevRose[apiEndpoint].filter(
+                                (product) => product.id !== productId
+                            ),
+                        }))
+                    }
+                />
             )}
             {notification && <Notification message={notification} />}
         </div>
@@ -136,7 +150,13 @@ const NewProductForm = ({setRose, apiEndpoint, setShowForm}) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            const newProduct = {  rose: roseId, basal: values.basal, basal_time: values.basal_time, leaf: values.leaf, leaf_time: values.leaf_time }
+            const newProduct = {  
+                rose: roseId, 
+                basal: values.basal, 
+                basal_time: values.basal_time, 
+                leaf: values.leaf, 
+                leaf_time: values.leaf_time 
+            }
             await api.post(`/${apiEndpoint}/`, newProduct)
             .then(response => {
                 setNotification('Обрезка успешна добавлена')

@@ -1,12 +1,12 @@
 import { useState, useContext } from "react";
 import DataContext from "../../context/DataContext";
-import useAxios from "../../utils/useAxios";
+import useAxios from "../../hooks/useAxios";
 import Notification from "../../utils/Notification";
-import DeleteProductModal from "../../utils/DeleteProductModal";
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
 import { useFormik } from 'formik'
 import { motion } from "framer-motion";
+import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 const ProductForm = ({ product, onSubmit }) => {
     const [height, setHeight] = useState(product.height);
@@ -101,7 +101,21 @@ const Product = ({ product, productType, apiEndpoint }) => {
             </button>
             <button className="btn-red" onClick={() => openModal(product.id)}>Удалить</button>
             {modal && (
-                <DeleteProductModal productId={productId} productType={productType} setShowModal={setShowModal} setNotification={setNotification} apiEndpoint={apiEndpoint} />
+                <DeleteNotificationModal
+                    itemId={productId}
+                    itemType={productType}
+                    apiEndpoint={apiEndpoint}
+                    setShowModal={setShowModal}
+                    setNotification={setNotification}
+                    updateState={(prevRose) =>
+                        setRose((prevRose) => ({
+                            ...prevRose,
+                            [apiEndpoint]: prevRose[apiEndpoint].filter(
+                                (item) => item.id !== productId
+                            ),
+                        }))
+                    }
+                />
             )}
             {notification && <Notification message={notification} />}
         </div>

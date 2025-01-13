@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import DeleteProductModal from "../../utils/DeleteProductModal";
-import useAxios from "../../utils/useAxios";
+import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
+import useAxios from "../../hooks/useAxios";
 import DataContext from "../../context/DataContext";
 import { useParams } from "react-router-dom";
 import Notification from "../../utils/Notification";
@@ -111,7 +111,21 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
             </button>
             <button className="btn-red" onClick={() => openModal(product.id)}>Удалить</button>
             {modal && (
-                <DeleteProductModal productId={productId} productType={productType} setShowModal={setShowModal} setNotification={setNotification} apiEndpoint={apiEndpoint} />
+                <DeleteNotificationModal
+                    itemId={productId}
+                    itemType={productType}
+                    apiEndpoint={apiEndpoint}
+                    setShowModal={setShowModal}
+                    setNotification={setNotification}
+                    updateState={(prevRose) =>
+                        setRose((prevRose) => ({
+                            ...prevRose,
+                            [apiEndpoint]: prevRose[apiEndpoint].filter(
+                                (item) => item.id !== productId
+                            ),
+                        }))
+                    }
+                />
             )}
             {notification && <Notification message={notification} />}
         </div>

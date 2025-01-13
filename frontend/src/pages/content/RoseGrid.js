@@ -5,16 +5,19 @@ import { motion } from "framer-motion";
 
 import DataContext from "../../context/DataContext"
 import Notification from "../../utils/Notification";
-import DeleteRoseModal from "../../utils/DeleteRoseModal";
+
+import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 function RoseGrid() {
 
     const [modal, setShowModal] = useState(false)
     const [roseId, setRoseId] = useState(null)
+    const [roseName, setRoseName] = useState(null)
     const [notification, setNotification] = useState(null);
     const { rosesList, setRosesList, message, currentPage, totalPages, loadRoses } = useContext(DataContext)
 
-    const openModal = (id) => {
+    const openModal = (id, title) => {
+        setRoseName(title)
         setRoseId(id);
         setShowModal(true);
     };
@@ -65,7 +68,7 @@ function RoseGrid() {
                             <img src={rose.photo} alt={rose.title} className="mb-2 p-4 h-48 object-contain"/>
                             <div>{rose.title}</div>
                         </Link>
-                        <button id='open-delete-modal' className="absolute top-0 right-5 p-1 text-red-500 text-3xl font-semibold hover:text-umbra" onClick={() => openModal(rose.id)}>&times;</button>
+                        <button id='open-delete-modal' className="absolute top-0 right-5 p-1 text-red-500 text-3xl font-semibold hover:text-umbra" onClick={() => openModal(rose.id, rose.title)}>&times;</button>
                     </div>
                 </div>
             ))}
@@ -98,7 +101,14 @@ function RoseGrid() {
         ) : null
         }
         {modal && (
-            <DeleteRoseModal roseId={roseId} setRosesList={setRosesList} setShowModal={setShowModal} setNotification={setNotification} />
+            <DeleteNotificationModal
+                itemId={roseId}
+                itemType={roseName}
+                apiEndpoint="roses"
+                setShowModal={setShowModal}
+                setNotification={setNotification}
+                updateState={setRosesList}
+            />
         )}
         {notification && <Notification message={notification}/>}
         </motion.div>

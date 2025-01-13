@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
 import DataContext from "../../context/DataContext";
-import useAxios from "../../utils/useAxios";
+import useAxios from "../../hooks/useAxios";
 import Notification from "../../utils/Notification";
-import { useNotification } from "../../utils/useNotification";
+import { useNotification } from "../../hooks/useNotification";
 import { Helmet } from 'react-helmet';
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
