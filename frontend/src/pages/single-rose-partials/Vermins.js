@@ -1,12 +1,11 @@
 import { useContext, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useFormik } from 'formik'
+import { useNotification } from "../../context/NotificationContext";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 import useAxios from "../../hooks/useAxios";
 import DataContext from "../../context/DataContext";
-import { useParams } from "react-router-dom";
-import Notification from "../../utils/Notification";
 import * as Yup from 'yup';
-import { useFormik } from 'formik'
-import { motion } from "framer-motion";
 
 const ProductForm = ({ product, onSubmit, productType, vermins, type }) => {
     const [name, setName] = useState(product.name);
@@ -26,11 +25,8 @@ const ProductForm = ({ product, onSubmit, productType, vermins, type }) => {
     }
 
     return (
-        <motion.form 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg" 
+        <form
+            className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg" 
             onSubmit={handleSubmit}
         >
             <label className="text-xl font-bold">
@@ -50,17 +46,20 @@ const ProductForm = ({ product, onSubmit, productType, vermins, type }) => {
                     ))}
                 </select>
             <button type="submit" className="btn-red mt-2">Изменить {productType}</button>
-        </motion.form>
+        </form>
     );
 };
 
 const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
-    const { setRose } = useContext(DataContext)
-    const [isEditing, setIsEditing] = useState(false);
+    
     const api = useAxios()
+
+    const { setRose } = useContext(DataContext)
+    const { showNotification } = useNotification()
+
+    const [isEditing, setIsEditing] = useState(false);
     const [modal, setShowModal] = useState(false)
     const [productId, setProductId] = useState(null)
-    const [notification, setNotification] = useState(null);
 
     const openModal = (id) => {
         setProductId(id);
@@ -81,6 +80,10 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
                     );
                     return { ...prevRose, [apiEndpoint]: updatedProducts };
                 });
+                showNotification('Изменения успешно сохранены');
+            })
+            .catch(error => {
+                showNotification('Произошла ошибка при сохранении изменений');
             });
     };
 
@@ -89,11 +92,11 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
             {isEditing ? (
                 <ProductForm product={product} onSubmit={handleSubmit} productType={productType} vermins={vermins} type={type}/>
             ) : (
-                <motion.div 
+                <div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1 }}
-                    className="my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg"
+                    className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg"
                 >
                     <div className="mt-2">
                         <span className="text-xl font-bold">{type === 'fungicide' ? 'Гриб' : 'Вредитель'}:</span> {product[type].name } 
@@ -104,7 +107,7 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
                     <div className="mt-2">
                         <span className="text-xl font-bold"> Добавлено: </span> {product.date_added}
                     </div>
-                </motion.div>
+                </div>
             )}
             <button className="btn-red" onClick={handleEdit}>
                 {isEditing ? 'Отменить' : 'Изменить'}
@@ -116,7 +119,6 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
                     itemType={productType}
                     apiEndpoint={apiEndpoint}
                     setShowModal={setShowModal}
-                    setNotification={setNotification}
                     updateState={(prevRose) =>
                         setRose((prevRose) => ({
                             ...prevRose,
@@ -127,14 +129,17 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
                     }
                 />
             )}
-            {notification && <Notification message={notification} />}
         </div>
     );
 };
 
-const NewProductForm = ({vermins, type, setRose, verminType, apiEndpoint, setShowModal}) => {
+const NewProductForm = ({vermins, type, verminType, apiEndpoint, setShowModal}) => {
+
     const api = useAxios()
-    const [notification, setNotification] = useState(null);
+
+    const { setRose } = useContext(DataContext)
+    const { showNotification } = useNotification()
+    
     const { roseId } = useParams()
 
     const validationSchema = Yup.object({
@@ -151,23 +156,30 @@ const NewProductForm = ({vermins, type, setRose, verminType, apiEndpoint, setSho
         },
         validationSchema,
         onSubmit: async (values) => {
-            const newProduct = { name: values.name, rose: roseId, date_added: values.date_added }
+            const newProduct = { 
+                name: values.name, 
+                rose: roseId, 
+                date_added: values.date_added 
+            }
+
             newProduct[`${type}_id`] = values.vermin
+
             await api.post(`/${apiEndpoint}/`, newProduct)
             .then(response => {
-                setNotification(`${values.name} успешно добавлен`)
+                showNotification('Добавление прошло успешно.');
                 setRose(prevState => ({...prevState, [apiEndpoint]: [...prevState[apiEndpoint], response.data]}))
                 setShowModal(false)
+            })
+            .catch(err => {
+                showNotification(`Ошибка: ${err.message}`)
             })
         },
     });
 
     return (
         <>
-        <motion.form 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+        <form 
+            className="animate-fade-in"
             method="post" 
             encType="multipart/form-data"
             onSubmit={formik.handleSubmit}
@@ -187,11 +199,10 @@ const NewProductForm = ({vermins, type, setRose, verminType, apiEndpoint, setSho
             </select>
             {formik.touched.vermin && formik.errors.vermin ? <div className="text-red-500">{formik.errors.vermin}</div> : null}
             <button className="btn-red mt-2" type="submit">Добавить</button>
-        </motion.form>
-        { notification && <Notification message={notification} /> }
+        </form>
         </>
     );
 };
 
-export {NewProductForm, Product}
+export { NewProductForm, Product }
 

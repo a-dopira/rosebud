@@ -1,8 +1,6 @@
 import { useState, useContext } from 'react';
-import Notification from '../../utils/Notification';
 import DataContext from '../../context/DataContext';
 import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
 import AdjustForm from './AdjustForm';
 
 function Adjusting() {
@@ -25,7 +23,6 @@ function Adjusting() {
     const [pestName, setPestName] = useState('');
     const [fungusId, setFungusId] = useState('');
     const [fungusName, setFungusName] = useState('');
-    const [notification, setNotification] = useState(null);
 
     const configData = [
         {
@@ -109,13 +106,9 @@ function Adjusting() {
     return (
         <>
             <Helmet>
-                <title>Настроить</title>
+                <title>{'Настроить'}</title>
             </Helmet>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-            >
+            <div className="animate-fade-in">
                 {configData.map(({ label, value, setValue, list, endpoint, notificationMessages, listId, setList }) => (
                     <AdjustForm
                         key={listId}
@@ -127,12 +120,9 @@ function Adjusting() {
                         notificationMessages={notificationMessages}
                         listId={listId}
                         setList={setList}
-                        setNotification={setNotification}
                     />
                 ))}
-
-                {notification && <Notification message={notification} />}
-            </motion.div>
+            </div>
         </>
     );
 }

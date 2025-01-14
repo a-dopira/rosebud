@@ -1,4 +1,5 @@
 import useAxios from "../../hooks/useAxios";
+import { useNotification } from "../../context/NotificationContext";
 
 const AdjustForm = ({ 
     label, 
@@ -9,20 +10,21 @@ const AdjustForm = ({
     notificationMessages, 
     listId, 
     setList,
-    setNotification 
 }) => {
 
     const api = useAxios();
+    const { showNotification } = useNotification();
+
 
     const handleAdd = async () => {
         try {
             const response = await api.post(endpoint, { name: value.name });
             setList(prevList => (prevList ? [...prevList, response.data] : [response.data]));
             setValue({ id: '', name: '' });
-            setNotification(notificationMessages.addSuccess.replace('{name}', value.name));
+            showNotification(notificationMessages.addSuccess.replace('{name}', value.name));
         } catch (err) {
             if (err.response && err.response.status === 400) {
-                setNotification(notificationMessages.addError.replace('{name}', value.name));
+                showNotification(notificationMessages.addError.replace('{name}', value.name));
             } else {
                 alert(err);
             }
@@ -31,19 +33,19 @@ const AdjustForm = ({
 
     const handleDelete = async () => {
         if (!value.id) {
-            setNotification(notificationMessages.deleteEmpty);
+            showNotification(notificationMessages.deleteEmpty);
             return;
         }
         try {
             await api.delete(`${endpoint}${value.id}/`);
             setList(prevList => prevList.filter(item => item.id !== value.id));
             setValue({ id: '', name: '' });
-            setNotification(notificationMessages.deleteSuccess.replace('{name}', value.name));
+            showNotification(notificationMessages.deleteSuccess.replace('{name}', value.name));
         } catch (err) {
             if (err.response && err.response.status === 404) {
-                setNotification(notificationMessages.deleteError.replace('{name}', value.name));
+                showNotification(notificationMessages.deleteError.replace('{name}', value.name));
             } else {
-                alert(err);
+                showNotification('Произошла ошибка при удалении.');
             }
         }
     };

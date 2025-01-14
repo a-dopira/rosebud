@@ -1,20 +1,22 @@
 import useAxios from '../hooks/useAxios';
+import { useNotification } from '../context/NotificationContext';
 
 const DeleteNotificationModal = ({
-    itemId,
-    itemType,
-    apiEndpoint,
-    setShowModal,
-    setNotification,
-    updateState,
-}) => {
+        itemId,
+        itemType,
+        apiEndpoint,
+        setShowModal,
+        updateState,
+    }) => {
+
     const api = useAxios();
+    const { showNotification } = useNotification();
 
     const deleteItem = async () => {
         try {
             await api.delete(`/${apiEndpoint}/${itemId}/`);
             setShowModal(false);
-            setNotification(`${itemType} успешно удален.`);
+            showNotification('Удаление успешно выполнено.');
 
             if (updateState) {
                 updateState((prevState) =>
@@ -30,7 +32,7 @@ const DeleteNotificationModal = ({
             }
 
         } catch (error) {
-            setNotification(error.message || 'Произошла ошибка при удалении.');
+            showNotification('Произошла ошибка при удалении.');
         }
     };
 

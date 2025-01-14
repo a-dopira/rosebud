@@ -4,6 +4,7 @@ import RegisterPage from "./pages/RegisterPage";
 import Homepage from "./pages/Homepage";
 import { DataProvider } from "./context/DataContext";
 import PrivateRouter from "./utils/PrivateRouter";
+import { NotificationProvider } from "./context/NotificationContext";
 import { useContext } from "react";
 import AuthContext from "./context/AuthContext";
 import Loading from "./utils/Loading";
@@ -16,12 +17,15 @@ function App() {
   const routes = useRoutes([
     { 
       path: 'home/*',
-      element: 
-      <DataProvider>
-        <PrivateRouter>
-          <Homepage/>
-        </PrivateRouter>
-      </DataProvider> },
+      element:
+      <NotificationProvider>
+        <DataProvider>
+          <PrivateRouter>
+            <Homepage/>
+          </PrivateRouter>
+        </DataProvider>
+      </NotificationProvider> 
+    },
     { path: 'login/*', element: <LoginPage/> },
     { path: 'register/*', element: <RegisterPage/> },
     { path: '/', element: <Navigate to="/login" replace /> },

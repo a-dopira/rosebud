@@ -46,13 +46,18 @@ module.exports = {
               'lemon-tuesday': ['Lemon Tuesday', 'cursive']
           },
           animation: {
-            fade: 'fadeIn .5s ease-in-out',
+            'fade-in': 'fade-in .75s ease-in-out forwards',
+            'fade-out': 'fade-out 0.5s ease-in-out forwards',
           },
 
           keyframes: {
-              fadeIn: {
-                  from: { opacity: 0 },
-                  to: { opacity: 1 },
+              'fade-in': {
+                '0%': { opacity: 0 },
+                '100%': { opacity: 1 },
+              },
+              'fade-out': {
+                '0%': { opacity: 1 },
+                '100%': { opacity: 0 },
               },
           },
       },

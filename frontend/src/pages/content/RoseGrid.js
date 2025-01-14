@@ -1,10 +1,7 @@
 import { useState, useContext } from "react"
 import { Link } from "react-router-dom"
 
-import { motion } from "framer-motion";
-
 import DataContext from "../../context/DataContext"
-import Notification from "../../utils/Notification";
 
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
@@ -13,7 +10,7 @@ function RoseGrid() {
     const [modal, setShowModal] = useState(false)
     const [roseId, setRoseId] = useState(null)
     const [roseName, setRoseName] = useState(null)
-    const [notification, setNotification] = useState(null);
+
     const { rosesList, setRosesList, message, currentPage, totalPages, loadRoses } = useContext(DataContext)
 
     const openModal = (id, title) => {
@@ -24,16 +21,12 @@ function RoseGrid() {
 
     if (!message && (!rosesList || rosesList.length <= 0)) {
         return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-            >
+            <div className="animate-fade-in">
                 <p className="text-xl">У вас пока нету роз. Добавьте новую розу!</p>
                 <button className="btn-red">
                     <Link to="/home/addrose/">Добавить</Link>
                 </button>
-            </motion.div>
+            </div>
         )
     }
 
@@ -50,11 +43,7 @@ function RoseGrid() {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-        >
+        <div className="animate-fade-in">
         {message && (
             <div className="text-black text-3xl mb-3 ml-8 z-20">
                 {message}
@@ -106,12 +95,10 @@ function RoseGrid() {
                 itemType={roseName}
                 apiEndpoint="roses"
                 setShowModal={setShowModal}
-                setNotification={setNotification}
                 updateState={setRosesList}
             />
         )}
-        {notification && <Notification message={notification}/>}
-        </motion.div>
+        </div>
         
     )
 }

@@ -4,7 +4,6 @@ import { useContext } from "react";
 import DataContext from "../../context/DataContext";
 import { Helmet } from 'react-helmet';
 import { Splide, SplideSlide } from "@splidejs/react-splide";
-import { motion } from "framer-motion";
 import "@splidejs/react-splide/css";
 
 const RoseMedia = () => {
@@ -13,18 +12,9 @@ const RoseMedia = () => {
     return (
         <>
             <Helmet>
-                <title>{rose.title} | Медиа</title>
+                <title>{`${rose.title} | Медиа`}</title>
             </Helmet>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
+            <div className="flex justify-center items-center animate-fade-in">
             <Splide
                 aria-label="My Favorite Images"
                 style={{
@@ -77,7 +67,7 @@ const RoseMedia = () => {
                     ) : null
                 }
             </Splide>
-            </motion.div>
+            </div>
             <RosePhoto/>
             <RoseVideo/>
         </>

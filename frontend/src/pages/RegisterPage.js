@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -29,13 +28,9 @@ function RegisterPage() {
   return (
     <>
       <Helmet>
-        <title>Регистрация</title>
+        <title>{'Регистрация'}</title>
       </Helmet>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
+      <div className="animate-fade-in">
         <div className="min-h-max mx-auto">
           <form className="max-w-sm mx-auto" onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-5">
@@ -94,7 +89,7 @@ function RegisterPage() {
             </div>
           </form>
         </div>
-      </motion.div>
+      </div>
     </>
   );
 }

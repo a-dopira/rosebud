@@ -72,7 +72,7 @@ function Profile() {
   return (
     <>
         <Helmet>
-            <title>{profileUsername ? profileUsername : 'Пупсик'} | Главная</title>
+            <title>{`${profileUsername ? profileUsername : 'Пупсик'} | Главная`}</title>
         </Helmet>
         <div className="px-2.5 rounded-3xl pattern-vertical-lines pattern-rose-500 pattern-size-16 pattern-bg-umbra pattern-opacity-100">
         <div className="text-center pt-5">

@@ -1,11 +1,10 @@
 import { useState, useContext } from "react";
 import useAxios from "../../hooks/useAxios";
 import DataContext from "../../context/DataContext";
-import Notification from "../../utils/Notification";
+import { useNotification } from "../../context/NotificationContext";
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
-import { motion } from "framer-motion";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 const ProductForm = ({ product, onSubmit }) => {
@@ -20,11 +19,9 @@ const ProductForm = ({ product, onSubmit }) => {
     };
 
     return (
-        <motion.form 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg" onSubmit={handleSubmit}
+        <form
+            className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg" 
+            onSubmit={handleSubmit}
         >
             <label className="text-xl font-bold">
                 Описание:
@@ -35,17 +32,20 @@ const ProductForm = ({ product, onSubmit }) => {
             </label>
             <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="file" value={video} onChange={e => setVideo(e.target.value)} />
             <button type="submit" className="btn-red mt-2">Изменить</button>
-        </motion.form>
+        </form>
     );
 };
 
 const Product = ({ product, productType, apiEndpoint }) => {
-    const { setRose } = useContext(DataContext)
-    const [isEditing, setIsEditing] = useState(false);
+
     const api = useAxios()
+
+    const { setRose } = useContext(DataContext)
+    const { showNotification } = useNotification();
+
+    const [isEditing, setIsEditing] = useState(false);
     const [modal, setShowModal] = useState(false)
     const [productId, setProductId] = useState(null)
-    const [notification, setNotification] = useState(null);
 
     const openModal = (id) => {
         setProductId(id);
@@ -66,6 +66,10 @@ const Product = ({ product, productType, apiEndpoint }) => {
                     );
                     return { ...prevRose, [apiEndpoint]: updatedProducts };
                 });
+                showNotification('Изменения успешно сохранены');
+            })
+            .catch(error => {
+                showNotification('Произошла ошибка при сохранении изменений');
             });
     };
 
@@ -74,19 +78,14 @@ const Product = ({ product, productType, apiEndpoint }) => {
             {isEditing ? (
                 <ProductForm product={product} onSubmit={handleSubmit} />
             ) : (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                    className="my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg"
-                >
+                <div className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg">
                     <div className="mt-2">
                         <span className="text-xl font-bold">Описание </span> {product.descr} 
                     </div>
                     <div className="mt-2">
                         <span className="text-xl font-bold">Фото: </span><img src={product.video} alt={product.descr}/> 
                     </div>
-                </motion.div>
+                </div>
             )}
             <button className="btn-red" onClick={handleEdit}>
                 {isEditing ? 'Отменить' : 'Изменить'}
@@ -98,26 +97,24 @@ const Product = ({ product, productType, apiEndpoint }) => {
                     itemType={productType}
                     apiEndpoint={apiEndpoint}
                     setShowModal={setShowModal}
-                    setNotification={setNotification}
                     updateState={(prevRose) =>
                         setRose((prevRose) => ({
                             ...prevRose,
                             [apiEndpoint]: prevRose[apiEndpoint].filter(
-                                (item) => item.id !== productId
+                                (product) =>product.id !== productId
                             ),
                         }))
                     }
                 />
             )}
-            {notification && <Notification message={notification} />}
         </div>
     );
 };
 
-const NewProductForm = ({setRose, apiEndpoint}) => {
+const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
     const api = useAxios()
-    const [notification, setNotification] = useState(null);
     const { roseId } = useParams()
+    const { showNotification } = useNotification();
 
     const validationSchema = Yup.object({
         descr: Yup.string().required('Обязательное поле'),
@@ -131,21 +128,30 @@ const NewProductForm = ({setRose, apiEndpoint}) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            const newProduct = {  rose: roseId, descr: values.descr, video: values.video }
+            const newProduct = {  
+                rose: roseId, 
+                descr: values.descr, 
+                video: values.video 
+            }
             await api.post(`/${apiEndpoint}/`, newProduct)
-            .then(response => {
-                setNotification('Обрезка успешна добавлена')
-                setRose(prevState => ({...prevState, [apiEndpoint]: [...prevState[apiEndpoint], response.data]}))
-            })
+                .then(response => {
+                    setRose(prevState => ({
+                        ...prevState, 
+                        [apiEndpoint]: [...prevState[apiEndpoint], response.data]
+                    }))
+                    showNotification('Добавление прошло успешно.');
+                    setShowForm(false)
+                })
+                .catch(err => {
+                    showNotification(`Ошибка: ${err.message}`)
+                })
         },
     });
 
     return (
         <>
-        <motion.form 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+        <form 
+            className="animate-fade-in"
             method="post" encType="multipart/form-data" 
             onSubmit={formik.handleSubmit}
         >
@@ -156,31 +162,35 @@ const NewProductForm = ({setRose, apiEndpoint}) => {
             <input type="file" name="video" className={`inline-block border-2 p-2 mr-2 rounded-md text-black w-full ${formik.touched.video && formik.errors.video ? 'error' : ''}`} value={formik.values.video} onChange={formik.handleChange} onBlur={formik.handleBlur} />
             {formik.touched.video && formik.errors.video ? <div className="text-red-500">{formik.errors.video}</div> : null}
             <button className="btn-red mt-2" type="submit">Добавить</button>
-        </motion.form>
-        { notification && <Notification message={notification} /> }
+        </form>
         </>
     );
 };
 
 const RoseVideo = () => {
     const { rose, setRose } = useContext(DataContext)
-
     const [showForm, setShowForm] = useState(false);
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-        >
+        <div className="animate-fade-in">
             <h1 className="text-center text-2xl font-bold pb-2 border-b-2 border-gray-200">Видео</h1>
             <button className='btn-red my-2' onClick={() => setShowForm(!showForm)}>{showForm ? 'Скрыть' : 'Добавить'}</button>
-            {showForm && <NewProductForm setRose={setRose} apiEndpoint={'videos'} setShowForm={setShowForm}/>}
+            {showForm && 
+            <NewProductForm 
+                setRose={setRose} 
+                apiEndpoint={'videos'} 
+                setShowForm={setShowForm}/>
+            }
             {rose.videos && rose.videos.map((video) => (
-                <Product key={video.id} productType={'видео'} product={video} apiEndpoint={'videos'} />
+                <Product 
+                    key={video.id} 
+                    productType={'видео'} 
+                    product={video} 
+                    apiEndpoint={'videos'} 
+                />
             ))}
 
-        </motion.div>
+        </div>
     )
 }
 

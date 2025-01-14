@@ -3,8 +3,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import DataContext from '../context/DataContext';
 import { useContext, useEffect } from 'react';
 
-import { motion } from 'framer-motion';
-
 // import Profile from "./profile/Profile";
 import Menu from "./menu/Menu";
 import RoseGrid from "./content/RoseGrid";
@@ -25,11 +23,7 @@ export default function Homepage() {
     }, [])
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-        >
+        <div className="animate-fade-in">
             <Menu/>
             <Routes>
                 <Route path="/" element={<RoseGrid key={location.pathname}/>}/>
@@ -40,6 +34,6 @@ export default function Homepage() {
                 <Route path="adjusting/" element={<Adjusting/>}/>
                 <Route path="/:roseId/*" element={<RoseLayout/>}/>
             </Routes>
-        </motion.div>
+        </div>
     )
 }

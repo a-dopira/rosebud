@@ -2,9 +2,7 @@ import { useContext, useState, useEffect } from "react"
 import DataContext from "../../context/DataContext"
 import { Link } from "react-router-dom"
 import useAxios from "../../hooks/useAxios"
-import Notification from "../../utils/Notification";
-import { useNotification } from "../../hooks/useNotification";
-import { AnimatePresence, motion } from "framer-motion";
+import { useNotification } from "../../context/NotificationContext";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 function RoseHeader() {
@@ -18,14 +16,7 @@ function RoseHeader() {
         rose,
     } = useContext(DataContext)
 
-    const variants = {
-        initial: { opacity: 0,},
-        animate: { opacity: 1,},
-        exit: { opacity: 0,  duration: 0.5}
-      };
-
-    const { notification, setNotificationMessage } = useNotification();
-
+    const { showNotification } = useNotification()
     const [modal, setShowModal] = useState(false)
     const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
@@ -37,18 +28,18 @@ function RoseHeader() {
 
     const updateRose = async (event) => {
         event.preventDefault()
-        setNotificationMessage(null)
+        showNotification(null)
         const updatedRose = new FormData(event.target);
 
         await api.patch(`roses/${rose.id}/`, updatedRose)
         .then(response => {
             setRose(response.data);
             setIsEditing(false)
-            setNotificationMessage(`Роза ${response.data.title} успешно обновлена.`)
+            showNotification(`Роза ${response.data.title} успешно обновлена.`)
         })
         .catch(error => {
             if (error.response.status === 400 || error.response.data.detail === 'Роза с таким title или title_eng уже существует.') {
-                setNotificationMessage(`Роза с названием ${event.target.title.value} или ${event.target.title_eng.value} уже существует`)
+                showNotification(`Роза с названием ${event.target.title.value} или ${event.target.title_eng.value} уже существует`)
             }
         })
     }
@@ -97,18 +88,9 @@ function RoseHeader() {
                 </div>
             </div>
             <div className="mt-5 border-solid border-gray-300 border-[1px] rounded-lg">
-                <AnimatePresence>
                 <div className="relative"> 
             {!isEditing ? (
-                <motion.div 
-                    key="info"
-                    variants={variants}
-                    initial="initial"
-                    animate="animate"
-                    transition={{ duration: 0.5 }} 
-                    id="infoRoseDescr" 
-                    className="p-5"
-                >
+                <div className="p-5 animate-fade-in">
                 <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
                     {rose.title} ({rose.title_eng})
                 </div>
@@ -127,17 +109,9 @@ function RoseHeader() {
                 <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
                     {rose.description ? `Описание:\n${rose.description}` : 'Добавьте описание'}
                 </div>
-            </motion.div>
+            </div>
             ) : (
-                <motion.div
-                key="edit"
-                variants={variants}
-                initial="initial"
-                animate="animate"
-                transition={{ duration: 0.5 }}
-                id="updateRoseDescr"
-                className="text-white text-sm bg-umbra pattern-vertical-lines pattern-rose-500
-                    pattern-size-16 pattern-bg-umbra pattern-opacity-100 rounded-lg border-solid border-gray-300 border-2">
+                <div className="text-white text-sm bg-umbra pattern-vertical-lines pattern-rose-500 pattern-size-16 pattern-bg-umbra pattern-opacity-100 rounded-lg border-solid border-gray-300 border-2 animate-fade-in">
                     <form encType="multipart/form-data" className="p-5" onSubmit={updateRose}>
                         <label className="inline-block w-full text-sm" htmlFor="title">Изменить название</label>
                         <input className="inline-block text-black rounded-lg w-full p-2" type="text" name="title" defaultValue={ rose.title }/>
@@ -163,14 +137,13 @@ function RoseHeader() {
                         <textarea className="inline-block text-black rounded-lg w-full" defaultValue={ rose.description } name="description"></textarea>
                         <button className="inline-block btn-red text-xl h-11" type="submit">Обновить</button>
                     </form>
-                </motion.div>
+                </div>
             )}
                 <div className="flex items-center justify-center p-5">
                     <button className="inline-block btn-red text-xl h-11" onClick={toggleEdit}>Изменить</button>
                     <button className="inline-block btn-red text-xl h-11" onClick={() => openModal()} >Удалить</button>
                 </div>
                 </div>
-                </AnimatePresence>
             </div>
         </div>
         {modal && (
@@ -179,7 +152,6 @@ function RoseHeader() {
                 itemType="розу"
                 apiEndpoint="roses"
                 setShowModal={setShowModal}
-                setNotification={setNotificationMessage}
                 updateState={setRosesList}
             />
         )}
@@ -189,7 +161,6 @@ function RoseHeader() {
                 itemType="фото"
                 apiEndpoint={`roses/${rose.id}/delete_photo`}
                 setShowModal={setShowDeletePhotoModal}
-                setNotification={setNotificationMessage}
                 updateState={prevState =>
                     setRose((prevRose) => ({
                         ...prevRose,
@@ -197,8 +168,7 @@ function RoseHeader() {
                     }))
                 }
             />
-)}
-        {notification && <Notification message={notification}/>}
+        )}
     </div>
     )
 }

@@ -1,13 +1,13 @@
 import { useEffect, useContext } from "react";
 import DataContext from "../../context/DataContext";
-import { motion } from "framer-motion";
 import useAxios from "../../hooks/useAxios";
-import Notification from "../../utils/Notification";
-import { useNotification } from "../../hooks/useNotification";
+import { useNotification } from "../../context/NotificationContext";
 
 function AddRose() {
+
     const api = useAxios();
-    const { notification, setNotificationMessage } = useNotification();
+    const { showNotification } = useNotification();
+
     const { 
         loadGroups, 
         groupList, 
@@ -26,15 +26,15 @@ function AddRose() {
         const formData = new FormData(event.target);
         api.post('roses/', formData)
             .then((response) => {
-                setNotificationMessage('Роза успешно создана');
                 setRosesList((prevRosesList) => (prevRosesList ? [...prevRosesList, response.data] : [response.data]));
+                showNotification('Роза успешно создана');
             })
             .catch((error) => {
                 if (
                     error.response.status === 400 ||
                     error.response.data.detail === 'Роза с таким title или title_eng уже существует.'
                 ) {
-                    setNotificationMessage(
+                    showNotification(
                         `Роза с названием ${event.target.title.value} или ${event.target.title_eng.value} уже существует`
                     );
                 }
@@ -88,12 +88,7 @@ function AddRose() {
 
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-                className="bg-amber-500 dotted-back p-5 rounded-3xl flex items-center justify-center"
-            >
+            <div className="animate-fade-in bg-amber-500 dotted-back p-5 rounded-3xl flex items-center justify-center">
                 <div className="w-4/5">
                     <div className="bg-rose-500 mx-auto dotted-back px-5 py-1.5 text-white rounded-md flex items-center justify-center">
                         <h2 className="text-4xl h-20 text-white flex items-center justify-center">ДОБАВИТЬ РОЗУ</h2>
@@ -122,8 +117,7 @@ function AddRose() {
                         </div>
                     </form>
                 </div>
-            </motion.div>
-            {notification && <Notification message={notification} />}
+            </div>
         </>
     );
 }
