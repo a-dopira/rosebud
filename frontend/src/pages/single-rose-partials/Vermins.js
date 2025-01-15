@@ -4,7 +4,7 @@ import { useFormik } from 'formik'
 import { useNotification } from "../../context/NotificationContext";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 import useAxios from "../../hooks/useAxios";
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import * as Yup from 'yup';
 
 const ProductForm = ({ product, onSubmit, productType, vermins, type }) => {
@@ -54,7 +54,7 @@ const Product = ({ product, productType, apiEndpoint, vermins, type }) => {
     
     const api = useAxios()
 
-    const { setRose } = useContext(DataContext)
+    const { setRose } = useContext(RoseContext)
     const { showNotification } = useNotification()
 
     const [isEditing, setIsEditing] = useState(false);
@@ -137,7 +137,7 @@ const NewProductForm = ({vermins, type, verminType, apiEndpoint, setShowModal}) 
 
     const api = useAxios()
 
-    const { setRose } = useContext(DataContext)
+    const { setRose } = useContext(RoseContext)
     const { showNotification } = useNotification()
     
     const { roseId } = useParams()

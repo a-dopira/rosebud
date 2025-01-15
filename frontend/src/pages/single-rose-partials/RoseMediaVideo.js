@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import useAxios from "../../hooks/useAxios";
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import { useNotification } from "../../context/NotificationContext";
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
@@ -40,7 +40,7 @@ const Product = ({ product, productType, apiEndpoint }) => {
 
     const api = useAxios()
 
-    const { setRose } = useContext(DataContext)
+    const { setRose } = useContext(RoseContext)
     const { showNotification } = useNotification();
 
     const [isEditing, setIsEditing] = useState(false);
@@ -112,6 +112,7 @@ const Product = ({ product, productType, apiEndpoint }) => {
 };
 
 const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
+
     const api = useAxios()
     const { roseId } = useParams()
     const { showNotification } = useNotification();
@@ -168,7 +169,8 @@ const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
 };
 
 const RoseVideo = () => {
-    const { rose, setRose } = useContext(DataContext)
+
+    const { rose, setRose } = useContext(RoseContext)
     const [showForm, setShowForm] = useState(false);
 
     return (

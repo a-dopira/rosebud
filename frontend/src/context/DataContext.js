@@ -9,7 +9,6 @@ export function DataProvider({ children }) {
     const [pests, setPests] = useState([]);
     const [fungi, setFungi] = useState([]);
     const [rosesList, setRosesList] = useState([]);
-    const [rose, setRose] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -70,18 +69,12 @@ export function DataProvider({ children }) {
         }
     }
 
-    const loadRose = async (id) => {
-        const response = await api.get(`roses/${id}/`)
-        setRose(response.data)
-    }
-
     const contextData = {
         groupList,
         breederList,
         pests,
         fungi,
         rosesList,
-        rose,
         message,
         currentPage,
         totalPages,
@@ -90,14 +83,12 @@ export function DataProvider({ children }) {
         setPests,
         setFungi,
         setRosesList,
-        setRose,
         setMessage,
         loadGroups,
         loadBreeders,
         loadPests,
         loadFungi,
         loadRoses,
-        loadRose,
     }
 
     return (

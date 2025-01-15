@@ -1,15 +1,16 @@
+import { useContext, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 
 import DataContext from '../context/DataContext';
-import { useContext, useEffect } from 'react';
 
-// import Profile from "./profile/Profile";
 import Menu from "./menu/Menu";
 import RoseGrid from "./content/RoseGrid";
 import AddRose from "./content/AddRose";
 import Adjusting from "./menu-items/Adjusting";
 import Collection from "./menu-items/Collection";
 import RoseLayout from "./content/RoseLayout";
+
+import { RoseProvider } from '../context/RoseContext';
 
 export default function Homepage() {
 
@@ -32,7 +33,14 @@ export default function Homepage() {
                 <Route path="/search/" element={<RoseGrid key={location.pathname}/>}/>
                 <Route path="addrose/" element={<AddRose/>}/>
                 <Route path="adjusting/" element={<Adjusting/>}/>
-                <Route path="/:roseId/*" element={<RoseLayout/>}/>
+                <Route 
+                    path="/:roseId/*" 
+                    element={
+                        <RoseProvider>
+                            <RoseLayout/>
+                        </RoseProvider>
+                    }
+                />
             </Routes>
         </div>
     )

@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import useAxios from "../../hooks/useAxios";
 import { useNotification } from "../../context/NotificationContext";
 import { Helmet } from 'react-helmet';
@@ -39,7 +39,7 @@ const ProductForm = ({ product, onSubmit }) => {
 const Product = ({ product, productType, apiEndpoint }) => {
     const api = useAxios();
 
-    const { setRose } = useContext(DataContext);
+    const { setRose } = useContext(RoseContext);
     const { showNotification } = useNotification();
 
     const [isEditing, setIsEditing] = useState(false);
@@ -165,7 +165,7 @@ const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
 
 const Foliage = () => {
 
-    const { rose, setRose } = useContext(DataContext)
+    const { rose, setRose } = useContext(RoseContext)
     const [showForm, setShowForm] = useState(false);
 
     return (

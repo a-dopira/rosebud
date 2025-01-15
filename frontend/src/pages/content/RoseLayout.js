@@ -8,16 +8,18 @@ import Feeding from "../single-rose-partials/RoseFeedings"
 import RoseNote from "../single-rose-partials/RoseNote"
 import RoseMedia from "../single-rose-partials/RoseMedia"
 
-import DataContext from "../../context/DataContext"
+import RoseContext from "../../context/RoseContext"
 
 function RoseLayout() {
     const { roseId } = useParams()
 
-    const { loadRose } = useContext(DataContext)
+    const { loadRose } = useContext(RoseContext)
 
     useEffect(() => {
         loadRose(roseId)
     }, [])
+    
+    console.log(roseId)
 
     return (
         <>

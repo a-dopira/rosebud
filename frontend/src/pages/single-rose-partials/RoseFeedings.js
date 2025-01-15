@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useNotification } from "../../context/NotificationContext";
 import { useParams } from "react-router-dom";
 import { useFormik } from 'formik'
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import useAxios from "../../hooks/useAxios";
 import * as Yup from 'yup';
 import { Helmet } from 'react-helmet'
@@ -50,7 +50,7 @@ const Product = ({ product, productType, apiEndpoint }) => {
 
     const api = useAxios()
 
-    const { setRose } = useContext(DataContext)
+    const { setRose } = useContext(RoseContext)
     const { showNotification } = useNotification()
 
     const [isEditing, setIsEditing] = useState(false);
@@ -189,7 +189,7 @@ const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
 };
 
 const Feeding = () => {
-    const { rose, setRose } = useContext(DataContext);
+    const { rose, setRose } = useContext(RoseContext);
     const [showForm, setShowForm] = useState(false);
 
     return (

@@ -11,7 +11,14 @@ function RoseGrid() {
     const [roseId, setRoseId] = useState(null)
     const [roseName, setRoseName] = useState(null)
 
-    const { rosesList, setRosesList, message, currentPage, totalPages, loadRoses } = useContext(DataContext)
+    const { 
+        rosesList, 
+        setRosesList, 
+        message,
+        currentPage,
+        totalPages,
+        loadRoses
+     } = useContext(DataContext)
 
     const openModal = (id, title) => {
         setRoseName(title)

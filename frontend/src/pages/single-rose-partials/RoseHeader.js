@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from "react"
 import DataContext from "../../context/DataContext"
+import RoseContext from "../../context/RoseContext"
 import { Link } from "react-router-dom"
 import useAxios from "../../hooks/useAxios"
 import { useNotification } from "../../context/NotificationContext";
@@ -9,12 +10,12 @@ function RoseHeader() {
 
     const { 
         setRosesList, 
-        setRose,
         loadBreeders,
         loadRoses, 
         breederList, 
-        rose,
     } = useContext(DataContext)
+
+    const { rose, setRose } = useContext(RoseContext)
 
     const { showNotification } = useNotification()
     const [modal, setShowModal] = useState(false)

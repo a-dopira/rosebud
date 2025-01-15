@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import Sizes from "./RoseNoteSizes";
 import useAxios from "../../hooks/useAxios";
 import { useNotification } from "../../context/NotificationContext";
@@ -9,7 +9,7 @@ function RoseNote() {
 
     const api = useAxios()
 
-    const { rose, setRose } = useContext(DataContext)
+    const { rose, setRose } = useContext(RoseContext)
     const { showNotification } = useNotification()
 
     const [observation, setObservation] = useState(rose.observation)

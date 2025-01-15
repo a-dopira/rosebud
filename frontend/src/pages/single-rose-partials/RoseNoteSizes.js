@@ -1,11 +1,11 @@
 import { useState, useContext } from "react";
 import { useNotification } from "../../context/NotificationContext";
-import DataContext from "../../context/DataContext";
 import useAxios from "../../hooks/useAxios";
 import { useParams } from "react-router-dom";
 import * as Yup from 'yup';
 import { useFormik } from 'formik'
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
+import RoseContext from "../../context/RoseContext";
 
 const ProductForm = ({ product, onSubmit }) => {
     const [height, setHeight] = useState(product.height);
@@ -43,7 +43,7 @@ const ProductForm = ({ product, onSubmit }) => {
 const Product = ({ product, productType, apiEndpoint }) => {
     const api = useAxios()
 
-    const { rose, setRose } = useContext(DataContext)
+    const { rose, setRose } = useContext(RoseContext)
     const { showNotification } = useNotification()
 
     const [isEditing, setIsEditing] = useState(false);
@@ -117,7 +117,7 @@ const Product = ({ product, productType, apiEndpoint }) => {
     );
 };
 
-const NewProductForm = ({setRose, apiEndpoint, setShowForm}) => {
+const NewProductForm = ({ setRose, apiEndpoint, setShowForm }) => {
 
     const api = useAxios()
     const { roseId } = useParams()
@@ -177,7 +177,7 @@ const NewProductForm = ({setRose, apiEndpoint, setShowForm}) => {
 
 const Sizes = () => {
 
-    const { rose, setRose } = useContext(DataContext)
+    const { rose, setRose } = useContext(RoseContext)
     const [showForm, setShowForm] = useState(false);
 
     return (

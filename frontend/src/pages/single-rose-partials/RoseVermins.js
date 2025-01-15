@@ -1,10 +1,12 @@
 import { useEffect, useContext, useState } from 'react';
 import DataContext from '../../context/DataContext';
+import RoseContext from '../../context/RoseContext';
 import { Helmet } from 'react-helmet';
 
 import { NewProductForm, Product } from './Vermins';
 
 const Pesticides = ({ rosePesticides }) => {
+    
     const { pests, loadPests } = useContext(DataContext)
 
     const [showForm, setShowForm] = useState(false);
@@ -29,7 +31,8 @@ const Pesticides = ({ rosePesticides }) => {
 
 const Fungicides = ({ roseFungicides }) => {
     
-    const { fungi, loadFungi, setRose } = useContext(DataContext)
+    const { fungi, loadFungi } = useContext(DataContext)
+    const { setRose } = useContext(RoseContext)
 
     const [showForm, setShowForm] = useState(false);
 
@@ -51,7 +54,7 @@ const Fungicides = ({ roseFungicides }) => {
 
 const MedControl = () => {
 
-    const { rose } = useContext(DataContext)
+    const { rose } = useContext(RoseContext)
 
     return (
         <>

@@ -12,6 +12,7 @@ export const NotificationProvider = ({ children }) => {
   const removeTimeoutRef = useRef(null);
 
   const showNotification = (message) => {
+
     // Clear any existing timeouts if a new notification appears quickly
     if (fadeOutTimeoutRef.current) clearTimeout(fadeOutTimeoutRef.current);
     if (removeTimeoutRef.current) clearTimeout(removeTimeoutRef.current);
@@ -20,15 +21,13 @@ export const NotificationProvider = ({ children }) => {
     setVisible(true);
     setIsFadingOut(false);
 
-    // After 2 seconds, trigger fade-out
     fadeOutTimeoutRef.current = setTimeout(() => {
       setIsFadingOut(true);
 
-      // Wait 0.5s for fade-out animation to complete, then unmount
       removeTimeoutRef.current = setTimeout(() => {
         setVisible(false);
         setNotification(null);
-      }, 500); // matches the .5s fade-out
+      }, 500); // the .5s fade-out
     }, 2000);
   };
 

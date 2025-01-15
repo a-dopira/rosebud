@@ -7,7 +7,7 @@ import PrivateRouter from "./utils/PrivateRouter";
 import { NotificationProvider } from "./context/NotificationContext";
 import { useContext } from "react";
 import AuthContext from "./context/AuthContext";
-import Loading from "./utils/Loading";
+import Loader from "./utils/Loader";
 
 
 function App() {
@@ -31,17 +31,19 @@ function App() {
     { path: '/', element: <Navigate to="/login" replace /> },
   ]);
 
+  
+  if (authLoading) {
+    return <Loader/>
+  }
+
   return (
-    <>
-      { authLoading ? <Loading/> : null }
-      <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra pattern-size-6
+    <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra pattern-size-6
       pattern-opacity-100 min-h-screen flex items-center justify-center font-hedwig">
-        <div className="bg-white rounded-large lg:w-2/3 md:w-full mx-auto my-auto p-12 shadow-1xl">
-            {routes}
-        </div>
-      </div>  
-    </>
-  );
+      <div className="bg-white rounded-large lg:w-2/3 md:w-full mx-auto my-auto p-12 shadow-1xl">
+          {routes}
+      </div>
+    </div>  
+);
 }
 
 export default App;

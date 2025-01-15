@@ -1,13 +1,14 @@
 import RosePhoto from "./RoseMediaPhoto";
 import RoseVideo from "./RoseMediaVideo";
 import { useContext } from "react";
-import DataContext from "../../context/DataContext";
+import RoseContext from "../../context/RoseContext";
 import { Helmet } from 'react-helmet';
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 
 const RoseMedia = () => {
-    const { rose } = useContext(DataContext)
+
+    const { rose } = useContext(RoseContext)
 
     return (
         <>
