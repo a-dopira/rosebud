@@ -1,4 +1,4 @@
-import useAxios from "../../hooks/useAxios";
+import useRosebud from "../../hooks/useRosebud";
 import { useNotification } from "../../context/NotificationContext";
 
 const AdjustForm = ({ 
@@ -11,23 +11,17 @@ const AdjustForm = ({
     listId, 
     setList,
 }) => {
-
-    const api = useAxios();
+    const { loadResources } = useRosebud();
     const { showNotification } = useNotification();
-
 
     const handleAdd = async () => {
         try {
-            const response = await api.post(endpoint, { name: value.name });
-            setList(prevList => (prevList ? [...prevList, response.data] : [response.data]));
+            const data = await loadResources(endpoint, { method: 'POST', body: { name: value.name } });
+            setList(prevList => [...prevList, data]);
             setValue({ id: '', name: '' });
             showNotification(notificationMessages.addSuccess.replace('{name}', value.name));
         } catch (err) {
-            if (err.response && err.response.status === 400) {
-                showNotification(notificationMessages.addError.replace('{name}', value.name));
-            } else {
-                alert(err);
-            }
+            showNotification(notificationMessages.addError.replace('{name}', value.name));
         }
     };
 
@@ -37,16 +31,12 @@ const AdjustForm = ({
             return;
         }
         try {
-            await api.delete(`${endpoint}${value.id}/`);
+            await loadResources(`${endpoint}${value.id}/`, { method: 'DELETE' });
             setList(prevList => prevList.filter(item => item.id !== value.id));
             setValue({ id: '', name: '' });
             showNotification(notificationMessages.deleteSuccess.replace('{name}', value.name));
         } catch (err) {
-            if (err.response && err.response.status === 404) {
-                showNotification(notificationMessages.deleteError.replace('{name}', value.name));
-            } else {
-                showNotification('Произошла ошибка при удалении.');
-            }
+            showNotification(notificationMessages.deleteError.replace('{name}', value.name));
         }
     };
 
@@ -76,4 +66,4 @@ const AdjustForm = ({
     );
 };
 
-export default AdjustForm
+export default AdjustForm;

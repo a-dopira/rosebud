@@ -4,15 +4,15 @@ import CategorySelect from "../menu-items/CategorySelect";
 import NavButton from "../../utils/NavButton";
 
 
-export default function Menu() {
+export default function Menu({setFilter}) {
     return (
         <div className="flex w-full bg-amber-500 rounded-3xl px-3 h-24 dotted-back mx-auto items-center justify-between my-12">
-            <SearchPanel/>
+            <SearchPanel setFilter={setFilter}/>
             <Logout/>
-            <NavButton to="/home/collection">Колекция</NavButton>
-            <NavButton to="/home/addrose/">Добавить розу</NavButton>
-            <NavButton to="/home/adjusting/">Настроить</NavButton>
-            <CategorySelect/>
+            <NavButton to="home/collection/">Колекция</NavButton>
+            <NavButton to="/addrose/">Добавить розу</NavButton>
+            <NavButton to="/adjusting/">Настроить</NavButton>
+            <CategorySelect setFilter={setFilter}/>
         </div>
     )
 }

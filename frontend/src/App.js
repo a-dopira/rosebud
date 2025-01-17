@@ -2,11 +2,12 @@ import { Navigate, useRoutes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Homepage from "./pages/Homepage";
-import { DataProvider } from "./context/DataContext";
+// import { DataProvider } from "./context/DataContext";
 import PrivateRouter from "./utils/PrivateRouter";
 import { NotificationProvider } from "./context/NotificationContext";
 import { useContext } from "react";
 import AuthContext from "./context/AuthContext";
+import useRosebud from "./hooks/useRosebud";
 import Loader from "./utils/Loader";
 
 
@@ -14,16 +15,18 @@ function App() {
 
   const { authLoading } = useContext(AuthContext);
 
+  const { loading } = useRosebud();
+
   const routes = useRoutes([
     { 
-      path: 'home/*',
+      path: '/*',
       element:
       <NotificationProvider>
-        <DataProvider>
+        {/* <DataProvider> */}
           <PrivateRouter>
             <Homepage/>
           </PrivateRouter>
-        </DataProvider>
+        {/* </DataProvider> */}
       </NotificationProvider> 
     },
     { path: 'login/*', element: <LoginPage/> },
@@ -32,7 +35,7 @@ function App() {
   ]);
 
   
-  if (authLoading) {
+  if (authLoading || loading) {
     return <Loader/>
   }
 

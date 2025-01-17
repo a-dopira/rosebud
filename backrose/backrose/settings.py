@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'corsheaders',
-    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     
@@ -115,7 +114,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'userprofile.authenticate.CustomAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 SIMPLE_JWT = {

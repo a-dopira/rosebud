@@ -1,25 +1,19 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DataContext from '../../context/DataContext';
 import Magnifier from '../../utils/Magnifier';
 
-function SearchPanel() {
+function SearchPanel({ setFilter }) {
 
-  const { loadRoses } = useContext(DataContext);
   const [inputValue, setInputValue] = useState('');
   const navigate = useNavigate();
 
-  const onSubmit = async (event) => {
+  const onSubmit = (event) => {
       event.preventDefault();
       const searchValue = inputValue.trim();
       if (!searchValue) return;
 
-      const results = await loadRoses(1, {search: searchValue}, searchValue);
-      if (results?.length > 0) {
-          navigate(`/home/search/?search=${searchValue}`);
-      } else {
-          navigate('/home/');
-      }
+      setFilter(searchValue);
+      navigate(`home/search/?search=${searchValue}`);
       setInputValue('')
   };
 

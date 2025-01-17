@@ -69,7 +69,7 @@ function RoseHeader() {
             <div className="flex">
                 <div className="flex h-8 bg-umbra rounded-l-full">
                     <Link className="flex bg-rose-500 px-2 py-1 text-white rounded-l-full justify-center text-center hover:text-white"
-                       to={`/home/group/${rose.group_name}`} onClick={() => loadRoses(1, { group: rose.group }, rose.group_name)}>
+                       to={`home/group/${rose.group_name}`} onClick={() => loadRoses(1, { group: rose.group }, rose.group_name)}>
                     { rose.group_name }
                     </Link>
                     <div className="w-0 h-0

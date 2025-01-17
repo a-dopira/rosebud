@@ -1,24 +1,13 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend, CharFilter, FilterSet
 from rest_framework import viewsets, status
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db import IntegrityError
 
 from .pagination import RosePagination
 from .models import Group, Breeder, Rose, Pest, Pesticide, Fungus, Fungicide, Size, Feeding, RosePhoto, Video, Foliage
 from .serializers import GroupSerializer, RoseSerializer, RoseListSerializer, BreederSerializer, PestSerializer, PesticideSerializer, FungicideSerializer, FungusSerializer, SizeSerializer, FeedingSerializer, RosePhotoSerializer, VideoSerializer, FoliageSerializer
-
-class RoseFilter(FilterSet):
-    title = CharFilter(lookup_expr='iregex')
-    title_eng = CharFilter(lookup_expr='iregex')
-    breeder = CharFilter(field_name='breeder__name', lookup_expr='iregex')
-
-    class Meta:
-        model = Rose
-        fields = ['title', 'title_eng', 'breeder', 'group']
 
 
 class BreederViewSet(viewsets.ModelViewSet):
@@ -32,9 +21,24 @@ class RoseViewSet(viewsets.ModelViewSet):
     serializer_class = RoseSerializer
     pagination_class = RosePagination
     permission_classes = [IsAuthenticated]
-    filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['title', 'title_eng', 'breeder__name']
-    filterset_class = RoseFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        group = self.request.query_params.get('group')
+        search = self.request.query_params.get('search')
+
+        if group:
+            queryset = queryset.filter(group=group)
+
+        if search:
+            queryset = queryset.filter(
+                Q(title__iregex=search) | 
+                Q(title_eng__iregex=search) | 
+                Q(breeder__name__iregex=search)
+            )
+        
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -1,11 +1,11 @@
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { Link } from "react-router-dom"
 
 import DataContext from "../../context/DataContext"
 
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
-function RoseGrid() {
+function RoseGrid({ filter }) {
 
     const [modal, setShowModal] = useState(false)
     const [roseId, setRoseId] = useState(null)
@@ -31,7 +31,7 @@ function RoseGrid() {
             <div className="animate-fade-in">
                 <p className="text-xl">У вас пока нету роз. Добавьте новую розу!</p>
                 <button className="btn-red">
-                    <Link to="/home/addrose/">Добавить</Link>
+                    <Link to="home/addrose/">Добавить</Link>
                 </button>
             </div>
         )
@@ -60,7 +60,7 @@ function RoseGrid() {
             { rosesList.map(rose => (
                 <div id={rose.id} key={rose.id} className="mx-auto relative">
                     <div className="flex flex-col items-center h-60 w-56 cursor-pointer border-[1px] border-solid border-gray-300 rounded-3xl hover:translate-y-[-2px] hover:shadow-3xl shadow-1xl">
-                        <Link to={`/home/${rose.id}/notes`} className="text-center">
+                        <Link to={`home/${rose.id}/notes`} className="text-center">
                             <img src={rose.photo} alt={rose.title} className="mb-2 p-4 h-48 object-contain"/>
                             <div>{rose.title}</div>
                         </Link>

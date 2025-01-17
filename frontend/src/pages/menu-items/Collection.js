@@ -1,9 +1,11 @@
-import { useContext, useEffect } from "react";
-import DataContext from "../../context/DataContext";
+import { useEffect, useContext } from "react";
 import RoseGrid from "../content/RoseGrid";
+import DataContext from "../../context/DataContext";
+// import useRosebud from "../../hooks/useRosebud";
 
 function Collection() {
     const { loadRoses, setMessage } = useContext(DataContext);
+    // const { loadRoses } = useRosebud();
 
     useEffect(() => {
         setMessage(null);

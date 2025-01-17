@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 const baseURL = "http://127.0.0.1:8000/api/";
 
 const useAxios = () => {
@@ -21,10 +20,8 @@ const useAxios = () => {
 
         try {
           await instance.post('/token/refresh/', {}, { withCredentials: true });
-          console.log('poop1')
           return instance(originalRequest);
         } catch (refreshError) {
-          console.log('poop2')
           return Promise.reject(refreshError);
         }
       }

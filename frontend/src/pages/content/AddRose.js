@@ -1,6 +1,6 @@
-import { useEffect, useContext } from "react";
-import DataContext from "../../context/DataContext";
+import { useEffect, useState } from "react";
 import useAxios from "../../hooks/useAxios";
+import useRosebud from "../../hooks/useRosebud";
 import { useNotification } from "../../context/NotificationContext";
 
 function AddRose() {
@@ -8,17 +8,21 @@ function AddRose() {
     const api = useAxios();
     const { showNotification } = useNotification();
 
-    const { 
-        loadGroups, 
-        groupList, 
-        loadBreeders, 
-        breederList, 
-        setRosesList 
-    } = useContext(DataContext);
+    const { loadResources } = useRosebud();
 
+    const [groups, setGroups] = useState([]);
+    const [breeders, setBreeders] = useState([]);
+    
     useEffect(() => {
-        loadGroups();
-        loadBreeders();
+        const fetchData = async () => {
+
+            const groups = await loadResources('groups/');
+            const breeders = await loadResources('/breeders/');
+            setGroups(groups);
+            setBreeders(breeders);
+        };
+    
+        fetchData();
     }, []);
 
     const handleSubmit = async (event) => {
@@ -26,7 +30,6 @@ function AddRose() {
         const formData = new FormData(event.target);
         api.post('roses/', formData)
             .then((response) => {
-                setRosesList((prevRosesList) => (prevRosesList ? [...prevRosesList, response.data] : [response.data]));
                 showNotification('Роза успешно создана');
             })
             .catch((error) => {
@@ -95,8 +98,8 @@ function AddRose() {
                     </div>
                     <form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
                         {fields.map(renderField)}
-                        {renderSelect({ label: 'Группы', name: 'group', options: groupList })}
-                        {renderSelect({ label: 'Селекционеры', name: 'breeder', options: breederList })}
+                        {renderSelect({ label: 'Группы', name: 'group', options: groups })}
+                        {renderSelect({ label: 'Селекционеры', name: 'breeder', options: breeders })}
                         {textAreas.map(({ label, name }) => (
                             <p className="w-full text-sm rounded-md p-2 mr-2" key={name}>
                                 <label className="text-black inline-block min-w-[245px] text-2xl font-bold" htmlFor={name}>
@@ -123,4 +126,3 @@ function AddRose() {
 }
 
 export default AddRose
-

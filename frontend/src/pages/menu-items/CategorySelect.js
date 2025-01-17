@@ -1,19 +1,26 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect, useContext, useRef } from "react";
-import DataContext from "../../context/DataContext";
+import { useState, useEffect, useRef } from "react";
+import useRosebud from "../../hooks/useRosebud";
 import dropdown_arrow from '../../assets/icons/down-arrow-svgrepo-com.svg'
 
 
-function CategorySelect() {
+function CategorySelect({ setFilter }) {
 
-    const { groupList, loadGroups, loadRoses } = useContext(DataContext);
+    const { loadResources } = useRosebud();
     const [isOpen, setIsOpen] = useState(false)
+    const [groups, setGroups] = useState([]);
 
     const node = useRef();
 
 
     useEffect(() => {
-        loadGroups();
+        const fetchData = async () => {
+
+            const groups = await loadResources('groups/');
+            setGroups(groups);
+        };
+
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -46,9 +53,9 @@ function CategorySelect() {
                 <ul
                     className={isOpen ? groupClasses + ' group-hover:block' : groupClasses + ' hidden'}
                 >
-                    {groupList.map(group => (
+                    {groups.map(group => (
                         <li key={group.id} className="drop-menu-item w-full hover:bg-gray-100 z-10">
-                            <Link to={`/home/group/${group.name}`} onClick={() => loadRoses(1, { group: group.id }, group.name)}>
+                            <Link to={`home/group/${group.name}`} onClick={() => setFilter(group.name)}>
                                 <div className="cursor-pointer hover:bg-gray-300 p-3">
                                     {group.name} ({group.rose_count})
                                 </div>

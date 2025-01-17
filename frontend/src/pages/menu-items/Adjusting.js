@@ -1,37 +1,38 @@
-import { useState, useContext } from 'react';
-import DataContext from '../../context/DataContext';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import useRosebud from '../../hooks/useRosebud';
 import AdjustForm from './AdjustForm';
 
 function Adjusting() {
-    const { 
-        groupList, 
-        setGroupList, 
-        breederList, 
-        setBreederList,
-        pests,
-        setPests,
-        fungi,
-        setFungi 
-    } = useContext(DataContext);
 
-    const [groupId, setGroupId] = useState('');
-    const [groupName, setGroupName] = useState(''); 
-    const [breederId, setBreederId] = useState('');
-    const [breederName, setBreederName] = useState('');
-    const [pestId, setPestId] = useState('');
-    const [pestName, setPestName] = useState('');
-    const [fungusId, setFungusId] = useState('');
-    const [fungusName, setFungusName] = useState('');
+    const { loadResources } = useRosebud();
+
+    const [group, setGroup] = useState({ id: '', name: '' });
+    const [breeder, setBreeder] = useState({ id: '', name: '' });
+    const [pest, setPest] = useState({ id: '', name: '' });
+    const [fungus, setFungus] = useState({ id: '', name: '' });
+
+    const [groupList, setGroupList] = useState([]);
+    const [breederList, setBreederList] = useState([]);
+    const [pests, setPests] = useState([]);
+    const [fungi, setFungi] = useState([]);
+
+    useEffect(() => {
+        const fetchResources = async () => {
+            await loadResources('groups/').then(setGroupList)
+            await loadResources('breeders/').then(setBreederList)
+            await loadResources('pests/').then(setPests)
+            await loadResources('fungi/').then(setFungi)
+        };
+    
+        fetchResources();
+    }, []);
 
     const configData = [
         {
             label: "Настроить группу:",
-            value: { id: groupId, name: groupName },
-            setValue: ({ id, name }) => {
-                setGroupId(id);
-                setGroupName(name);
-            },
+            value: group,
+            setValue: setGroup,
             list: groupList,
             endpoint: 'groups/',
             notificationMessages: {
@@ -46,11 +47,8 @@ function Adjusting() {
         },
         {
             label: "Настроить селекционера:",
-            value: { id: breederId, name: breederName },
-            setValue: ({ id, name }) => {
-                setBreederId(id);
-                setBreederName(name);
-            },
+            value: breeder,
+            setValue: setBreeder,
             list: breederList,
             endpoint: 'breeders/',
             notificationMessages: {
@@ -65,11 +63,8 @@ function Adjusting() {
         },
         {
             label: "Настроить вредителей:",
-            value: { id: pestId, name: pestName },
-            setValue: ({ id, name }) => {
-                setPestId(id);
-                setPestName(name);
-            },
+            value: pest,
+            setValue: setPest,
             list: pests,
             endpoint: 'pests/',
             notificationMessages: {
@@ -84,11 +79,8 @@ function Adjusting() {
         },
         {
             label: "Настроить грибы:",
-            value: { id: fungusId, name: fungusName },
-            setValue: ({ id, name }) => {
-                setFungusId(id);
-                setFungusName(name);
-            },
+            value: fungus,
+            setValue: setFungus,
             list: fungi,
             endpoint: 'fungi/',
             notificationMessages: {
