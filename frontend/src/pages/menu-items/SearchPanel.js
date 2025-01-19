@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DataContext from '../../context/DataContext';
 import Magnifier from '../../utils/Magnifier';
 
-function SearchPanel({ setFilter }) {
+function SearchPanel() {
 
+  const { setFilter } = useContext(DataContext);
   const [inputValue, setInputValue] = useState('');
   const navigate = useNavigate();
 
   const onSubmit = (event) => {
       event.preventDefault();
+      
       const searchValue = inputValue.trim();
+
       if (!searchValue) return;
 
-      setFilter(searchValue);
+      setFilter({ search: searchValue });
       navigate(`home/search/?search=${searchValue}`);
       setInputValue('')
   };

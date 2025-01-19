@@ -1,30 +1,52 @@
-import { useState, useContext, useEffect } from "react"
-import { Link } from "react-router-dom"
+import { useState, useContext, useEffect, useCallback } from "react"
+import { useLocation,Link } from "react-router-dom"
 
-import DataContext from "../../context/DataContext"
+import DataContext from "../../context/DataContext";
+import RoseListContext from "../../context/RoseListContext"
 
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
-function RoseGrid({ filter }) {
+function RoseGrid() {
 
     const [modal, setShowModal] = useState(false)
     const [roseId, setRoseId] = useState(null)
     const [roseName, setRoseName] = useState(null)
 
+    const location = useLocation()
+
     const { 
         rosesList, 
         setRosesList, 
         message,
+        setMessage,
         currentPage,
         totalPages,
-        loadRoses
-     } = useContext(DataContext)
+        loadRoses,
+        setQueryParam
+     } = useContext(RoseListContext)
 
-    const openModal = (id, title) => {
+     const { filter } = useContext(DataContext)
+
+     useEffect(() => {
+        setRosesList([]);
+        setMessage(null);
+        setQueryParam({});
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (filter) {
+            setQueryParam(filter);
+            loadRoses(1, filter);
+        } else {
+            loadRoses(1, {});
+        }
+    }, [filter]);
+
+    const openModal = useCallback((id, title) => {
         setRoseName(title)
         setRoseId(id);
         setShowModal(true);
-    };
+    }, []);
 
     if (!message && (!rosesList || rosesList.length <= 0)) {
         return (
@@ -60,7 +82,7 @@ function RoseGrid({ filter }) {
             { rosesList.map(rose => (
                 <div id={rose.id} key={rose.id} className="mx-auto relative">
                     <div className="flex flex-col items-center h-60 w-56 cursor-pointer border-[1px] border-solid border-gray-300 rounded-3xl hover:translate-y-[-2px] hover:shadow-3xl shadow-1xl">
-                        <Link to={`home/${rose.id}/notes`} className="text-center">
+                        <Link to={`/${rose.id}/notes`} className="text-center">
                             <img src={rose.photo} alt={rose.title} className="mb-2 p-4 h-48 object-contain"/>
                             <div>{rose.title}</div>
                         </Link>

@@ -1,6 +1,6 @@
 import { useEffect, useContext } from "react";
 import RoseGrid from "../content/RoseGrid";
-import DataContext from "../../context/DataContext";
+import DataContext from "../../context/RoseListContext";
 // import useRosebud from "../../hooks/useRosebud";
 
 function Collection() {

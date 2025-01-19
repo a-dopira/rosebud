@@ -1,30 +1,30 @@
 import { useContext, useState, useEffect } from "react"
-import DataContext from "../../context/DataContext"
 import RoseContext from "../../context/RoseContext"
 import { Link } from "react-router-dom"
 import useAxios from "../../hooks/useAxios"
+import useRosebud from "../../hooks/useRosebud"
 import { useNotification } from "../../context/NotificationContext";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
-function RoseHeader() {
+function RoseHeader({ setFilter }) {
 
-    const { 
-        setRosesList, 
-        loadBreeders,
-        loadRoses, 
-        breederList, 
-    } = useContext(DataContext)
+    const { loadResources } = useRosebud()
 
     const { rose, setRose } = useContext(RoseContext)
 
     const { showNotification } = useNotification()
     const [modal, setShowModal] = useState(false)
+    const [breeders, setBreeders] = useState([])
     const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
     const api = useAxios()
 
     useEffect(() => {
-        loadBreeders()
+        const fetchData = async () => {
+            await loadResources('breeders/').then(setBreeders)
+        }
+
+        fetchData()
     }, [])
 
     const updateRose = async (event) => {
@@ -69,7 +69,7 @@ function RoseHeader() {
             <div className="flex">
                 <div className="flex h-8 bg-umbra rounded-l-full">
                     <Link className="flex bg-rose-500 px-2 py-1 text-white rounded-l-full justify-center text-center hover:text-white"
-                       to={`home/group/${rose.group_name}`} onClick={() => loadRoses(1, { group: rose.group }, rose.group_name)}>
+                       to={`home/group/${rose.group_name}`} onClick={() => setFilter(rose.group_name)}>
                     { rose.group_name }
                     </Link>
                     <div className="w-0 h-0
@@ -124,7 +124,7 @@ function RoseHeader() {
                         <input className="inline-block text-black rounded-lg w-full p-2" type="text" name="const_height" defaultValue={ rose.const_height }/>
                         <label className="inline-block w-full text-sm" htmlFor="breeder">Изменить селекционера</label>
                         <select className="inline-block border-2 p-2 rounded-md text-black w-full" name='breeder' >
-                            { breederList.map(breeder => {
+                            { breeders.map(breeder => {
                                 return <option key={breeder.id} value={breeder.id}>{breeder.name}</option>
                             })}
                         </select>
@@ -153,7 +153,7 @@ function RoseHeader() {
                 itemType="розу"
                 apiEndpoint="roses"
                 setShowModal={setShowModal}
-                updateState={setRosesList}
+                updateState={null}
             />
         )}
         {showDeletePhotoModal && (

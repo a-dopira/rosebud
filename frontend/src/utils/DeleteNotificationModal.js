@@ -1,4 +1,5 @@
 import useAxios from '../hooks/useAxios';
+import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
 const DeleteNotificationModal = ({
@@ -11,6 +12,7 @@ const DeleteNotificationModal = ({
 
     const api = useAxios();
     const { showNotification } = useNotification();
+    const navigate = useNavigate();
 
     const deleteItem = async () => {
         try {
@@ -26,10 +28,12 @@ const DeleteNotificationModal = ({
                 );
             }
 
-            if (apiEndpoint === 'roses') {
+            if (apiEndpoint === 'roses' && updateState) {
                 const response = await api.get('/roses/');
                 updateState(response.data.results);
             }
+
+            navigate('/home/collection/');
 
         } catch (error) {
             showNotification('Произошла ошибка при удалении.');

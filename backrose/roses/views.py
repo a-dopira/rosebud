@@ -29,7 +29,7 @@ class RoseViewSet(viewsets.ModelViewSet):
         search = self.request.query_params.get('search')
 
         if group:
-            queryset = queryset.filter(group=group)
+            queryset = queryset.filter(group__name=group)
 
         if search:
             queryset = queryset.filter(
@@ -39,6 +39,38 @@ class RoseViewSet(viewsets.ModelViewSet):
             )
         
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        # Формируем сообщение
+        message = "Результаты поиска"
+        if self.group:
+            message += f" по группе: {self.group}"
+        if self.search:
+            message += f" по запросу: {self.search}"
+
+        # Если ничего не найдено
+        if not queryset.exists():
+            message = "По результату поиска"
+            if self.group:
+                message += f" по группе: {self.group}"
+            if self.search:
+                message += f" по запросу: {self.search}"
+            message += " ничего не найдено, попробуйте что-то другое."
+            return Response({"message": message, "results": []}, status=status.HTTP_200_OK)
+
+        # Если данные найдены
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response_data = self.get_paginated_response(serializer.data).data
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            response_data = serializer.data
+
+        return Response({"message": message, "results": response_data}, status=status.HTTP_200_OK)
+
 
     def get_serializer_class(self):
         if self.action == 'list':

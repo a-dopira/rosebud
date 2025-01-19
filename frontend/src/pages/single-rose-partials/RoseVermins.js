@@ -1,5 +1,5 @@
 import { useEffect, useContext, useState } from 'react';
-import DataContext from '../../context/DataContext';
+import DataContext from '../../context/RoseListContext';
 import RoseContext from '../../context/RoseContext';
 import { Helmet } from 'react-helmet';
 

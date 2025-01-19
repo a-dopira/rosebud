@@ -6,7 +6,7 @@ const RoseContext = createContext();
 export function RoseProvider ({ children }) {
 
     const api = useAxios();
-    const [rose, setRose] = useState(null)
+    const [rose, setRose] = useState([])
 
     const loadRose = async (id) => {
         const response = await api.get(`roses/${id}/`)

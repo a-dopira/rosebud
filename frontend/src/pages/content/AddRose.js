@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, Fragment } from "react";
 import useAxios from "../../hooks/useAxios";
 import useRosebud from "../../hooks/useRosebud";
+import DataContext from "../../context/DataContext";
 import { useNotification } from "../../context/NotificationContext";
 
 function AddRose() {
@@ -9,39 +10,34 @@ function AddRose() {
     const { showNotification } = useNotification();
 
     const { loadResources } = useRosebud();
+    const { groups, loadGroups } = useContext(DataContext);
 
-    const [groups, setGroups] = useState([]);
     const [breeders, setBreeders] = useState([]);
     
     useEffect(() => {
         const fetchData = async () => {
-
-            const groups = await loadResources('groups/');
             const breeders = await loadResources('/breeders/');
-            setGroups(groups);
             setBreeders(breeders);
         };
-    
+
+        loadGroups();
         fetchData();
     }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
-        api.post('roses/', formData)
-            .then((response) => {
-                showNotification('Роза успешно создана');
-            })
-            .catch((error) => {
-                if (
-                    error.response.status === 400 ||
-                    error.response.data.detail === 'Роза с таким title или title_eng уже существует.'
-                ) {
-                    showNotification(
-                        `Роза с названием ${event.target.title.value} или ${event.target.title_eng.value} уже существует`
-                    );
-                }
-            });
+    
+        try {
+            await api.post('roses/', formData);
+            showNotification('Роза успешно создана');
+    
+            loadGroups(); 
+        } catch (error) {
+            if (error.response?.status === 400) {
+                showNotification(`Роза с таким названием уже существует`);
+            }
+        }
     };
 
     const renderField = ({ label, name, type = 'text', isRequired = false }) => (
@@ -97,7 +93,11 @@ function AddRose() {
                         <h2 className="text-4xl h-20 text-white flex items-center justify-center">ДОБАВИТЬ РОЗУ</h2>
                     </div>
                     <form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
-                        {fields.map(renderField)}
+                        {fields.map((field) => (
+                            <Fragment key={field.name}>
+                                {renderField(field)}
+                            </Fragment>
+                        ))}
                         {renderSelect({ label: 'Группы', name: 'group', options: groups })}
                         {renderSelect({ label: 'Селекционеры', name: 'breeder', options: breeders })}
                         {textAreas.map(({ label, name }) => (
