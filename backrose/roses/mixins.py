@@ -1,16 +1,20 @@
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+
 from collections import OrderedDict
 
-# class FilterMixin:
-#     filter_fields = []
+class DestroyMixin:
+    name_field = 'name' 
 
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         for field in self.filter_fields:
-#             filter_value = self.request.query_params.get(field, None)
-#             if filter_value is not None:
-#                 filter_dict = {f'{field}__iregex': filter_value}
-#                 queryset = queryset.filter(**filter_dict)
-#         return queryset
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        name_value = getattr(instance, self.name_field, 'Unknown')
+        data = {
+            'id': instance.id,
+            'name': name_value
+        }
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
     
 
 class OrderedRepresentationMixin:

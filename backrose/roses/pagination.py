@@ -14,5 +14,5 @@ class RosePagination(PageNumberPagination):
             'current_page': self.page.number,  
             'total_pages': total_pages,  
             'total_items': self.page.paginator.count, 
-            'results': data  
+            'roses': data  
         })

@@ -1,4 +1,4 @@
-import { createContext, useState, useCallback } from "react";
+import { createContext, useState, useCallback, useMemo } from "react";
 import useRosebud from "../hooks/useRosebud";
 
 const DataContext = createContext();
@@ -14,8 +14,10 @@ export const DataProvider = ({ children }) => {
         setGroups(response);
     }, [loadResources]);
 
+    const value = useMemo(() => ({ groups, filter, setFilter, loadGroups }), [groups, filter, setFilter, loadGroups]);
+
     return (
-        <DataContext.Provider value={{ groups, filter, setFilter, loadGroups }}>
+        <DataContext.Provider value={value}>
             {children}
         </DataContext.Provider>
     );

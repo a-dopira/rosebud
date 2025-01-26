@@ -5,15 +5,11 @@ from rest_framework import viewsets, status
 from django.db.models import Count, Q
 from django.db import IntegrityError
 
+from common.viewsets import DynamicViewSet
+
 from .pagination import RosePagination
 from .models import Group, Breeder, Rose, Pest, Pesticide, Fungus, Fungicide, Size, Feeding, RosePhoto, Video, Foliage
-from .serializers import GroupSerializer, RoseSerializer, RoseListSerializer, BreederSerializer, PestSerializer, PesticideSerializer, FungicideSerializer, FungusSerializer, SizeSerializer, FeedingSerializer, RosePhotoSerializer, VideoSerializer, FoliageSerializer
-
-
-class BreederViewSet(viewsets.ModelViewSet):
-    queryset = Breeder.objects.all()
-    serializer_class = BreederSerializer
-    permission_classes = [IsAuthenticated]
+from .serializers import GroupSerializer, RoseSerializer, RoseListSerializer, PesticideSerializer, FungicideSerializer, SizeSerializer, FeedingSerializer, FoliageSerializer
 
 
 class RoseViewSet(viewsets.ModelViewSet):
@@ -25,17 +21,17 @@ class RoseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        group = self.request.query_params.get('group')
-        search = self.request.query_params.get('search')
+        self.group = self.request.query_params.get('group')
+        self.search = self.request.query_params.get('search')
 
-        if group:
-            queryset = queryset.filter(group__name=group)
+        if self.group:
+            queryset = queryset.filter(group__name=self.group)
 
-        if search:
+        if self.search:
             queryset = queryset.filter(
-                Q(title__iregex=search) | 
-                Q(title_eng__iregex=search) | 
-                Q(breeder__name__iregex=search)
+                Q(title__iregex=self.search) | 
+                Q(title_eng__iregex=self.search) | 
+                Q(breeder__name__iregex=self.search)
             )
         
         return queryset
@@ -45,11 +41,11 @@ class RoseViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
 
         # Формируем сообщение
-        message = "Результаты поиска"
+        message = ""
         if self.group:
-            message += f" по группе: {self.group}"
+            message += f"Результаты по группе: {self.group}"
         if self.search:
-            message += f" по запросу: {self.search}"
+            message += f"Результаты по запросу: {self.search}"
 
         # Если ничего не найдено
         if not queryset.exists():
@@ -77,6 +73,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             return RoseListSerializer
         return RoseSerializer
     
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         data = {'id': instance.id, 'title': instance.title}
@@ -89,7 +86,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response(status=status.HTTP_201_CREATED, headers=headers)
         except IntegrityError:
             return Response({"detail": "Роза с таким title или title_eng уже существует."}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -100,12 +97,6 @@ class RoseViewSet(viewsets.ModelViewSet):
         rose.photo = 'images/cap_rose.png'  # Установка заглушки
         rose.save()
         return Response({'detail': 'Фото удалено', 'photo': rose.photo.url}, status=status.HTTP_200_OK)
-        
-
-class PestViewSet(viewsets.ModelViewSet):
-    queryset = Pest.objects.all()
-    serializer_class = PestSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class PesticideViewSet(viewsets.ModelViewSet):
@@ -136,12 +127,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         group = self.get_object()
         roses = group.roses.values_list('id', 'title', 'photo', 'group')
         return Response(roses)
-
-
-class FungusViewSet(viewsets.ModelViewSet):
-    queryset = Fungus.objects.all()
-    serializer_class = FungusSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class FungicideViewSet(viewsets.ModelViewSet):
@@ -180,18 +165,6 @@ class FeedingViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class RosePhotoViewSet(viewsets.ModelViewSet):
-    queryset = RosePhoto.objects.all()
-    serializer_class = RosePhotoSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class VideoViewSet(viewsets.ModelViewSet):
-    queryset = Video.objects.all()
-    serializer_class = VideoSerializer
-    permission_classes = [IsAuthenticated]
-
-
 class FoliageViewSet(viewsets.ModelViewSet):
     queryset = Foliage.objects.all()
     serializer_class = FoliageSerializer
@@ -202,3 +175,24 @@ class FoliageViewSet(viewsets.ModelViewSet):
         data = {'id': instance.id, 'name': instance.foliage}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
+
+
+class BreederViewSet(DynamicViewSet):
+    model = Breeder
+    exclude = ['slug']
+
+
+class FungusViewSet(DynamicViewSet):
+    model = Fungus
+
+
+class PestViewSet(DynamicViewSet):
+    model = Pest
+
+
+class RosePhotoViewSet(DynamicViewSet):
+    model = RosePhoto
+
+
+class VideoViewSet(DynamicViewSet):
+    model = Video

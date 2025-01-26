@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useMemo } from "react";
 
 const AuthContext = createContext();
 
@@ -49,13 +49,13 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const context = {
+  const context = useMemo(() =>({
     user,
     authLoading,
     setUser,
     checkAuth,
     logout,
-  }
+  }), [ user,authLoading ])
 
   return (
     <AuthContext.Provider value={ context }>

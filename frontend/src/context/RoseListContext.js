@@ -1,64 +1,47 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useCallback } from "react";
 import useAxios from "../hooks/useAxios";
 
 const RoseListContext = createContext()
 
 export function RoseListProvider({ children }) {
+  const api = useAxios();
 
-    const [rosesList, setRosesList] = useState([]);
+  const [rosesList, setRosesList] = useState([]);
+  const [message, setMessage] = useState(null);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+  // ВАЖНО: оборачиваем loadRoses в useCallback, чтобы ссылка
+  // на функцию не менялась на каждом рендере.
+  const loadRoses = async (page = 1, filter) => {
+      try {
+        const params = new URLSearchParams({ ...filter, page });
+        const response = await api.get(`roses/?${params.toString()}`);
 
-    const [queryParam, setQueryParam] = useState({})
-
-    const [message, setMessage] = useState(null);
-    const api = useAxios();
-
-    const loadRoses = async (page = 1, filter = queryParam) => {
-        try {
-          setQueryParam(filter);
-          const params = new URLSearchParams({ ...filter, page });
-          const response = await api.get(`roses/?${params.toString()}`);
-      
-          setRosesList(response.data.results);
-          setCurrentPage(page);
-          setTotalPages(response.data.total_pages);
-          if (response.data.results.length === 0) {
-            setMessage('Нет роз по заданному поиску. Попробуй что-то другое...');
-          } else {
-            if (Object.keys(filter).length === 0) {
-              setMessage(null);
-            } else if (filter.search) {
-              setMessage(`Все розы по поиску «${filter.search}»`);
-            } else if (filter.group) {
-              setMessage(`Все розы в группе «${filter.group}»`);
-            } else {
-              setMessage(null);
-            }
-          }
-      
-        } catch (error) {
-          setMessage('Что-то пошло не так... Нужно пробывать нечто другое...');
+        setRosesList(response.data.results.roses);
+        if (response.data.results.roses.length === 0) {
+          setMessage('Нет роз по заданному поиску. Попробуй что-то другое...');
+        } else {
+          setMessage(null);
         }
-      };
+        return { totalPages: response.data.results.total_pages };
+      } catch (error) {
+        setMessage('Что-то пошло не так...');
+        return { totalPages: 1 };
+      }
+    };
 
-    const contextData = {
-        rosesList,
-        message,
-        currentPage,
-        totalPages,
-        setRosesList,
-        setMessage,
-        setQueryParam,
-        loadRoses,
-    }
+  const contextData = {
+    rosesList,
+    message,
+    setRosesList,
+    setMessage,
+    loadRoses,
+  };
 
-    return (
-        <RoseListContext.Provider value={contextData}>
-            {children}
-        </RoseListContext.Provider>
-    );
+  return (
+    <RoseListContext.Provider value={contextData}>
+      {children}
+    </RoseListContext.Provider>
+  );
 }
 
 export default RoseListContext;

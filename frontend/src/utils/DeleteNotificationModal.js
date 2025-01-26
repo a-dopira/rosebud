@@ -1,4 +1,5 @@
 import useAxios from '../hooks/useAxios';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
@@ -30,7 +31,7 @@ const DeleteNotificationModal = ({
 
             if (apiEndpoint === 'roses' && updateState) {
                 const response = await api.get('/roses/');
-                updateState(response.data.results);
+                updateState(response.data.results.roses);
             }
 
             navigate('/home/collection/');

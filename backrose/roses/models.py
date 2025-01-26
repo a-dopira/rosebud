@@ -10,8 +10,10 @@ import os
 def get_filename(instance, filename):
     title_eng = instance.title_eng if isinstance(instance, Rose) else instance.rose.title_eng
     filename = f"{title_eng}_{filename}"
+
     if isinstance(instance, Rose):
         return os.path.join('images', title_eng, 'thumbnails', filename)
+    
     return os.path.join('images', title_eng, filename)
 
 class Group(models.Model):
