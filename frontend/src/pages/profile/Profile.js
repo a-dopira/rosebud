@@ -7,7 +7,7 @@ import useAxios from '../../utils/useAxios';
 import { Helmet } from 'react-helmet';
 
 const schema = yup.object().shape({
-  username: yup.string().matches(/^[a-zA-Zа-яА-Я\s]+$/, 'Имя пользователь может содержать только буквы').required(),
+  username: yup.string().matches(/^[a-zA-Zа-яА-Я\s]+$/, 'Имя пользователя может содержать только буквы').required(),
   app_header: yup.string().matches(/^[a-zA-Zа-яА-Я\s]+$/, 'Заголовок может может содержать только буквы').required(),
   image: yup.mixed().test('fileFormat', 'Unsupported Format', value => {
     if (!value.length) return true;
@@ -83,7 +83,7 @@ function Profile() {
             <div>
                 <div className="h-[300px] w-[290px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back">
                     {isEditing ? (
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-2">
+                    <form onSubmit={() =>handleSubmit(onSubmit)} className="flex flex-col items-center justify-center space-y-2">
                         <label htmlFor="username" className="font-serif font-bold text-white">ИЗМЕНИТЬ ИМЯ</label>
                         <input type="text" id="username" name="username" defaultValue={username} {...register('username')} className="w-56 text-sm rounded-md p-2 mr-2" />
                         <p>{errors.username?.message}</p>
@@ -109,7 +109,7 @@ function Profile() {
                     </div>
                     )}
                     </div>
-                <button onClick={handleEditClick} className="btn-amber transition-transform transform w-[290px] px-5 py-5 text-xl h-10 mt-4 flex items-center justify-center">Редактировать профиль</button>
+                <button onClick={() => handleEditClick} className="btn-amber transition-transform transform w-[290px] px-5 py-5 text-xl h-10 mt-4 flex items-center justify-center">Редактировать профиль</button>
             </div>
         </div>
         </div>

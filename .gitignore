@@ -1,6 +1,7 @@
 node_modules/
 .venv
 startproject.bat
+simpleclassname.py
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
 frontend/src/utils/Loading.js

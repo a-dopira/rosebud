@@ -14,7 +14,23 @@ export const DataProvider = ({ children }) => {
         setGroups(response);
     }, [loadResources]);
 
-    const value = useMemo(() => ({ groups, filter, setFilter, loadGroups }), [groups, filter, setFilter, loadGroups]);
+    // Memoized setFilter to prevent unnecessary re-renders
+    const handleSetFilter = useCallback((newFilter) => {
+        setFilter(prev => {
+            // Only update if filter actually changed
+            if (JSON.stringify(prev) === JSON.stringify(newFilter)) {
+                return prev;
+            }
+            return newFilter;
+        });
+    }, []);
+
+    const value = useMemo(() => ({
+        groups,
+        filter,
+        setFilter: handleSetFilter,
+        loadGroups
+    }), [groups, filter, handleSetFilter, loadGroups]);
 
     return (
         <DataContext.Provider value={value}>

@@ -13,10 +13,10 @@ function RoseList() {
 
     return (
         <Routes>
-            <Route index element={<RoseGrid key="home-index" />} />
-            <Route path="collection" element={<RoseGrid key="home-collection" />} /> 
-            <Route path="group/:groupName" element={<RoseGrid key="home-group" />} /> 
-            <Route path="search" element={<RoseGrid key="home-search" />} /> 
+            <Route index element={<RoseGrid/>} />
+            <Route path="collection" element={<RoseGrid  />} /> 
+            <Route path="group/:groupName" element={<RoseGrid/>} /> 
+            <Route path="search" element={<RoseGrid/>} /> 
         </Routes>
     )
 }
