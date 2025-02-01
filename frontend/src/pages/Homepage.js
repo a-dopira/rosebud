@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 
 import Menu from "./menu/Menu";
+import Profile from './profile/Profile';
 import Adjusting from "./menu-items/Adjusting";
 import AddRose from "./content/AddRose";
 import RoseGrid from "./content/RoseGrid";
@@ -25,6 +26,7 @@ export default function Homepage() {
 
     return (
         <div className="animate-fade-in">
+            <Profile />
             <Menu />
             <Routes>
                 <Route path="home/*" element={<RoseList />}/>

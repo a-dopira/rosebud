@@ -4,7 +4,6 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 
 
-
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', required=False)
     app_header = serializers.CharField(required=False)
@@ -27,10 +26,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         return instance
 
 class UserSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(source='profile.image', required=False)
+    app_header = serializers.CharField(source='profile.app_header', required=False)
+
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ('username', 'email', 'image', 'app_header')
     
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -43,6 +46,7 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid credentials")
         data["user"] = user
         return data
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -63,7 +67,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email']
-
         )
 
         user.set_password(validated_data['password'])

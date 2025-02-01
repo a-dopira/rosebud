@@ -61,6 +61,23 @@ class UserProfileView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+    def patch(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Сохраняем профиль
+            profile_data = serializer.validated_data.pop('profile', {})
+            if profile_data:
+                for attr, value in profile_data.items():
+                    setattr(user.profile, attr, value)
+                user.profile.save()
+            
+            # Сохраняем пользователя
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh')
