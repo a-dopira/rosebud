@@ -26,7 +26,7 @@ export default function Homepage() {
 
     return (
         <div className="animate-fade-in">
-            <Profile />
+            <Profile className="w-full"/>
             <Menu />
             <Routes>
                 <Route path="home/*" element={<RoseList />}/>

@@ -40,12 +40,13 @@ function App() {
   }
 
   return (
-    <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra pattern-size-6
-      pattern-opacity-100 min-h-screen flex items-center justify-center font-hedwig">
-      <div className="bg-white rounded-large lg:w-2/3 md:w-full mx-auto my-auto p-12 shadow-1xl">
-          {routes}
+    <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra pattern-size-6 
+                    pattern-opacity-100 min-h-screen flex items-center justify-center font-hedwig"
+    >
+      <div className="bg-white rounded-large w-full md:w-3/4 mx-auto my-10 sm:p-12 px-0 py-12 shadow-1xl">
+        {routes}
       </div>
-    </div>  
+    </div>
 );
 }
 

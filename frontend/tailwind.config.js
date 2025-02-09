@@ -62,9 +62,9 @@ module.exports = {
           },
       },
   },
-plugins: [
-      require('tailwindcss-dotted-background'),
-      require('tailwindcss-bg-patterns'),
-],
+  plugins: [
+    require('tailwindcss-dotted-background'),
+    require('tailwindcss-bg-patterns'),
+  ],
 }
 
