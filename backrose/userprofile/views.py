@@ -26,14 +26,14 @@ class LoginView(APIView):
             value=str(access_token),
             httponly=True,
             secure=True,
-            samesite='None',
+            samesite="None",
         )
         response.set_cookie(
             key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
             value=str(refresh),
             httponly=True,
             secure=True,
-            samesite='None',
+            samesite="None",
         )
         return response
 
@@ -66,12 +66,12 @@ class UserProfileView(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             # Сохраняем профиль
-            profile_data = serializer.validated_data.pop('profile', {})
+            profile_data = serializer.validated_data.pop("profile", {})
             if profile_data:
                 for attr, value in profile_data.items():
                     setattr(user.profile, attr, value)
                 user.profile.save()
-            
+
             # Сохраняем пользователя
             serializer.save()
             return Response(serializer.data)
@@ -80,13 +80,13 @@ class UserProfileView(APIView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh')
+        refresh_token = request.COOKIES.get("refresh")
         if not refresh_token:
             return Response({"error": "No refresh token found"}, status=401)
 
         serializer = self.get_serializer(data={"refresh": refresh_token})
         serializer.is_valid(raise_exception=True)
-        access_token = serializer.validated_data['access']
+        access_token = serializer.validated_data["access"]
 
         response = Response({"message": "Token refreshed"})
         response.set_cookie(
@@ -94,8 +94,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             value=access_token,
             httponly=True,
             secure=True,
-            samesite='None',
+            samesite="None",
         )
-        
+
         return response
-    

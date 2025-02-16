@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
 from .utils import all_fields_serializer
 
+
 class DynamicViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     model = None

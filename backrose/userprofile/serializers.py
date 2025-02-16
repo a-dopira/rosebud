@@ -5,18 +5,18 @@ from rest_framework import serializers
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', required=False)
+    username = serializers.CharField(source="user.username", required=False)
     app_header = serializers.CharField(required=False)
     image = serializers.ImageField(required=False)
 
     class Meta:
         model = Profile
-        fields = ('username', 'image', 'app_header')
+        fields = ("username", "image", "app_header")
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', None)
+        user_data = validated_data.pop("user", None)
         if user_data:
-            instance.user.username = user_data.get('username', instance.user.username)
+            instance.user.username = user_data.get("username", instance.user.username)
             instance.user.save()
 
         for attr, value in validated_data.items():
@@ -25,14 +25,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 
         return instance
 
+
 class UserSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(source='profile.image', required=False)
-    app_header = serializers.CharField(source='profile.app_header', required=False)
+    image = serializers.ImageField(source="profile.image", required=False)
+    app_header = serializers.CharField(source="profile.app_header", required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'image', 'app_header')
-    
+        fields = ("username", "email", "image", "app_header")
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -49,27 +50,29 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password]
+    )
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'password2')
+        fields = ("email", "username", "password", "password2")
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
+                {"password": "Password fields didn't match."}
+            )
 
         return attrs
 
     def create(self, validated_data):
         user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email']
+            username=validated_data["username"], email=validated_data["email"]
         )
 
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data["password"])
         user.save()
 
         return user

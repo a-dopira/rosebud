@@ -7,23 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('roses', '0005_alter_feeding_basal_time_alter_feeding_leaf_time_and_more'),
+        ("roses", "0005_alter_feeding_basal_time_alter_feeding_leaf_time_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rose',
-            name='title',
+            model_name="rose",
+            name="title",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='rose',
-            name='title_eng',
+            model_name="rose",
+            name="title_eng",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='rosephoto',
-            name='photo',
+            model_name="rosephoto",
+            name="photo",
             field=models.ImageField(upload_to=roses.models.get_filename),
         ),
     ]

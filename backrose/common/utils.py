@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+
 def all_fields_serializer(model, exclude=None, many=True, read_only=True, **kwargs):
     """
     Dynamically create a ModelSerializer for a given model,
@@ -24,4 +25,3 @@ def all_fields_serializer(model, exclude=None, many=True, read_only=True, **kwar
         },
     )
     return serializer_class
-

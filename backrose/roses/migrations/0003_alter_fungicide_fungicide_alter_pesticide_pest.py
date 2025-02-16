@@ -7,18 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('roses', '0002_alter_breeder_name_alter_breeder_slug_and_more'),
+        ("roses", "0002_alter_breeder_name_alter_breeder_slug_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fungicide',
-            name='fungicide',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='roses.fungus'),
+            model_name="fungicide",
+            name="fungicide",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="roses.fungus"
+            ),
         ),
         migrations.AlterField(
-            model_name='pesticide',
-            name='pest',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='roses.pest'),
+            model_name="pesticide",
+            name="pest",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="roses.pest"
+            ),
         ),
     ]

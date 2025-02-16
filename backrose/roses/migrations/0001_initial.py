@@ -9,125 +9,311 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Breeder',
+            name="Breeder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('slug', models.SlugField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("slug", models.SlugField()),
             ],
         ),
         migrations.CreateModel(
-            name='Fungus',
+            name="Fungus",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='Group',
+            name="Group",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('slug', models.SlugField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("slug", models.SlugField(max_length=255, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Pest',
+            name="Pest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField()),
             ],
         ),
         migrations.CreateModel(
-            name='Rose',
+            name="Rose",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('title_eng', models.CharField(max_length=255)),
-                ('slug', models.SlugField(max_length=255, unique=True)),
-                ('photo', models.ImageField(default='images/cap_rose.png', upload_to=roses.models.get_filename)),
-                ('description', models.TextField(blank=True)),
-                ('landing_date', models.DateField(blank=True)),
-                ('observation', models.TextField(blank=True)),
-                ('susceptibility', models.CharField(blank=True, max_length=255)),
-                ('const_width', models.DecimalField(blank=True, decimal_places=2, max_digits=6)),
-                ('const_height', models.DecimalField(blank=True, decimal_places=2, max_digits=6)),
-                ('breeder', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.PROTECT, related_name='roses', to='roses.breeder')),
-                ('group', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, related_name='roses', to='roses.group')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                ("title_eng", models.CharField(max_length=255)),
+                ("slug", models.SlugField(max_length=255, unique=True)),
+                (
+                    "photo",
+                    models.ImageField(
+                        default="images/cap_rose.png",
+                        upload_to=roses.models.get_filename,
+                    ),
+                ),
+                ("description", models.TextField(blank=True)),
+                ("landing_date", models.DateField(blank=True)),
+                ("observation", models.TextField(blank=True)),
+                ("susceptibility", models.CharField(blank=True, max_length=255)),
+                (
+                    "const_width",
+                    models.DecimalField(blank=True, decimal_places=2, max_digits=6),
+                ),
+                (
+                    "const_height",
+                    models.DecimalField(blank=True, decimal_places=2, max_digits=6),
+                ),
+                (
+                    "breeder",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="roses",
+                        to="roses.breeder",
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roses",
+                        to="roses.group",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Pesticide',
+            name="Pesticide",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('date_added', models.DateField()),
-                ('pest', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pests', to='roses.pest')),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pesticides', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("date_added", models.DateField()),
+                (
+                    "pest",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="pests",
+                        to="roses.pest",
+                    ),
+                ),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="pesticides",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Fungicide',
+            name="Fungicide",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('date_added', models.DateField()),
-                ('fungicide', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fungi', to='roses.fungus')),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fungicides', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("date_added", models.DateField()),
+                (
+                    "fungicide",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fungi",
+                        to="roses.fungus",
+                    ),
+                ),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fungicides",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Foliage',
+            name="Foliage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('foliage', models.TextField()),
-                ('foliage_time', models.DateField()),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='foliages', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("foliage", models.TextField()),
+                ("foliage_time", models.DateField()),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="foliages",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Feeding',
+            name="Feeding",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('basal', models.CharField(max_length=255)),
-                ('basal_time', models.DateField()),
-                ('leaf', models.CharField(max_length=255)),
-                ('leaf_time', models.DateField()),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='feedings', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("basal", models.CharField(max_length=255)),
+                ("basal_time", models.DateField()),
+                ("leaf", models.CharField(max_length=255)),
+                ("leaf_time", models.DateField()),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="feedings",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='RosePhoto',
+            name="RosePhoto",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('descr', models.TextField()),
-                ('year', models.IntegerField()),
-                ('photo', models.ImageField(upload_to='images/')),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rosephotos', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("descr", models.TextField()),
+                ("year", models.IntegerField()),
+                ("photo", models.ImageField(upload_to="images/")),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rosephotos",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Size',
+            name="Size",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('height', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('width', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('date_added', models.DateField()),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sizes', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("height", models.DecimalField(decimal_places=2, max_digits=5)),
+                ("width", models.DecimalField(decimal_places=2, max_digits=5)),
+                ("date_added", models.DateField()),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sizes",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Video',
+            name="Video",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('descr', models.CharField(max_length=255)),
-                ('video', models.URLField()),
-                ('rose', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='videos', to='roses.rose')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("descr", models.CharField(max_length=255)),
+                ("video", models.URLField()),
+                (
+                    "rose",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="videos",
+                        to="roses.rose",
+                    ),
+                ),
             ],
         ),
     ]

@@ -8,12 +8,34 @@ from django.db import IntegrityError
 from common.viewsets import DynamicViewSet
 
 from .pagination import RosePagination
-from .models import Group, Breeder, Rose, Pest, Pesticide, Fungus, Fungicide, Size, Feeding, RosePhoto, Video, Foliage
-from .serializers import GroupSerializer, RoseSerializer, RoseListSerializer, PesticideSerializer, FungicideSerializer, SizeSerializer, FeedingSerializer, FoliageSerializer
+from .models import (
+    Group,
+    Breeder,
+    Rose,
+    Pest,
+    Pesticide,
+    Fungus,
+    Fungicide,
+    Size,
+    Feeding,
+    RosePhoto,
+    Video,
+    Foliage,
+)
+from .serializers import (
+    GroupSerializer,
+    RoseSerializer,
+    RoseListSerializer,
+    PesticideSerializer,
+    FungicideSerializer,
+    SizeSerializer,
+    FeedingSerializer,
+    FoliageSerializer,
+)
 
 
 class RoseViewSet(viewsets.ModelViewSet):
-    queryset = Rose.objects.all().order_by('id')
+    queryset = Rose.objects.all().order_by("id")
     serializer_class = RoseSerializer
     pagination_class = RosePagination
     permission_classes = [IsAuthenticated]
@@ -21,19 +43,18 @@ class RoseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        self.group = self.request.query_params.get('group')
-        self.search = self.request.query_params.get('search')
+        self.group = self.request.query_params.get("group")
+        self.search = self.request.query_params.get("search")
 
         if self.group:
             queryset = queryset.filter(group__name=self.group)
 
         if self.search:
             queryset = queryset.filter(
-                Q(title__iregex=self.search) | 
-                Q(title_eng__iregex=self.search) | 
-                Q(breeder__name__iregex=self.search)
+                Q(title__iregex=self.search)
+                | Q(title_eng__iregex=self.search)
+                | Q(breeder__name__iregex=self.search)
             )
-        
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -55,7 +76,9 @@ class RoseViewSet(viewsets.ModelViewSet):
             if self.search:
                 message += f" по запросу: {self.search}"
             message += " ничего не найдено, попробуйте что-то другое."
-            return Response({"message": message, "results": []}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": message, "results": []}, status=status.HTTP_200_OK
+            )
 
         # Если данные найдены
         if page is not None:
@@ -64,19 +87,18 @@ class RoseViewSet(viewsets.ModelViewSet):
         else:
             serializer = self.get_serializer(queryset, many=True)
             response_data = serializer.data
-
-        return Response({"message": message, "results": response_data}, status=status.HTTP_200_OK)
-
+        return Response(
+            {"message": message, "results": response_data}, status=status.HTTP_200_OK
+        )
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action == "list":
             return RoseListSerializer
         return RoseSerializer
-    
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'title': instance.title}
+        data = {"id": instance.id, "title": instance.title}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
@@ -88,15 +110,21 @@ class RoseViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(status=status.HTTP_201_CREATED, headers=headers)
         except IntegrityError:
-            return Response({"detail": "Роза с таким title или title_eng уже существует."}, status=status.HTTP_400_BAD_REQUEST)
-        
-    @action(detail=True, methods=['delete'], url_path='delete_photo')
+            return Response(
+                {"detail": "Роза с таким title или title_eng уже существует."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(detail=True, methods=["delete"], url_path="delete_photo")
     def delete_photo(self, request, pk=None):
         rose = self.get_object()
         rose.photo.delete()  # Удаление фотографии
-        rose.photo = 'images/cap_rose.png'  # Установка заглушки
+        rose.photo = "images/cap_rose.png"  # Установка заглушки
         rose.save()
-        return Response({'detail': 'Фото удалено', 'photo': rose.photo.url}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Фото удалено", "photo": rose.photo.url},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PesticideViewSet(viewsets.ModelViewSet):
@@ -106,26 +134,28 @@ class PesticideViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'name': instance.name}
+        data = {"id": instance.id, "name": instance.name}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.annotate(rose_count=Count('roses'))
+    queryset = Group.objects.annotate(rose_count=Count("roses"))
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
-    filter_fields = ['name']
+    filter_fields = ["name"]
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def names(self, request):
-        group_names = Group.objects.annotate(rose_count=Count('roses')).values_list('id', 'name', 'rose_count')
+        group_names = Group.objects.annotate(rose_count=Count("roses")).values_list(
+            "id", "name", "rose_count"
+        )
         return Response(group_names)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
     def roses(self, request, pk=None):
         group = self.get_object()
-        roses = group.roses.values_list('id', 'title', 'photo', 'group')
+        roses = group.roses.values_list("id", "title", "photo", "group")
         return Response(roses)
 
 
@@ -136,7 +166,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'name': instance.name}
+        data = {"id": instance.id, "name": instance.name}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
@@ -148,7 +178,7 @@ class SizeViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'name': 'размеры'}
+        data = {"id": instance.id, "name": "размеры"}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
@@ -160,7 +190,7 @@ class FeedingViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'name': instance.basal}
+        data = {"id": instance.id, "name": instance.basal}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
@@ -172,14 +202,14 @@ class FoliageViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        data = {'id': instance.id, 'name': instance.foliage}
+        data = {"id": instance.id, "name": instance.foliage}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
 
 class BreederViewSet(DynamicViewSet):
     model = Breeder
-    exclude = ['slug']
+    exclude = ["slug"]
 
 
 class FungusViewSet(DynamicViewSet):

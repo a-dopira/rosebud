@@ -8,13 +8,16 @@ import os
 
 
 def get_filename(instance, filename):
-    title_eng = instance.title_eng if isinstance(instance, Rose) else instance.rose.title_eng
+    title_eng = (
+        instance.title_eng if isinstance(instance, Rose) else instance.rose.title_eng
+    )
     filename = f"{title_eng}_{filename}"
 
     if isinstance(instance, Rose):
-        return os.path.join('images', title_eng, 'thumbnails', filename)
-    
-    return os.path.join('images', title_eng, filename)
+        return os.path.join("images", title_eng, "thumbnails", filename)
+
+    return os.path.join("images", title_eng, filename)
+
 
 class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -28,14 +31,15 @@ class Group(models.Model):
         super(Group, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('group', kwargs={'group_slug': self.slug})
+        return reverse("group", kwargs={"group_slug": self.slug})
 
 
 @receiver(pre_delete, sender=Group)
 def prevent_group_deletion(sender, instance, **kwargs):
     if instance.roses.exists():
         raise models.ProtectedError(
-            f'Невозможно удалить группу {instance.title} поскольку к ней привязаны розы', instance
+            f"Невозможно удалить группу {instance.title} поскольку к ней привязаны розы",
+            instance,
         )
 
 
@@ -59,8 +63,10 @@ class Pest(models.Model):
 
 
 class Pesticide(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='pesticides')
-    pest = models.ForeignKey('Pest', on_delete=models.CASCADE, related_name='pests')
+    rose = models.ForeignKey(
+        "Rose", on_delete=models.CASCADE, related_name="pesticides"
+    )
+    pest = models.ForeignKey("Pest", on_delete=models.CASCADE, related_name="pests")
     name = models.CharField(max_length=255)
     date_added = models.DateField(blank=True, null=True)
 
@@ -76,8 +82,12 @@ class Fungus(models.Model):
 
 
 class Fungicide(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='fungicides')
-    fungicide = models.ForeignKey('Fungus', on_delete=models.CASCADE, related_name='fungi')
+    rose = models.ForeignKey(
+        "Rose", on_delete=models.CASCADE, related_name="fungicides"
+    )
+    fungicide = models.ForeignKey(
+        "Fungus", on_delete=models.CASCADE, related_name="fungi"
+    )
     name = models.CharField(max_length=255)
     date_added = models.DateField(blank=True, null=True)
 
@@ -86,14 +96,14 @@ class Fungicide(models.Model):
 
 
 class Size(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='sizes')
+    rose = models.ForeignKey("Rose", on_delete=models.CASCADE, related_name="sizes")
     height = models.DecimalField(max_digits=5, decimal_places=2)
     width = models.DecimalField(max_digits=5, decimal_places=2)
     date_added = models.DateField(blank=True, null=True)
 
 
 class Feeding(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='feedings')
+    rose = models.ForeignKey("Rose", on_delete=models.CASCADE, related_name="feedings")
     basal = models.CharField(max_length=255)
     basal_time = models.DateField(blank=True, null=True)
     leaf = models.CharField(max_length=255)
@@ -101,20 +111,22 @@ class Feeding(models.Model):
 
 
 class RosePhoto(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='rosephotos')
+    rose = models.ForeignKey(
+        "Rose", on_delete=models.CASCADE, related_name="rosephotos"
+    )
     descr = models.TextField(blank=True, null=True)
     year = models.IntegerField(blank=True, null=True)
     photo = models.ImageField(upload_to=get_filename)
 
 
 class Video(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='videos')
+    rose = models.ForeignKey("Rose", on_delete=models.CASCADE, related_name="videos")
     descr = models.CharField(max_length=255, blank=True, null=True)
     video = models.URLField()
 
 
 class Foliage(models.Model):
-    rose = models.ForeignKey('Rose', on_delete=models.CASCADE, related_name='foliages')
+    rose = models.ForeignKey("Rose", on_delete=models.CASCADE, related_name="foliages")
     foliage = models.TextField()
     foliage_time = models.DateField(blank=True, null=True)
 
@@ -123,16 +135,24 @@ class Rose(models.Model):
     title = models.CharField(max_length=255, unique=True)
     title_eng = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
-    photo = models.ImageField(upload_to=get_filename, default='images/cap_rose.png')
+    photo = models.ImageField(upload_to=get_filename, default="images/cap_rose.png")
     description = models.TextField(blank=True, null=True)
     landing_date = models.DateField(blank=True, null=True)
     observation = models.TextField(blank=True, null=True)
     susceptibility = models.CharField(max_length=255, blank=True, null=True)
-    const_width = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
-    const_height = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    const_width = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True
+    )
+    const_height = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True
+    )
 
-    breeder = models.ForeignKey(Breeder, on_delete=models.PROTECT, related_name='roses', blank=True, null=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='roses', blank=True, null=True)
+    breeder = models.ForeignKey(
+        Breeder, on_delete=models.PROTECT, related_name="roses", blank=True, null=True
+    )
+    group = models.ForeignKey(
+        Group, on_delete=models.CASCADE, related_name="roses", blank=True, null=True
+    )
 
     def __str__(self):
         return self.title
@@ -142,4 +162,4 @@ class Rose(models.Model):
         super(Rose, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('single_rose', kwargs={'rose_slug': self.slug})
+        return reverse("single_rose", kwargs={"rose_slug": self.slug})
