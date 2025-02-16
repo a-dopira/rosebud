@@ -14,7 +14,6 @@ import Loader from "./utils/Loader";
 function App() {
 
   const { authLoading } = useContext(AuthContext);
-
   const { loading } = useRosebud();
 
   const routes = useRoutes([
@@ -40,14 +39,15 @@ function App() {
   }
 
   return (
-    <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra pattern-size-6 
-                    pattern-opacity-100 min-h-screen flex items-center justify-center font-hedwig"
+    <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra 
+                      pattern-size-6 pattern-opacity-100 min-h-screen flex 
+                      items-center justify-center font-hedwig"
     >
-      <div className="bg-white rounded-large w-full md:w-3/4 mx-auto my-10 sm:p-12 px-0 py-12 shadow-1xl">
+      <div className="bg-white w-full md:w-3/4 max-w-7xl mx-auto sm:my-10 sm:rounded-large sm:p-12 px-0 py-12 sm:shadow-1xl">
         {routes}
       </div>
     </div>
-);
+  );
 }
 
 export default App;

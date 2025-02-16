@@ -142,11 +142,18 @@ const RoseGrid = memo(function RoseGrid() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">
         {rosesList.map((rose) => (
-          <div id={rose.id} key={rose.id} className="mx-auto relative">
-            <div className="flex flex-col items-center h-60 w-56 cursor-pointer border-[1px] border-solid border-gray-300 rounded-3xl hover:translate-y-[-2px] hover:shadow-3xl shadow-1xl">
-              <Link to={`/${rose.id}/notes`} className="text-center">
+          <div id={rose.id} key={rose.id} className="flex justify-center relative isolate">
+            <div className="relative flex flex-col items-center h-60 w-56 cursor-pointer border-[1px] border-solid border-gray-300 rounded-3xl hover:translate-y-[-2px] hover:shadow-3xl-rounded shadow-1xl overflow-hidden">
+              <button
+                id="open-delete-modal"
+                className="absolute top-2 right-2 p-1 text-red-500 text-3xl font-semibold hover:text-umbra z-10"
+                onClick={() => openModal(rose)}
+              >
+                &times;
+              </button>
+              <Link to={`/${rose.id}/notes`} className="text-center w-full">
                 <img
                   src={rose.photo}
                   alt={rose.title}
@@ -154,17 +161,11 @@ const RoseGrid = memo(function RoseGrid() {
                 />
                 <div>{rose.title}</div>
               </Link>
-              <button
-                id="open-delete-modal"
-                className="absolute top-0 right-5 p-1 text-red-500 text-3xl font-semibold hover:text-umbra"
-                onClick={() => openModal(rose)}
-              >
-                &times;
-              </button>
             </div>
           </div>
         ))}
       </div>
+
 
       {rosesList.length > 0 && (
         <div className="pagination mt-5 flex justify-center items-center space-x-4">
@@ -174,7 +175,7 @@ const RoseGrid = memo(function RoseGrid() {
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === 1
                 ? 'bg-rose-800 cursor-not-allowed'
-                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl'
+                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
               }`}
           >
             &#60;
@@ -191,7 +192,7 @@ const RoseGrid = memo(function RoseGrid() {
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === totalPages
                 ? 'bg-rose-800 cursor-not-allowed'
-                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl'
+                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
               }`}
           >
             &#62;

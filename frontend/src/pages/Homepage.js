@@ -11,7 +11,6 @@ import { RoseProvider } from '../context/RoseContext';
 
 
 function RoseList() {
-
     return (
         <Routes>
             <Route index element={<RoseGrid/>} />
@@ -26,7 +25,7 @@ export default function Homepage() {
 
     return (
         <div className="animate-fade-in">
-            <Profile className="w-full"/>
+            {/* <Profile className="w-full"/> */}
             <Menu />
             <Routes>
                 <Route path="home/*" element={<RoseList />}/>

@@ -66,11 +66,12 @@ const Profile = () => {
 
   const handleCloseModal = () => {
     if (modalRef.current && modalContentRef.current) {
-      modalRef.current.classList.remove('animate-fade-in');
-      modalRef.current.classList.add('animate-fade-out');
+      requestAnimationFrame(() => {
+        modalRef.current.classList.remove('animate-fade-in');
+        modalRef.current.classList.add('animate-fade-out');
       modalContentRef.current.classList.remove('animate-fade-in');
       modalContentRef.current.classList.add('animate-fade-out');
-      
+      });
       // Оставляем paddingRight до завершения анимации
       setTimeout(() => {
         document.body.style.overflow = '';
@@ -184,82 +185,82 @@ const Profile = () => {
 
         {/* Modal remains unchanged */}
         {isEditing && (
-  <div
-    ref={modalRef}
-    onClick={handleCloseModal}
-    className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 animate-fade-in"
-  >
-    <div
-      ref={modalContentRef}
-      onClick={(e) => e.stopPropagation()}
-      className="relative bg-white rounded-lg p-6 max-w-[90%] md:max-w-[400px] shadow-3xl animate-fade-in"
-    >
-      {/* Кнопка-крестик */}
-      <button
-        onClick={handleCloseModal}
-        className="absolute top-3 right-3 w-8 h-8 p-1 rounded-full bg-white/20 hover:bg-white/30
-                   transition-all duration-500 flex items-center justify-center"
-        aria-label="close-modal"
-      >
-        <div className="relative w-8 h-8 rounded-full bg-white hover:bg-white/70 transition-all duration-300 flex items-center justify-center group">
-          <span
-            className="absolute w-4 h-0.5 bg-black transform rotate-45 transition-colors duration-300 group-hover:bg-red-600"
-          />
-          <span
-            className="absolute w-4 h-0.5 bg-black transform -rotate-45 transition-colors duration-300 group-hover:bg-red-600"
-          />
-        </div>
-      </button>
+          <div
+            ref={modalRef}
+            onClick={handleCloseModal}
+            className="fixed inset-0 flex items-center justify-center bg-black/50 z-[60] animate-fade-in"
+          >
+            <div
+              ref={modalContentRef}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-white rounded-lg p-6 max-w-[90%] md:max-w-[400px] shadow-3xl-rounded animate-fade-in"
+            >
+              {/* Кнопка-крестик */}
+              <button
+                onClick={handleCloseModal}
+                className="absolute top-3 right-3 w-8 h-8 p-1 rounded-full bg-white/20 hover:bg-white/30
+                          transition-all duration-500 flex items-center justify-center"
+                aria-label="close-modal"
+              >
+                <div className="relative w-8 h-8 rounded-full bg-white hover:bg-white/70 transition-all duration-300 flex items-center justify-center group">
+                  <span
+                    className="absolute w-4 h-0.5 bg-black transform rotate-45 transition-colors duration-300 group-hover:bg-red-600"
+                  />
+                  <span
+                    className="absolute w-4 h-0.5 bg-black transform -rotate-45 transition-colors duration-300 group-hover:bg-red-600"
+                  />
+                </div>
+              </button>
 
-      {/* Форма */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
-        <label htmlFor="username" className="font-serif font-bold text-gray-800">
-          ИЗМЕНИТЬ ИМЯ
-        </label>
-        <input
-          type="text"
-          id="username"
-          defaultValue={profileUsername}
-          {...register('username')}
-          className="w-full text-sm rounded-md p-2 border border-gray-300"
-        />
-        <p className="text-red-600 text-sm">{errors.username?.message}</p>
+              {/* Форма */}
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+                <label htmlFor="username" className="font-serif font-bold text-gray-800">
+                  ИЗМЕНИТЬ ИМЯ
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  defaultValue={profileUsername}
+                  {...register('username')}
+                  className="w-full text-sm rounded-md p-2 border border-gray-300"
+                />
+                <p className="text-red-600 text-sm">{errors.username?.message}</p>
 
-        <label htmlFor="app_header" className="font-serif font-bold text-gray-800">
-          ИЗМЕНИТЬ НАЗВАНИЕ
-        </label>
-        <input
-          type="text"
-          id="app_header"
-          defaultValue={profileHeader}
-          {...register('app_header')}
-          className="w-full text-sm rounded-md p-2 border border-gray-300"
-        />
-        <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
+                <label htmlFor="app_header" className="font-serif font-bold text-gray-800">
+                  ИЗМЕНИТЬ НАЗВАНИЕ
+                </label>
+                <input
+                  type="text"
+                  id="app_header"
+                  defaultValue={profileHeader}
+                  {...register('app_header')}
+                  className="w-full text-sm rounded-md p-2 border border-gray-300"
+                />
+                <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
 
-        <label htmlFor="image" className="font-serif font-bold text-gray-800">
-          ЗАГРУЗИТЬ ФОТО
-        </label>
-        <input
-          type="file"
-          id="image"
-          {...register('image')}
-          className="w-full bg-rose-500 text-white border border-gray-300 
-                     rounded-md p-2 cursor-pointer"
-        />
-        <p className="text-red-600 text-sm">{errors.image?.message}</p>
+                <label htmlFor="image" className="font-serif font-bold text-gray-800">
+                  ЗАГРУЗИТЬ ФОТО
+                </label>
+                <input
+                  type="file"
+                  id="image"
+                  {...register('image')}
+                  className="w-full bg-rose-500 text-white border border-gray-300 
+                            rounded-md p-2 cursor-pointer"
+                />
+                <p className="text-red-600 text-sm">{errors.image?.message}</p>
 
-        <button
-          type="submit"
-          name="change_user_profile"
-          className="w-full bg-dotted-spacing-3.5 btn-red text-sm h-8 rounded-md"
-        >
-          Применить изменения
-        </button>
-      </form>
-    </div>
-  </div>
-)}
+                <button
+                  type="submit"
+                  name="change_user_profile"
+                  className="w-full bg-dotted-spacing-3.5 btn-red text-sm h-8 rounded-md"
+                >
+                  Применить изменения
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -13,7 +13,7 @@ function Logout() {
     };
 
     return (
-        <button onClick={handleLogout} className="bg-dotted-spacing-3.5 btn-red text-lg h-12 hover:text-white">
+        <button onClick={handleLogout} className="flex justify-center bg-dotted-spacing-3.5 btn-red text-lg h-12 hover:text-white">
             Выйти
         </button>
     );

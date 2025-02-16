@@ -22,7 +22,8 @@ function SearchPanel() {
   };
 
   return (
-    <div className="bg-rose-500 border-solid border-gray-300 border-[1px] rounded-md w-56 hover:bg-rose-800">
+    <div className="bg-rose-500 border-solid border-gray-300 border-[1px] rounded-md w-56
+                     hover:bg-rose-800 flex-shrink-0 justify-center">
       <form className="flex items-center" method="get" onSubmit={onSubmit}>
         <input 
           className="w-44 text-xl rounded-md p-2 mr-2" 
