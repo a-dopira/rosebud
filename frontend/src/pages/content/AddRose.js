@@ -40,9 +40,12 @@ function AddRose() {
         }
     };
 
-    const renderField = ({ label, name, type = 'text', isRequired = false }) => (
+    const renderField = ({ label, name, type='text', isRequired=false }) => (
         <p className="w-full text-sm rounded-md p-2 mr-2">
-            <label className="text-black inline-block min-w-[245px] text-2xl font-bold" htmlFor={name}>
+            <label 
+                htmlFor={name}
+                className="form-label inline-block min-w-[245px]" 
+            >
                 {label}:
             </label>
             <input
@@ -50,17 +53,17 @@ function AddRose() {
                 name={name}
                 maxLength={255}
                 required={isRequired}
-                className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full"
+                className="form-input inline-block"
             />
         </p>
     );
 
     const renderSelect = ({ label, name, options }) => (
         <p className="w-full text-sm rounded-md p-2 mr-2">
-            <label className="text-black inline-block min-w-[245px] text-2xl font-bold" htmlFor={name}>
+            <label className="form-label inline-block min-w-[245px]" htmlFor={name}>
                 {label}:
             </label>
-            <select name={name} className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full">
+            <select name={name} className="form-input inline-block">
                 {options.map((option) => (
                     <option key={option.id} value={option.id}>
                         {option.name}

@@ -43,7 +43,7 @@ function App() {
                       pattern-size-6 pattern-opacity-100 min-h-screen flex 
                       items-center justify-center font-hedwig"
     >
-      <div className="bg-white w-full md:w-3/4 max-w-7xl mx-auto sm:my-10 sm:rounded-large sm:p-12 px-0 py-12 sm:shadow-1xl">
+      <div className="bg-white w-full md:w-3/4 max-w-7xl mx-auto sm:my-6 sm:rounded-large sm:p-12 px-0 py-8 sm:shadow-1xl">
         {routes}
       </div>
     </div>

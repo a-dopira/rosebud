@@ -26,14 +26,14 @@ function SearchPanel() {
                      hover:bg-rose-800 flex-shrink-0 justify-center">
       <form className="flex items-center" method="get" onSubmit={onSubmit}>
         <input 
-          className="w-44 text-xl rounded-md p-2 mr-2" 
+          className="w-44 form-input rounded-l-md mr-2" 
           name="search_rose" 
           type="text" 
           value={inputValue} 
           onChange={e => setInputValue(e.target.value)}
           placeholder="Поиск..."
         />
-        <button type="submit">
+        <button type="submit" className="touch-manipulation">
           <Magnifier/>
         </button>
       </form>

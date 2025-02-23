@@ -67,17 +67,17 @@ const Profile = () => {
   const handleCloseModal = () => {
     if (modalRef.current && modalContentRef.current) {
       requestAnimationFrame(() => {
-        modalRef.current.classList.remove('animate-fade-in');
-        modalRef.current.classList.add('animate-fade-out');
+      modalRef.current.classList.remove('animate-fade-in');
+      modalRef.current.classList.add('animate-fade-out');
       modalContentRef.current.classList.remove('animate-fade-in');
       modalContentRef.current.classList.add('animate-fade-out');
       });
-      // Оставляем paddingRight до завершения анимации
+      
       setTimeout(() => {
         document.body.style.overflow = '';
         document.body.style.paddingRight = '';
         setEditing(false);
-      }, 500); // Время анимации
+      }, 500);
     }
   };
 
@@ -89,7 +89,7 @@ const Profile = () => {
       formData.append('image', data.image[0]);
     }
     handleUpdateProfile(formData);
-    setEditing(false);
+    handleCloseModal();
   };
 
   const {
@@ -101,14 +101,15 @@ const Profile = () => {
   return (
     <>
       <Helmet>
-        <title>{profileUsername ? profileUsername : 'Пупсик'} | Главная</title>
+        <title>{profileUsername ? profileUsername : 'Rosebud'} | Главная</title>
       </Helmet>
 
       <div
         className={`
-          relative px-2.5 rounded-3xl 
-          pattern-vertical-lines pattern-rose-500 pattern-size-16 pattern-bg-umbra pattern-opacity-100
-          overflow-hidden
+          relative px-2.5 sm:rounded-3xl rounded-none
+          pattern-vertical-lines pattern-rose-500 pattern-size-16 
+          pattern-bg-umbra pattern-opacity-100
+          overflow-hidden touch-manipulation
         `}
       >
         <button
@@ -148,7 +149,8 @@ const Profile = () => {
               transition-all duration-500 ease-in-out
               ${isCollapsed ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}
             `}>
-              <div className="flex flex-wrap justify-center items-center gap-20 p-4 md:px-10 lg:px-20">
+              <div className="flex flex-wrap justify-center items-center sm:gap-20 gap-10 p-4 md:px-10 lg:px-20">
+
                 {/* Изображение */}
                 <div className="w-[300px] h-[300px] flex-shrink-0 rounded-full shadow-1xl overflow-hidden">
                   <img
@@ -159,13 +161,13 @@ const Profile = () => {
                 </div>
 
                 {/* Оранжевый блок */}
-                <div className="flex flex-col items-center min-w-[290px]">
-                  <div className="w-[290px] min-h-[300px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4 transition-all duration-500">
-                    <div id="profileInfoBlock" className="text-center p-4">
-                      <div className="font-bold text-white mb-6 text-xl md:text-3xl break-words">
+                <div className="flex flex-col items-center min-w-[250px]">
+                  <div className="w-[290px] min-h-[250px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4 transition-all duration-500">
+                    <div id="profileInfoBlock" className="text-center p-4 space-y-6">
+                      <div className="font-bold text-white text-xl md:text-3xl break-words">
                         {profileUsername}
                       </div>
-                      <div className="text-base md:text-xl text-black font-lemon-tuesday break-words">
+                      <div className="font-lemon-tuesday text-black text-base md:text-xl break-words">
                         {user?.email}
                       </div>
                     </div>
@@ -182,8 +184,8 @@ const Profile = () => {
             </div>
           </div>
         </div>
-
-        {/* Modal remains unchanged */}
+        
+        {/* Модальное окно */}
         {isEditing && (
           <div
             ref={modalRef}
@@ -214,7 +216,7 @@ const Profile = () => {
 
               {/* Форма */}
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
-                <label htmlFor="username" className="font-serif font-bold text-gray-800">
+                <label htmlFor="username" className="form-label">
                   ИЗМЕНИТЬ ИМЯ
                 </label>
                 <input
@@ -226,7 +228,7 @@ const Profile = () => {
                 />
                 <p className="text-red-600 text-sm">{errors.username?.message}</p>
 
-                <label htmlFor="app_header" className="font-serif font-bold text-gray-800">
+                <label htmlFor="app_header" className="form-label">
                   ИЗМЕНИТЬ НАЗВАНИЕ
                 </label>
                 <input
@@ -238,7 +240,7 @@ const Profile = () => {
                 />
                 <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
 
-                <label htmlFor="image" className="font-serif font-bold text-gray-800">
+                <label htmlFor="image" className="form-label">
                   ЗАГРУЗИТЬ ФОТО
                 </label>
                 <input
@@ -253,7 +255,7 @@ const Profile = () => {
                 <button
                   type="submit"
                   name="change_user_profile"
-                  className="w-full bg-dotted-spacing-3.5 btn-red text-sm h-8 rounded-md"
+                  className="w-full btn-red text-sm h-8"
                 >
                   Применить изменения
                 </button>

@@ -22,10 +22,8 @@ function LoginPage() {
     resolver: yupResolver(schema),
   });
 
-  // Используем useRef для отслеживания монтирования
   const isMounted = useRef(false);
 
-  // Оптимизируем проверку авторизации
   useEffect(() => {
     if (!isMounted.current) {
       isMounted.current = true;
@@ -37,10 +35,9 @@ function LoginPage() {
     }
   }, [user, navigate]);
 
-  // Оптимизируем login запрос
   const login = useCallback(async (email, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -60,7 +57,6 @@ function LoginPage() {
     }
   }, [checkAuth]);
 
-  // Оптимизируем обработчик отправки формы
   const onSubmit = useCallback(async (data) => {
     const success = await login(data.email, data.password);
     if (success) {
@@ -75,68 +71,51 @@ function LoginPage() {
       <Helmet>
         <title>{'Добро пожаловать!'}</title>
       </Helmet>
-      <div className="px-8 min-h-max mx-auto">
-        <form 
-          className="max-w-sm mx-auto" 
-          onSubmit={handleSubmit(onSubmit)}
-          style={{ willChange: 'transform' }}
-        >
-          <div className="mb-5">
-            <label 
-              htmlFor="email" 
-              className="block mb-2 text-xl md:text-3xl font-medium text-gray-900"
-            >
-              Почта
-            </label>
+      <div className="h-full w-full flex items-center justify-center">
+        <form className="max-w-sm mx-auto space-y-5" onSubmit={handleSubmit(onSubmit)}>
+          <label htmlFor="email" className="block text-xl md:text-3xl font-medium text-gray-900">
+            Почта
+          </label>
+          <div className="flex flex-col">
             <input 
               {...register('email')} 
               id="email"
               type="email"
               placeholder="Почта" 
-              className={`border-2 text-lg md:text-2xl p-2 rounded-md w-full transform translate-z-0 
-                ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-              style={{ touchAction: 'manipulation' }}
+              className={`form-input text-lg md:text-2xl ${errors.email && 'border-red-500'}`}
             />
-            {errors.email && <div className='text-red-900'>{errors.email.message}</div>}
+            <div className="min-h-8 text-red-900">
+              {errors.email && errors.email.message}
+            </div>
           </div>
 
-          <div className="mb-5">
-            <label 
-              htmlFor="password" 
-              className="block mb-2 text-xl md:text-3xl font-medium text-gray-900"
-            >
-              Пароль
-            </label>
+          <label htmlFor="password" className="block text-xl md:text-3xl font-medium text-gray-900">
+            Пароль
+          </label>
+          <div className="flex flex-col">
             <input 
               {...register('password')} 
               id="password"
               type="password"
               placeholder="Пароль" 
-              className={`border-2 text-lg md:text-2xl p-2 rounded-md w-full transform translate-z-0
-                ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-              style={{ touchAction: 'manipulation' }}
+              className={`form-input text-lg md:text-2xl ${errors.password && 'border-red-500' }`}
             />
-            {errors.password && <div className='text-red-900'>{errors.password.message}</div>}
-            {loginErrors && <div className='text-red-900'>Неверные почта или пароль</div>}
+            <div className="min-h-8 text-red-900">
+                {loginErrors ? 'Неверный логин или пароль' : errors.password ? errors.password.message : ''}
+            </div>
           </div>
 
-          <div className="flex items-center justify-center min-w-max">
+          <div className="flex items-center justify-center min-w-max space-x-5">
             <button 
               type="submit" 
-              className="mr-5 h-10 w-[100px] xs:w-36 btn-red text-base md:text-2xl 
-                       bg-dotted-spacing-3.5 bg-dotted-gray-200 bg-dotted-radius-[1.5px] 
-                       flex items-center justify-center transform translate-z-0"
-              style={{ touchAction: 'manipulation' }}
+              className="btn-red h-10 w-full text-base md:text-2xl flex items-center justify-center"
             >
               Войти
             </button>
             <button 
               type="button" 
               onClick={() => requestAnimationFrame(() => navigate('/register'))} 
-              className="h-10 w-[180px] xs:w-60 btn-amber text-base md:text-2xl 
-                       bg-dotted-spacing-3.5 bg-dotted-gray-200 bg-dotted-radius-[1.5px] 
-                       flex items-center justify-center transform translate-z-0"
-              style={{ touchAction: 'manipulation' }}
+              className="btn-amber h-10 w-full text-base md:text-2xl flex items-center justify-center"
             >
               Зарегистрироваться
             </button>

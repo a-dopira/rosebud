@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import DataContext from "../../context/DataContext";
-import dropdown_arrow from '../../assets/icons/down-arrow-svgrepo-com.svg'
+import Arrow from "../../utils/Arrow";
 
 
 function CategorySelect() {
@@ -30,14 +30,12 @@ function CategorySelect() {
         }
     }, []);
 
-    // Обработчик скролла и ресайза
     const handlePositionUpdate = useCallback(() => {
         if (isOpen) {
             updateDropdownPosition();
         }
     }, [isOpen, updateDropdownPosition]);
 
-    // Обработчик кликов вне dropdown
     const handleClickOutside = useCallback((event) => {
         if (isOpen &&
             buttonRef.current &&
@@ -48,8 +46,7 @@ function CategorySelect() {
         }
     }, [isOpen]);
 
-    // Обработчик нажатия клавиши Escape
-    const handleEscapeKey = useCallback((event) => {
+    const handleEscape = useCallback((event) => {
         if (isOpen && event.key === 'Escape') {
             setIsOpen(false);
         }
@@ -61,37 +58,39 @@ function CategorySelect() {
             window.addEventListener('scroll', handlePositionUpdate);
             window.addEventListener('resize', handlePositionUpdate);
             document.addEventListener('mousedown', handleClickOutside);
-            document.addEventListener('keydown', handleEscapeKey);
+            document.addEventListener('keydown', handleEscape);
         } else {
             window.removeEventListener('scroll', handlePositionUpdate);
             window.removeEventListener('resize', handlePositionUpdate);
             document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscapeKey);
+            document.removeEventListener('keydown', handleEscape);
         }
 
         return () => {
             window.removeEventListener('scroll', handlePositionUpdate);
             window.removeEventListener('resize', handlePositionUpdate);
             document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscapeKey);
+            document.removeEventListener('keydown', handleEscape);
         };
-    }, [isOpen, handlePositionUpdate, handleClickOutside, handleEscapeKey]);
+    }, [isOpen]);
 
     return (
         <>
-            <div
-                className="menu flex-shrink-0 justify-center w-40"
+            <button
+                className="menu flex-shrink-0 justify-center w-[160px] touch-none"
                 ref={buttonRef}
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="group cursor-pointer">
-                    <div className="dotted-back px-5 py-2 rounded font-bold
-                        text-xl flex justify-between w-full bg-white shadow-sm gap-3.5">
+                    <div className="px-5 py-2 rounded font-bold
+                        text-xl flex justify-between w-full 
+                        bg-white shadow-sm gap-2.5"
+                    >
                         Категории
-                        <img width="10" src={dropdown_arrow} alt="dropdown-arrow" />
+                        <Arrow direction="8 14 14 22 20 14" />
                     </div>
                 </div>
-            </div>
+            </button>
 
             {isOpen && createPortal(
                 <div
@@ -102,7 +101,7 @@ function CategorySelect() {
                     <ul className="rounded border-[1px] border-gray-300 
                         bg-white shadow-md w-full">
                         {groups.map(group => (
-                            <li key={group.id} className="drop-menu-item w-full hover:bg-gray-100">
+                            <li key={group.id} className="drop-menu-item w-full hover:bg-gray-100 touch-auto">
                                 <Link
                                     to={`home/group/${group.name}`}
                                     onClick={() => {

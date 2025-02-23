@@ -46,8 +46,8 @@ const DeleteNotificationModal = ({
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 p-16">
-            <div className="relative w-1/2 bg-white p-8 rounded-lg">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 p-16 z-[100]">
+            <div className="relative w-1/2 bg-white p-8 rounded-lg space-x-2 space-y-2">
                 <span
                     className="absolute top-4 right-4 cursor-pointer text-red-500 text-3xl font-semibold hover:text-umbra"
                     onClick={closeModal}
@@ -57,13 +57,13 @@ const DeleteNotificationModal = ({
                 <p>Вы уверены, что хотите удалить {itemType}?</p>
                 <button
                     onClick={deleteItem}
-                    className="bg-red-500 text-white px-4 py-2 mt-4 rounded"
+                    className="btn-red rounded"
                 >
                     Да, удалить
                 </button>
                 <button
                     onClick={closeModal}
-                    className="bg-gray-300 text-black px-4 py-2 mt-4 rounded"
+                    className="btn-gray rounded"
                 >
                     Нет, отмена
                 </button>

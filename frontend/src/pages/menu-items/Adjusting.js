@@ -17,12 +17,31 @@ function Adjusting() {
     const [pests, setPests] = useState([]);
     const [fungi, setFungi] = useState([]);
 
+    console.log('adjusting');
+
     useEffect(() => {
         const fetchResources = async () => {
-            await loadResources('groups/').then(setGroupList)
-            await loadResources('breeders/').then(setBreederList)
-            await loadResources('pests/').then(setPests)
-            await loadResources('fungi/').then(setFungi)
+            try {
+                
+                const [groups, breeders, pestsData, fungiData] = await Promise.all([
+                    loadResources('groups/'),
+                    loadResources('breeders/'),
+                    loadResources('pests/'),
+                    loadResources('fungi/')
+                ]);
+    
+                console.log("Группы:", groups);
+                console.log("Селекционеры:", breeders);
+                console.log("Вредители:", pestsData);
+                console.log("Грибы:", fungiData);
+    
+                setGroupList(groups);
+                setBreederList(breeders);
+                setPests(pestsData);
+                setFungi(fungiData);
+            } catch (error) {
+                console.error("Ошибка загрузки данных:", error);
+            }
         };
     
         fetchResources();
@@ -100,7 +119,7 @@ function Adjusting() {
             <Helmet>
                 <title>{'Настроить'}</title>
             </Helmet>
-            <div className="animate-fade-in">
+            <div className="animate-fade-in space-y-4">
                 {configData.map(({ label, value, setValue, list, endpoint, notificationMessages, listId, setList }) => (
                     <AdjustForm
                         key={listId}

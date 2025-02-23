@@ -9,8 +9,8 @@ def all_fields_serializer(model, exclude=None, many=True, read_only=True, **kwar
     exclude = exclude or []
 
     serializer_class = type(
-        f"{model.__name__}Serializer",  # Dynamically name the serializer
-        (serializers.ModelSerializer,),  # Base class
+        f"{model.__name__}Serializer",
+        (serializers.ModelSerializer,),
         {
             "Meta": type(
                 "Meta",

@@ -80,21 +80,37 @@ class UserProfileView(APIView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get("refresh")
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
         if not refresh_token:
             return Response({"error": "No refresh token found"}, status=401)
-
-        serializer = self.get_serializer(data={"refresh": refresh_token})
-        serializer.is_valid(raise_exception=True)
-        access_token = serializer.validated_data["access"]
-
-        response = Response({"message": "Token refreshed"})
-        response.set_cookie(
-            key="access",
-            value=access_token,
-            httponly=True,
-            secure=True,
-            samesite="None",
-        )
-
-        return response
+        
+        try:
+            # Проверка и обновление refresh токена
+            serializer = self.get_serializer(data={"refresh": refresh_token})
+            serializer.is_valid(raise_exception=True)
+            access_token = serializer.validated_data["access"]
+            
+            response = Response({"message": "Token refreshed successfully"})
+            
+            # Устанавливаем обновленный access токен
+            response.set_cookie(
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=access_token,
+                httponly=True,
+                secure=True,
+                samesite="None",
+            )
+            
+            # Возвращаем тот же refresh токен (или, если вы используете ROTATE_REFRESH_TOKENS=True, новый refresh токен)
+            if "refresh" in serializer.validated_data:
+                response.set_cookie(
+                    key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
+                    value=serializer.validated_data["refresh"],
+                    httponly=True,
+                    secure=True,
+                    samesite="None",
+                )
+            
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=401)
