@@ -1,133 +1,77 @@
 import { useCallback, useState } from "react";
 import useAxios from "./useAxios";
 
-const useRoses = () => {
+export const useRoses = () => {
   const api = useAxios();
-  
   const [rosesList, setRosesList] = useState([]);
   const [rosesMessage, setRosesMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
 
-  const loadRoses = useCallback(async (page, filterObj) => {
-    if (isLoading) return null;
+  const loadRoses = useCallback(async (page = 1, filter = {}) => {
     setIsLoading(true);
-    
     try {
-      const params = new URLSearchParams({ ...filterObj, page });
-      const response = await api.get(`roses/?${params.toString()}`);
+      const params = new URLSearchParams();
       
-      const { message, results } = response.data;
-      setRosesMessage(message || null);
-
-      if (!results?.roses) {
-        setRosesList([]);
-        return {
-          totalPages: 1,
-          roses: []
-        };
+      Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, value);
+        }
+      });
+      
+      params.append('page', page);
+      
+      const response = await api.get(`/roses/?${params.toString()}`);
+      
+      // Обновляем список роз только если это обычное получение данных
+      // В случае с handleRoseDeletion мы иногда вручную устанавливаем rosesList
+      setRosesList(response.data.results.roses);
+      
+      if (response.data.results.roses.length === 0) {
+        setRosesMessage('Нет роз по заданному поиску. Попробуй что-то другое...');
+      } else {
+        setRosesMessage(null);
       }
-
-      setRosesList(results.roses);
-      return {
-        totalPages: results.total_pages || 1,
-        roses: results.roses
-      };
-
-    } catch (error) {
-      setRosesMessage('Произошла ошибка при загрузке роз');
-      setRosesList([]);
-      return {
-        totalPages: 1,
-        roses: []
-      };
-    } finally {
+      
       setIsLoading(false);
-    }
-  }, [api, isLoading]);
-
-  const addRose = useCallback(async (roseData) => {
-    setIsLoading(true);
-    try {
-      const response = await api.post('roses/', roseData);
-      setRosesMessage('Роза успешно добавлена');
-      return response.data;
+      return { 
+        totalPages: response.data.results.total_pages,
+        roses: response.data.results.roses
+      };
     } catch (error) {
-      console.error('Error adding rose:', error);
-      setRosesMessage('Ошибка при добавлении розы');
-      throw error;
-    } finally {
+      console.error('Ошибка при загрузке роз:', error);
+      setRosesMessage('Что-то пошло не так...');
       setIsLoading(false);
+      return { totalPages: 1, roses: [] };
     }
   }, [api]);
 
   const deleteRose = useCallback(async (roseId) => {
-    setIsLoading(true);
     try {
-      await api.delete(`roses/${roseId}/`);
-      setRosesList(prev => prev.filter(rose => rose.id !== roseId));
-      setRosesMessage('Роза успешно удалена');
+      await api.delete(`/roses/${roseId}/`);
+      
+      // Не изменяем локальный state - это будет сделано при перезагрузке данных
+      
+      return { success: true };
     } catch (error) {
-      console.error('Error deleting rose:', error);
-      setRosesMessage('Ошибка при удалении розы');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]);
-
-  const updateRose = useCallback(async (roseId, roseData) => {
-    setIsLoading(true);
-    try {
-      const response = await api.patch(`roses/${roseId}/`, roseData);
-      setRosesList(prev => 
-        prev.map(rose => 
-          rose.id === roseId ? { ...rose, ...response.data } : rose
-        )
-      );
-      setRosesMessage('Роза успешно обновлена');
-      return response.data;
-    } catch (error) {
-      console.error('Error updating rose:', error);
-      setRosesMessage('Ошибка при обновлении розы');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [api]);
-
-  const getRoseById = useCallback(async (roseId) => {
-    setIsLoading(true);
-    try {
-      const response = await api.get(`roses/${roseId}/`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching rose:', error);
-      setRosesMessage('Ошибка при загрузке розы');
-      throw error;
-    } finally {
-      setIsLoading(false);
+      console.error('Ошибка при удалении розы:', error);
+      return { 
+        success: false, 
+        error: error?.response?.data?.detail || 'Ошибка при удалении розы' 
+      };
     }
   }, [api]);
 
   return {
-    // data
     rosesList,
+    setRosesList,
     rosesMessage,
+    setRosesMessage,
     isLoading,
     totalPages,
-    
-    // state managers
-    setRosesList,
     setTotalPages,
-    setRosesMessage,
-    
-    // crud
     loadRoses,
-    addRose,
-    deleteRose,
-    updateRose,
-    getRoseById
+    deleteRose
   };
 };
 

@@ -1,29 +1,22 @@
-import { createContext, useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, createContext } from "react";
+import useAxios from "../hooks/useAxios"; 
 
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const api = useAxios();
 
   const checkAuth = async () => {
     setAuthLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/user-profile/", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",    
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      } else {
-        setUser(null);
-      }
+      const response = await api.get("/user-profile/");
+      setUser(response.data);
     } catch (err) {
+      console.error("Ошибка при проверке аутентификации:", err);
       setUser(null);
     } finally {
       setAuthLoading(false);
@@ -33,11 +26,11 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setAuthLoading(true);
     try {
-        await fetch("http://127.0.0.1:8000/api/logout/", {
-        method: "POST",
-        credentials: "include",
-      });
+      await api.post("/logout/");
       setUser(null);
+      
+      window.location.href = '/login';
+      
     } catch (error) {
       console.error("Ошибка при запросе на logout:", error);
     } finally {
@@ -55,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     setUser,
     checkAuth,
     logout,
-  }), [ user, authLoading ])
+  }), [ user, authLoading ]);
 
   return (
     <AuthContext.Provider value={ context }>

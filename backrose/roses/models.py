@@ -38,7 +38,7 @@ class Group(models.Model):
 def prevent_group_deletion(sender, instance, **kwargs):
     if instance.roses.exists():
         raise models.ProtectedError(
-            f"Невозможно удалить группу {instance.title} поскольку к ней привязаны розы",
+            f"Невозможно удалить группу {instance.name} поскольку к ней привязаны розы",
             instance,
         )
 
@@ -56,7 +56,7 @@ class Breeder(models.Model):
 
 
 class Pest(models.Model):
-    name = models.TextField()
+    name = models.TextField(unique=True)
 
     def __str__(self):
         return self.name
@@ -75,7 +75,7 @@ class Pesticide(models.Model):
 
 
 class Fungus(models.Model):
-    name = models.TextField()
+    name = models.TextField(unique=True)
 
     def __str__(self):
         return self.name

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, memo, useMemo } from "react";
+import { useRef, useState, useEffect, useCallback, memo } from "react";
 
 import SearchPanel from "../menu-items/SearchPanel";
 import Logout from "../menu-items/Logout";
@@ -30,7 +30,6 @@ const AdaptiveMenu = ({ children }) => {
     });
   }, []);
 
-  // Объединяем обработчики событий в один useEffect
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -42,7 +41,6 @@ const AdaptiveMenu = ({ children }) => {
     window.addEventListener("resize", handleScroll);
     container.addEventListener("scroll", handleScroll, { passive: true });
     
-    // Начальная проверка после монтирования
     handleScroll();
 
     return () => {
@@ -62,7 +60,7 @@ const AdaptiveMenu = ({ children }) => {
   const showArrows = !isWideScreen && (canScrollLeft || canScrollRight);
   
   return (
-    <div className="w-full bg-amber-500 h-20 dotted-back mx-auto my-12 overflow-visible sticky top-5 z-20">
+    <div className="w-full bg-amber-500 h-20 dotted-back mx-auto my-12 overflow-visible sticky top-5 z-20 shadow-lg">
       <div 
         ref={containerRef}
         className="overflow-x-auto overflow-y-visible menu-scrollbar-hide h-full relative z-10"

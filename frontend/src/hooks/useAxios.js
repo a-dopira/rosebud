@@ -10,15 +10,26 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response && 
+      error.response.status === 401 && 
+      !originalRequest._retry &&
+      !originalRequest.url.includes('/token/refresh/')
+    ) {
       originalRequest._retry = true;
 
       try {
-        await axiosInstance.post('/token/refresh/', {}, { withCredentials: true });
-        return axiosInstance(originalRequest);
+        const refreshResponse = await axios.post(
+          `${process.env.REACT_APP_API_URL}token/refresh/`, 
+          {}, 
+          { withCredentials: true }
+        );
+        
+        if (refreshResponse.status === 200) {
+          return axiosInstance(originalRequest);
+        }
       } catch (refreshError) {
-        return Promise.reject(refreshError);
+        console.log(refreshError);
       }
     }
 

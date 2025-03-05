@@ -1,4 +1,4 @@
-import { Navigate, useRoutes } from "react-router-dom";
+import { Navigate, useRoutes, useLocation } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Homepage from "./pages/Homepage";
@@ -15,6 +15,8 @@ function App() {
 
   const { authLoading } = useContext(AuthContext);
   const { loading } = useRosebud();
+
+  const location = useLocation();
 
   const routes = useRoutes([
     { 
@@ -43,7 +45,11 @@ function App() {
                       pattern-size-6 pattern-opacity-100 min-h-screen flex 
                       items-center justify-center font-hedwig"
     >
-      <div className="bg-white w-full md:w-3/4 max-w-7xl mx-auto sm:my-6 sm:rounded-large sm:p-12 px-0 py-8 sm:shadow-1xl">
+      <div className={`bg-white w-full md:w-3/4 max-w-7xl mx-auto 
+        ${location.pathname === '/home' || location.pathname === '/' ? 
+          'sm:my-8 md:my-6' : 'sm:my-6'} 
+        sm:rounded-large sm:p-12 px-0 py-8 sm:shadow-1xl min-h-0`}
+      >
         {routes}
       </div>
     </div>

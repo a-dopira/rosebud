@@ -10,7 +10,7 @@ function AddRose() {
     const { showNotification } = useNotification();
 
     const { loadResources } = useRosebud();
-    const { groups, loadGroups } = useContext(DataContext);
+    const { groups } = useContext(DataContext);
 
     const [breeders, setBreeders] = useState([]);
     
@@ -20,7 +20,6 @@ function AddRose() {
             setBreeders(breeders);
         };
 
-        loadGroups();
         fetchData();
     }, []);
 
@@ -31,8 +30,6 @@ function AddRose() {
         try {
             await api.post('roses/', formData);
             showNotification('Роза успешно создана');
-    
-            loadGroups(); 
         } catch (error) {
             if (error.response?.status === 400) {
                 showNotification(`Роза с таким названием уже существует`);
@@ -112,7 +109,7 @@ function AddRose() {
                                     name={name}
                                     cols="40"
                                     rows="5"
-                                    className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full"
+                                    className="form-input inline-block"
                                 />
                             </p>
                         ))}

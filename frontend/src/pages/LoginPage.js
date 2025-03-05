@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
 import AuthContext from "../context/AuthContext"
-
+import useAxios from "../hooks/useAxios"
 
 const schema = yup.object().shape({
   email: yup.string().required('Почта обязательна для заполнения'),
@@ -14,9 +14,10 @@ const schema = yup.object().shape({
 });
 
 function LoginPage() {
-  const { checkAuth, user } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [loginErrors, setLoginError] = useState(null);
+  const { checkAuth, user } = useContext(AuthContext);
+  const api = useAxios();
+  const navigate = useNavigate();
   
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
@@ -33,18 +34,14 @@ function LoginPage() {
         });
       }
     }
-  }, [user, navigate]);
+  }, []);
 
   const login = useCallback(async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}login/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
 
-      if (response.ok) {
+      const response = await api.post('/login/', { email, password });
+
+      if (response.status === 200) {
         await checkAuth();
         return true;
       } else {

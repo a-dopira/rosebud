@@ -1,5 +1,3 @@
-import useAxios from '../hooks/useAxios';
-import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
@@ -8,42 +6,28 @@ const DeleteNotificationModal = ({
         itemType,
         apiEndpoint,
         setShowModal,
-        updateState,
-    }) => {
-
-    const api = useAxios();
-    const { showNotification } = useNotification();
-    const navigate = useNavigate();
-
-    const deleteItem = async () => {
-        try {
-            await api.delete(`/${apiEndpoint}/${itemId}/`);
-            setShowModal(false);
-            showNotification('Удаление успешно выполнено.');
-
-            if (updateState) {
-                updateState((prevState) =>
-                    Array.isArray(prevState)
-                        ? prevState.filter((item) => item.id !== itemId)
-                        : { ...prevState, [apiEndpoint]: prevState[apiEndpoint].filter((item) => item.id !== itemId) }
-                );
+        onDelete
+      }) => {
+        const { showNotification } = useNotification();
+        
+        const handleDelete = async () => {
+          try {
+            if (onDelete) {
+              await onDelete();
+              showNotification('Удаление успешно выполнено.');
+            } else {
+              showNotification('Ошибка: отсутствует обработчик удаления.');
             }
-
-            if (apiEndpoint === 'roses' && updateState) {
-                const response = await api.get('/roses/');
-                updateState(response.data.results.roses);
-            }
-
-            navigate('/home/collection/');
-
-        } catch (error) {
+          } catch (error) {
+            console.error('Ошибка при удалении:', error);
             showNotification('Произошла ошибка при удалении.');
-        }
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-    };
+          }
+        };
+        
+        const closeModal = () => {
+          setShowModal(false);
+        };
+      
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 p-16 z-[100]">
@@ -56,7 +40,7 @@ const DeleteNotificationModal = ({
                 </span>
                 <p>Вы уверены, что хотите удалить {itemType}?</p>
                 <button
-                    onClick={deleteItem}
+                    onClick={handleDelete}
                     className="btn-red rounded"
                 >
                     Да, удалить

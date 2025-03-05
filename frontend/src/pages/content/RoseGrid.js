@@ -10,6 +10,7 @@ const RoseGrid = memo(function RoseGrid() {
   const [selectedRose, setSelectedRose] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [previousFilter, setPreviousFilter] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   const location = useLocation();
   const { filter, setFilter } = useContext(DataContext);
@@ -21,8 +22,8 @@ const RoseGrid = memo(function RoseGrid() {
     totalPages,
     loadRoses,
     deleteRose,
-    setRosesList,
-    setTotalPages 
+    setTotalPages,
+    setRosesList, 
   } = useRoses();
 
   useEffect(() => {
@@ -80,7 +81,58 @@ const RoseGrid = memo(function RoseGrid() {
   const openModal = useCallback((roseData) => {
     setSelectedRose(roseData);
     setShowModal(true);
+    setDeleteError(null);
   }, []);
+
+  const handleRoseDeletion = useCallback(async () => {
+    if (!selectedRose?.id) {
+      setDeleteError('Неверный ID розы');
+      return;
+    }
+    
+    try {
+      const result = await deleteRose(selectedRose.id);
+      
+      if (!result.success) {
+        setDeleteError(result.error);
+        return;
+      }
+      
+      const currentPageResponse = await loadRoses(currentPage, filter);
+      const rosesOnCurrentPage = currentPageResponse.roses.length;
+      
+      if (rosesOnCurrentPage === 0 && currentPage > 1) {
+        const newPage = currentPage - 1;
+        await loadRoses(newPage, filter);
+        setCurrentPage(newPage);
+        setTotalPages(currentPageResponse.totalPages);
+      } 
+      else if (currentPage < currentPageResponse.totalPages) {
+        const nextPageResponse = await loadRoses(currentPage + 1, filter);
+        
+        if (nextPageResponse.roses.length > 0) {
+          const additionalRose = nextPageResponse.roses[0];
+          const combinedRoses = [...currentPageResponse.roses, additionalRose];
+          
+          setRosesList(combinedRoses);
+          
+          setTotalPages(nextPageResponse.totalPages);
+        } else {
+          setTotalPages(currentPageResponse.totalPages);
+        }
+      }
+      else {
+        setTotalPages(currentPageResponse.totalPages);
+      }
+      
+      setShowModal(false);
+      setSelectedRose(null);
+      
+    } catch (error) {
+      console.error('Ошибка при удалении розы:', error);
+      setDeleteError('Ошибка при удалении розы');
+    }
+  }, [selectedRose, deleteRose, currentPage, filter, loadRoses, setTotalPages, setRosesList]);
 
   if (!rosesMessage && (!rosesList || rosesList.length <= 0)) {
     return (
@@ -92,6 +144,8 @@ const RoseGrid = memo(function RoseGrid() {
       </div>
     );
   }
+
+  console.log("rosegrid rerender");
 
   return (
     <div className="animate-fade-in">
@@ -147,7 +201,7 @@ const RoseGrid = memo(function RoseGrid() {
           </span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === totalPages
                 ? 'bg-rose-800 cursor-not-allowed'
@@ -165,15 +219,7 @@ const RoseGrid = memo(function RoseGrid() {
           itemType={selectedRose.name}
           apiEndpoint="roses"
           setShowModal={setShowModal}
-          onDelete={async () => {
-            try {
-              await deleteRose(selectedRose.id);
-              setShowModal(false);
-            } catch (error) {
-              console.error('Error deleting rose:', error);
-            }
-          }}
-          updateState={setRosesList}
+          onDelete={handleRoseDeletion}
         />
       )}    
     </div>

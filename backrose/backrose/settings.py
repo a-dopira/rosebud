@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "django_filters",
     "rest_framework_simplejwt.token_blacklist",
     "roses.apps.RosesConfig",
     "userprofile.apps.UserprofileConfig",
@@ -118,6 +119,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "userprofile.authenticate.CustomAuthentication",
     ),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
 }
 
 SIMPLE_JWT = {
@@ -146,7 +150,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
     "AUTH_COOKIE": "access",
     "AUTH_COOKIE_REFRESH": "refresh",
-    "AUTH_COOKIE_DOMAIN": "None",
+    "AUTH_COOKIE_DOMAIN": None,
     "AUTH_COOKIE_SECURE": True,
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",

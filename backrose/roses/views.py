@@ -1,12 +1,12 @@
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import viewsets, status
-from django.db.models import Count, Q
+from common import DynamicViewSet, dynamic_serializer
 from django.db import IntegrityError
+from django.db.models import Count, ProtectedError
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from common.viewsets import DynamicViewSet
-
+from .filters import RoseFilter
 from .pagination import RosePagination
 from .models import (
     Group,
@@ -35,52 +35,47 @@ from .serializers import (
 
 
 class RoseViewSet(viewsets.ModelViewSet):
-    queryset = Rose.objects.all().order_by("id")
+    queryset = Rose.objects.all().order_by("id").prefetch_related(
+        'feedings',
+        'foliages',
+        'rosephotos',
+        'sizes',
+        'videos',
+        'pesticides',
+        'fungicides'
+    )
+    permission_classes = [IsAuthenticated]
     serializer_class = RoseSerializer
     pagination_class = RosePagination
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        self.group = self.request.query_params.get("group")
-        self.search = self.request.query_params.get("search")
-
-        if self.group:
-            queryset = queryset.filter(group__name=self.group)
-
-        if self.search:
-            queryset = queryset.filter(
-                Q(title__iregex=self.search)
-                | Q(title_eng__iregex=self.search)
-                | Q(breeder__name__iregex=self.search)
-            )
-        return queryset
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RoseFilter
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
 
-        # Формируем сообщение
-        message = ""
-        if self.group:
-            message += f"Результаты по группе: {self.group}"
-        if self.search:
-            message += f"Результаты по запросу: {self.search}"
+        group = request.query_params.get("group")
+        search = request.query_params.get("search")
 
-        # Если ничего не найдено
+        message = ""
+        if group:
+            message += f"Результаты по группе: {group}"
+        if search:
+            if message:
+                message += ", "
+            message += f"Результаты по запросу: {search}"
+
         if not queryset.exists():
             message = "По результату поиска"
-            if self.group:
-                message += f" по группе: {self.group}"
-            if self.search:
-                message += f" по запросу: {self.search}"
+            if group:
+                message += f" по группе: {group}"
+            if search:
+                message += f" по запросу: {search}"
             message += " ничего не найдено, попробуйте что-то другое."
             return Response(
                 {"message": message, "results": []}, status=status.HTTP_200_OK
             )
-
-        # Если данные найдены
+        
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             response_data = self.get_paginated_response(serializer.data).data
@@ -88,8 +83,8 @@ class RoseViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             response_data = serializer.data
         return Response(
-            {"message": message, "results": response_data}, status=status.HTTP_200_OK
-        )
+                {"message": message, "results": response_data}, status=status.HTTP_200_OK
+            )
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -115,29 +110,6 @@ class RoseViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    @action(detail=True, methods=["delete"], url_path="delete_photo")
-    def delete_photo(self, request, pk=None):
-        rose = self.get_object()
-        rose.photo.delete()  # Удаление фотографии
-        rose.photo = "images/cap_rose.png"  # Установка заглушки
-        rose.save()
-        return Response(
-            {"detail": "Фото удалено", "photo": rose.photo.url},
-            status=status.HTTP_200_OK,
-        )
-
-
-class PesticideViewSet(viewsets.ModelViewSet):
-    queryset = Pesticide.objects.all()
-    serializer_class = PesticideSerializer
-    permission_classes = [IsAuthenticated]
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = {"id": instance.id, "name": instance.name}
-        self.perform_destroy(instance)
-        return Response(data, status=status.HTTP_200_OK)
-
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.annotate(rose_count=Count("roses"))
@@ -145,30 +117,36 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_fields = ["name"]
 
-    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
-    def names(self, request):
-        group_names = Group.objects.annotate(rose_count=Count("roses")).values_list(
-            "id", "name", "rose_count"
-        )
-        return Response(group_names)
-
-    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
-    def roses(self, request, pk=None):
-        group = self.get_object()
-        roses = group.roses.values_list("id", "title", "photo", "group")
-        return Response(roses)
-
-
-class FungicideViewSet(viewsets.ModelViewSet):
-    queryset = Fungicide.objects.all()
-    serializer_class = FungicideSerializer
-    permission_classes = [IsAuthenticated]
+    def create(self, request, *args, **kwargs):
+        name = request.data.get('name')
+        if name and Group.objects.filter(name=name).exists():
+            return Response(
+                {"detail": "Группа с таким названием уже существует."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response({"message": f"Группа {serializer.data['name']} успешно добавлена."}, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response(
+                {"detail": "Группа с таким названием уже существует."},
+                status=status.HTTP_409_CONFLICT,
+            )
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = {"id": instance.id, "name": instance.name}
-        self.perform_destroy(instance)
-        return Response(data, status=status.HTTP_200_OK)
+        try:
+            instance = self.get_object()
+            data = {"id": instance.id, "name": instance.name}
+            self.perform_destroy(instance)
+            return Response({"message": f"Группа {instance.name} удалена."}, status=status.HTTP_200_OK)
+        except ProtectedError:
+            return Response(
+                {"detail": "Невозможно удалить группу поскольку к ней привязаны розы."},
+                status=status.HTTP_409_CONFLICT,
+            )
 
 
 class SizeViewSet(viewsets.ModelViewSet):
@@ -207,17 +185,44 @@ class FoliageViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class PesticideViewSet(viewsets.ModelViewSet):
+    queryset = Pesticide.objects.all()
+    serializer_class = PesticideSerializer
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {"id": instance.id, "name": instance.name}
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class FungicideViewSet(viewsets.ModelViewSet):
+    queryset = Fungicide.objects.all()
+    serializer_class = FungicideSerializer
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {"id": instance.id, "name": instance.name}
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
+
+
 class BreederViewSet(DynamicViewSet):
     model = Breeder
     exclude = ["slug"]
+    entity_name = "Селекционер"
 
 
 class FungusViewSet(DynamicViewSet):
     model = Fungus
+    entity_name = "Гриб"
 
 
 class PestViewSet(DynamicViewSet):
     model = Pest
+    entity_name = "Вредитель"
 
 
 class RosePhotoViewSet(DynamicViewSet):
@@ -226,3 +231,35 @@ class RosePhotoViewSet(DynamicViewSet):
 
 class VideoViewSet(DynamicViewSet):
     model = Video
+
+
+class AdjustmentViewSet(viewsets.ViewSet):
+    """
+    Get breeders, pests, fungi, groups all at once
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def list(self, request):
+        try:
+
+            groups = Group.objects.annotate(rose_count = Count("roses"))
+            breeders = Breeder.objects.all()
+            pests = Pest.objects.all()
+            fungi = Fungus.objects.all()
+            
+            group_serializer = GroupSerializer(groups, many=True)
+            breeder_serializer = dynamic_serializer(Breeder, exclude=["slug"])(breeders, many=True)
+            pest_serializer = dynamic_serializer(Pest)(pests, many=True)
+            fungi_serializer = dynamic_serializer(Fungus)(fungi, many=True)
+            
+            return Response({
+                'groups': group_serializer.data,
+                'breeders': breeder_serializer.data,
+                'pests': pest_serializer.data,
+                'fungi': fungi_serializer.data
+            })
+        except Exception as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )

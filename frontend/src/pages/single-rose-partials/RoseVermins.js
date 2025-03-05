@@ -1,5 +1,5 @@
-import { useEffect, useContext, useState } from 'react';
-import DataContext from '../../context/RoseListContext';
+import { useContext, useState } from 'react';
+import DataContext from '../../context/DataContext';
 import RoseContext from '../../context/RoseContext';
 import { Helmet } from 'react-helmet';
 
@@ -7,14 +7,9 @@ import { NewProductForm, Product } from './Vermins';
 
 const Pesticides = ({ rosePesticides }) => {
     
-    const { pests, loadPests } = useContext(DataContext)
+    const { pests } = useContext(DataContext)
 
     const [showForm, setShowForm] = useState(false);
-
-    useEffect(() => {
-        loadPests()
-    }, [])
-
 
     return (
         <div className='animate-fade-in'>
@@ -31,14 +26,10 @@ const Pesticides = ({ rosePesticides }) => {
 
 const Fungicides = ({ roseFungicides }) => {
     
-    const { fungi, loadFungi } = useContext(DataContext)
+    const { fungi } = useContext(DataContext)
     const { setRose } = useContext(RoseContext)
 
     const [showForm, setShowForm] = useState(false);
-
-    useEffect(() => {
-        loadFungi()
-    }, [])
 
     return (
         <div className='animate-fade-in'>

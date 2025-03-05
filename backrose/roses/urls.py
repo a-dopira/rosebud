@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import (
     GroupViewSet,
@@ -12,6 +13,7 @@ from .views import (
     RosePhotoViewSet,
     VideoViewSet,
     FoliageViewSet,
+    AdjustmentViewSet,
 )
 
 router = DefaultRouter()
@@ -27,5 +29,6 @@ router.register(r"feedings", FeedingViewSet, basename="feeding")
 router.register(r"rosephotos", RosePhotoViewSet, basename="rosephoto")
 router.register(r"videos", VideoViewSet, basename="video")
 router.register(r"foliages", FoliageViewSet, basename="foliage")
+router.register(r"adjustment", AdjustmentViewSet, basename="adjustment")
 
 urlpatterns = router.urls

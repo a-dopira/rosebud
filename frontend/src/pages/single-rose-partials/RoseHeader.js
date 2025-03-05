@@ -19,6 +19,8 @@ function RoseHeader({ setFilter }) {
     const [isEditing, setIsEditing] = useState(false)
     const api = useAxios()
 
+    console.log(rose)
+
     useEffect(() => {
         const fetchData = async () => {
             await loadResources('breeders/').then(setBreeders)
@@ -69,7 +71,7 @@ function RoseHeader({ setFilter }) {
             <div className="flex">
                 <div className="flex h-8 bg-umbra rounded-l-full">
                     <Link className="flex bg-rose-500 px-2 py-1 text-white rounded-l-full justify-center text-center hover:text-white"
-                       to={`home/group/${rose.group_name}`} onClick={() => setFilter(rose.group_name)}>
+                       to={`home/${rose.group_name}`} onClick={() => setFilter(rose.group_name)}>
                     { rose.group_name }
                     </Link>
                     <div className="w-0 h-0

@@ -5,6 +5,7 @@ simpleclassname.py
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
 frontend/src/utils/Loading.js
+frontend/src/context/RoseListContext.js
 frontend/public/icons8-rose-96.svg
 frontend/public/magnifier.svg
 

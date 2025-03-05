@@ -1,52 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import { Helmet } from 'react-helmet';
-import useRosebud from '../../hooks/useRosebud';
 import AdjustForm from './AdjustForm';
 
+import DataContext from '../../context/DataContext';
+
 function Adjusting() {
-
-    const { loadResources } = useRosebud();
-
+    
+    const { 
+        groups: groupList, 
+        breeders: breederList, 
+        pests,
+        fungi,
+        updateGroupsDirectly,
+        updateBreedersDirectly,
+        updatePestsDirectly,
+        updateFungiDirectly
+    } = useContext(DataContext);
+    
     const [group, setGroup] = useState({ id: '', name: '' });
     const [breeder, setBreeder] = useState({ id: '', name: '' });
     const [pest, setPest] = useState({ id: '', name: '' });
     const [fungus, setFungus] = useState({ id: '', name: '' });
-
-    const [groupList, setGroupList] = useState([]);
-    const [breederList, setBreederList] = useState([]);
-    const [pests, setPests] = useState([]);
-    const [fungi, setFungi] = useState([]);
-
+    
     console.log('adjusting');
-
-    useEffect(() => {
-        const fetchResources = async () => {
-            try {
-                
-                const [groups, breeders, pestsData, fungiData] = await Promise.all([
-                    loadResources('groups/'),
-                    loadResources('breeders/'),
-                    loadResources('pests/'),
-                    loadResources('fungi/')
-                ]);
     
-                console.log("Группы:", groups);
-                console.log("Селекционеры:", breeders);
-                console.log("Вредители:", pestsData);
-                console.log("Грибы:", fungiData);
+    const syncGroupList = useCallback((newList) => {
+        updateGroupsDirectly(newList);
+    }, [updateGroupsDirectly]);
     
-                setGroupList(groups);
-                setBreederList(breeders);
-                setPests(pestsData);
-                setFungi(fungiData);
-            } catch (error) {
-                console.error("Ошибка загрузки данных:", error);
-            }
-        };
+    const syncBreederList = useCallback((newList) => {
+        updateBreedersDirectly(newList);
+    }, [updateBreedersDirectly]);
     
-        fetchResources();
-    }, []);
-
+    const syncPestList = useCallback((newList) => {
+        updatePestsDirectly(newList);
+    }, [updatePestsDirectly]);
+    
+    const syncFungiList = useCallback((newList) => {
+        updateFungiDirectly(newList);
+    }, [updateFungiDirectly]);
+    
     const configData = [
         {
             label: "Настроить группу:",
@@ -54,15 +47,9 @@ function Adjusting() {
             setValue: setGroup,
             list: groupList,
             endpoint: 'groups/',
-            notificationMessages: {
-                addSuccess: 'Группа "{name}" успешно добавлена.',
-                addError: 'Группа с именем "{name}" уже существует. Пожалуйста, выберите другое имя.',
-                deleteSuccess: 'Группа "{name}" успешно удалена.',
-                deleteError: 'Группа "{name}" уже удалена.',
-                deleteEmpty: 'Пожалуйста, выберите группу для удаления.',
-            },
+            notificationMessages: {},
             listId: "group_list",
-            setList: setGroupList,
+            setList: syncGroupList,
         },
         {
             label: "Настроить селекционера:",
@@ -70,15 +57,9 @@ function Adjusting() {
             setValue: setBreeder,
             list: breederList,
             endpoint: 'breeders/',
-            notificationMessages: {
-                addSuccess: 'Селекционер "{name}" успешно добавлен.',
-                addError: 'Селекционер с именем "{name}" уже существует. Пожалуйста, выберите другое имя.',
-                deleteSuccess: 'Селекционер "{name}" успешно удален.',
-                deleteError: 'Селекционер "{name}" уже удален.',
-                deleteEmpty: 'Пожалуйста, выберите селекционера для удаления.',
-            },
+            notificationMessages: {},
             listId: "breeder_list",
-            setList: setBreederList,
+            setList: syncBreederList,
         },
         {
             label: "Настроить вредителей:",
@@ -86,15 +67,9 @@ function Adjusting() {
             setValue: setPest,
             list: pests,
             endpoint: 'pests/',
-            notificationMessages: {
-                addSuccess: 'Вредитель "{name}" успешно добавлен.',
-                addError: 'Вредитель с именем "{name}" уже существует. Пожалуйста, выберите другое имя.',
-                deleteSuccess: 'Вредитель "{name}" успешно удален.',
-                deleteError: 'Вредитель "{name}" уже удален.',
-                deleteEmpty: 'Пожалуйста, выберите вредителя для удаления.',
-            },
+            notificationMessages: {},
             listId: "pest_list",
-            setList: setPests,
+            setList: syncPestList,
         },
         {
             label: "Настроить грибы:",
@@ -102,24 +77,18 @@ function Adjusting() {
             setValue: setFungus,
             list: fungi,
             endpoint: 'fungi/',
-            notificationMessages: {
-                addSuccess: 'Гриб "{name}" успешно добавлен.',
-                addError: 'Гриб с именем "{name}" уже существует. Пожалуйста, выберите другое имя.',
-                deleteSuccess: 'Гриб "{name}" успешно удален.',
-                deleteError: 'Гриб "{name}" уже удален.',
-                deleteEmpty: 'Пожалуйста, выберите гриб для удаления.',
-            },
+            notificationMessages: {},
             listId: "fungi_list",
-            setList: setFungi,
+            setList: syncFungiList,
         },
     ];
-
+    
     return (
         <>
             <Helmet>
                 <title>{'Настроить'}</title>
             </Helmet>
-            <div className="animate-fade-in space-y-4">
+            <div className="">
                 {configData.map(({ label, value, setValue, list, endpoint, notificationMessages, listId, setList }) => (
                     <AdjustForm
                         key={listId}

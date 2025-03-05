@@ -22,25 +22,25 @@ const ProductForm = ({ product, onSubmit }) => {
 
     return (
         <form 
-            className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg" 
+            className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg space-y-2" 
             onSubmit={handleSubmit}
         >
             <label className="text-xl font-bold">
                 По листу:
             </label>
-            <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="text" value={leaf} onChange={e => setLeaf(e.target.value)} />
+            <input className="inline-block form-input" type="text" value={leaf} onChange={e => setLeaf(e.target.value)} />
             <label className="text-xl font-bold">
                 Дата прикормки:
             </label>
-            <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="date" value={leaf_time} onChange={e => setLeafTime(e.target.value)} />
+            <input className="inline-block form-input" type="date" value={leaf_time} onChange={e => setLeafTime(e.target.value)} />
             <label className="text-xl font-bold">
                 По корню:
             </label>
-            <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="text" value={basal} onChange={e => setBasal(e.target.value)} />
+            <input className="inline-block form-input" type="text" value={basal} onChange={e => setBasal(e.target.value)} />
             <label className="text-xl font-bold">
                 Дата прикормки:
             </label>
-            <input className="inline-block border-2 p-2 mr-2 rounded-md text-black w-full" type="date" value={basal_time} onChange={e => setBasalTime(e.target.value)} />
+            <input className="inline-block form-input" type="date" value={basal_time} onChange={e => setBasalTime(e.target.value)} />
             <button type="submit" className="btn-red mt-2">Изменить</button>
         </form>
     );

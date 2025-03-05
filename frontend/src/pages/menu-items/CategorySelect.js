@@ -6,16 +6,12 @@ import Arrow from "../../utils/Arrow";
 
 
 function CategorySelect() {
-    const { groups, loadGroups, setFilter } = useContext(DataContext);
+    const { groups, setFilter } = useContext(DataContext);
     const [isOpen, setIsOpen] = useState(false);
     const buttonRef = useRef(null);
     const dropdownRef = useRef(null);
     const dropdownStyleRef = useRef({});
     const [dropdownStyle, setDropdownStyle] = useState({});
-
-    useEffect(() => {
-        loadGroups();
-    }, []);
 
     const updateDropdownPosition = useCallback(() => {
         if (buttonRef.current) {
@@ -53,8 +49,8 @@ function CategorySelect() {
     }, [isOpen]);
 
     useEffect(() => {
+        updateDropdownPosition();
         if (isOpen) {
-            updateDropdownPosition();
             window.addEventListener('scroll', handlePositionUpdate);
             window.addEventListener('resize', handlePositionUpdate);
             document.addEventListener('mousedown', handleClickOutside);
@@ -73,7 +69,7 @@ function CategorySelect() {
             document.removeEventListener('keydown', handleEscape);
         };
     }, [isOpen]);
-
+    
     return (
         <>
             <button
