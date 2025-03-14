@@ -15,16 +15,14 @@ const schema = yup.object().shape({
 
 function LoginPage() {
   const [loginErrors, setLoginError] = useState(null);
-  const { checkAuth, user } = useContext(AuthContext);
+  const { fetchUserProfile, user } = useContext(AuthContext);
   const api = useAxios();
   const navigate = useNavigate();
-  
+
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-
   const isMounted = useRef(false);
-
   useEffect(() => {
     if (!isMounted.current) {
       isMounted.current = true;
@@ -35,14 +33,11 @@ function LoginPage() {
       }
     }
   }, []);
-
   const login = useCallback(async (email, password) => {
     try {
-
       const response = await api.post('/login/', { email, password });
-
       if (response.status === 200) {
-        await checkAuth();
+        await fetchUserProfile();
         return true;
       } else {
         setLoginError("Неверный логин или пароль");
@@ -52,8 +47,7 @@ function LoginPage() {
       setLoginError("Ошибка соединения с сервером");
       return false;
     }
-  }, [checkAuth]);
-
+  }, [fetchUserProfile]);
   const onSubmit = useCallback(async (data) => {
     const success = await login(data.email, data.password);
     if (success) {
@@ -70,7 +64,7 @@ function LoginPage() {
       </Helmet>
       <div className="h-full w-full flex items-center justify-center">
         <form className="max-w-sm mx-auto space-y-5" onSubmit={handleSubmit(onSubmit)}>
-          <label htmlFor="email" className="block text-xl md:text-3xl font-medium text-gray-900">
+          <label htmlFor="email" className="form-label text-xl md:text-3xl">
             Почта
           </label>
           <div className="flex flex-col">
@@ -86,7 +80,7 @@ function LoginPage() {
             </div>
           </div>
 
-          <label htmlFor="password" className="block text-xl md:text-3xl font-medium text-gray-900">
+          <label htmlFor="password" className="form-label text-xl md:text-3xl">
             Пароль
           </label>
           <div className="flex flex-col">

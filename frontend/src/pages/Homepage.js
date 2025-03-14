@@ -8,16 +8,19 @@ import RoseGrid from "./content/RoseGrid";
 import RoseLayout from "./content/RoseLayout";
 
 import { RoseProvider } from '../context/RoseContext';
+import { RoseListProvider } from '../context/RoseListContext';
 
 
 function RoseList() {
     return (
-        <Routes>
-            <Route index element={<RoseGrid/>} />
-            <Route path="collection" element={<RoseGrid  />} /> 
-            <Route path="group/:groupName" element={<RoseGrid/>} /> 
-            <Route path="search" element={<RoseGrid/>} /> 
-        </Routes>
+        <RoseListProvider>
+            <Routes>
+                <Route index element={<RoseGrid/>} />
+                <Route path="collection" element={<RoseGrid  />} /> 
+                <Route path="group/:groupName" element={<RoseGrid/>} /> 
+                <Route path="search" element={<RoseGrid/>} /> 
+            </Routes>
+        </RoseListProvider>
     )
 }
 

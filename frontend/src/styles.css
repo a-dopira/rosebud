@@ -10,14 +10,14 @@
   }
   @font-face {
     font-family: 'Lemon Tuesday';
-    src: url('./assets/fonts/Lemon\ Tuesday.otf');
+    src: url('./assets/fonts/Lemon Tuesday.otf');
   }
 }
 
 @layer components {
   
   .form-label {
-    @apply text-2xl font-bold text-black;
+    @apply text-2xl font-medium text-black;
   }
 
   .form-input {
@@ -47,7 +47,7 @@
   }
   
   .rose-card {
-    @apply relative flex flex-col items-center h-60 w-56 cursor-pointer border-[1px] 
+    @apply relative flex flex-col items-center h-72 w-56 cursor-pointer border-[1px] 
     border-solid border-gray-300 hover:translate-y-[-2px] hover:shadow-3xl-rounded 
     shadow-1xl overflow-hidden rounded-xl 
   }

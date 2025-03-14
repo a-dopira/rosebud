@@ -1,15 +1,16 @@
 import { useState, useContext, useEffect, useCallback, memo } from "react";
 import { useLocation, Link } from "react-router-dom";
-import useRoses from "../../hooks/useRoses";
 
 import DataContext from "../../context/DataContext";
+import { RoseListContext } from "../../context/RoseListContext";
+
+import Loader from "../../utils/Loaders/Loader";
+import { RoseLoader } from "../../utils/Loaders/RoseLoader";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 const RoseGrid = memo(function RoseGrid() {
   const [modal, setShowModal] = useState(false);
   const [selectedRose, setSelectedRose] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [previousFilter, setPreviousFilter] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
 
   const location = useLocation();
@@ -17,66 +18,21 @@ const RoseGrid = memo(function RoseGrid() {
   
   const { 
     rosesList, 
-    rosesMessage, 
-    isLoading,
+    rosesMessage,
     totalPages,
-    loadRoses,
+    currentPage,
     deleteRose,
-    setTotalPages,
-    setRosesList, 
-  } = useRoses();
+    handlePage,
+    isLoading
+  } = useContext(RoseListContext);
 
   useEffect(() => {
-    const shouldResetFilter = location.pathname.includes('home/collection') && 
-      (Object.keys(filter).length > 0 || location.state?.resetFilter);
-
-    if (shouldResetFilter) {
-      setPreviousFilter({});
+    if (location.pathname.includes('home/collection') && 
+        (Object.keys(filter).length > 0 || location.state?.resetFilter)) {
       setFilter({});
-      loadRoses(1, {}).then(response => {
-        if (response?.totalPages) {
-          setTotalPages(response.totalPages);
-        }
-      });
     }
-  }, [location.pathname, location.state, filter, setFilter, loadRoses, setTotalPages]);
-
-  useEffect(() => {
-    const filterChanged = JSON.stringify(filter) !== JSON.stringify(previousFilter);
-    
-    if (filterChanged && !location.pathname.includes('home/collection')) {
-      loadRoses(1, filter)
-        .then(response => {
-          if (response?.totalPages) {
-            setTotalPages(response.totalPages);
-          }
-          setCurrentPage(1);
-          setPreviousFilter(filter);
-        });
-    }
-  }, [filter, loadRoses, previousFilter, location.pathname, setTotalPages]);
-
-  useEffect(() => {
-    const initialFilter = location.pathname.includes('home/collection') ? {} : filter;
-    loadRoses(1, initialFilter)
-      .then(response => {
-        if (response?.totalPages) {
-          setTotalPages(response.totalPages);
-        }
-        setCurrentPage(1);
-        setPreviousFilter(initialFilter);
-      });
-  }, []); // eslint-disable-line
-
-  const handlePageChange = useCallback(async (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage && !isLoading) {
-      const response = await loadRoses(newPage, filter);
-      if (response?.totalPages) {
-        setTotalPages(response.totalPages);
-      }
-      setCurrentPage(newPage);
-    }
-  }, [currentPage, totalPages, filter, loadRoses, isLoading, setTotalPages]);
+    console.log('grid\'s useEffect');
+  }, [location.pathname, location.state, filter, setFilter]);
 
   const openModal = useCallback((roseData) => {
     setSelectedRose(roseData);
@@ -98,48 +54,28 @@ const RoseGrid = memo(function RoseGrid() {
         return;
       }
       
-      const currentPageResponse = await loadRoses(currentPage, filter);
-      const rosesOnCurrentPage = currentPageResponse.roses.length;
-      
-      if (rosesOnCurrentPage === 0 && currentPage > 1) {
-        const newPage = currentPage - 1;
-        await loadRoses(newPage, filter);
-        setCurrentPage(newPage);
-        setTotalPages(currentPageResponse.totalPages);
-      } 
-      else if (currentPage < currentPageResponse.totalPages) {
-        const nextPageResponse = await loadRoses(currentPage + 1, filter);
-        
-        if (nextPageResponse.roses.length > 0) {
-          const additionalRose = nextPageResponse.roses[0];
-          const combinedRoses = [...currentPageResponse.roses, additionalRose];
-          
-          setRosesList(combinedRoses);
-          
-          setTotalPages(nextPageResponse.totalPages);
-        } else {
-          setTotalPages(currentPageResponse.totalPages);
-        }
-      }
-      else {
-        setTotalPages(currentPageResponse.totalPages);
-      }
-      
       setShowModal(false);
       setSelectedRose(null);
-      
     } catch (error) {
       console.error('Ошибка при удалении розы:', error);
       setDeleteError('Ошибка при удалении розы');
     }
-  }, [selectedRose, deleteRose, currentPage, filter, loadRoses, setTotalPages, setRosesList]);
+  }, [selectedRose, deleteRose]);
 
-  if (!rosesMessage && (!rosesList || rosesList.length <= 0)) {
+  if (isLoading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!rosesList) {
     return (
       <div className="animate-fade-in space-y-8">
         <p className="text-xl">У вас пока нету роз. Добавьте новую розу!</p>
         <button className="btn-red">
-          <Link to="home/addrose/">Добавить</Link>
+          <Link to="/addrose/">Добавить</Link>
         </button>
       </div>
     );
@@ -167,11 +103,24 @@ const RoseGrid = memo(function RoseGrid() {
                 &times;
               </button>
               <Link to={`/${rose.id}/notes`} className="text-center w-full space-y-2">
-                <img
-                  src={rose.photo}
-                  alt={rose.title}
-                  className="p-4 h-48 object-contain"
-                />
+              <div className="p-4 h-48 relative flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-300" 
+                       id={`loader-${rose.id}`}>
+                    <RoseLoader />
+                  </div>
+                  
+                  <img
+                    src={rose.photo}
+                    alt={rose.title}
+                    className="h-full object-contain transition-opacity duration-300 opacity-0"
+                    loading="lazy"
+                    onLoad={(e) => {
+                      e.target.classList.replace('opacity-0', 'opacity-100');
+                      const loader = document.getElementById(`loader-${rose.id}`);
+                      if (loader) loader.classList.add('opacity-0');
+                    }}
+                  />
+                </div>
                 <div>{rose.title}</div>
               </Link>
             </div>
@@ -183,7 +132,7 @@ const RoseGrid = memo(function RoseGrid() {
       {rosesList.length > 0 && (
         <div className="pagination mt-5 flex justify-center items-center space-x-4">
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => handlePage(currentPage - 1)}
             disabled={currentPage === 1}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === 1
@@ -200,7 +149,7 @@ const RoseGrid = memo(function RoseGrid() {
             {currentPage}
           </span>
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => handlePage(currentPage + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === totalPages

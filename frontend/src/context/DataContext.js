@@ -1,11 +1,11 @@
-import { createContext, useState, useCallback, useEffect } from "react";
+import { createContext, useState, useCallback, useEffect, useRef } from "react";
 import useRosebud from "../hooks/useRosebud";
 
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
     const { loadResources } = useRosebud();
-    const [referenceData, setReferenceData] = useState({
+    const [data, setData] = useState({
         groups: [],
         breeders: [],
         pests: [],
@@ -14,94 +14,75 @@ export const DataProvider = ({ children }) => {
     const [filter, setFilter] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const loadAllReferenceData = useCallback(async () => {
+    
+    const lastLoadTime = useRef(0);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const initialLoadDone = useRef(false);
+    
+    const loadData = useCallback(async (forceRefresh = false) => {
+        const now = Date.now();
+        
+        if (!forceRefresh && 
+            initialLoadDone.current && 
+            data.groups.length > 0 && 
+            now - lastLoadTime.current < CACHE_DURATION) {
+            console.log('Using cached adjustment data');
+            return data;
+        }
+        
         try {
             setLoading(true);
-            const data = await loadResources('adjustment/');
-            setReferenceData(data);
+            console.log('Loading adjustment data from API');
+            const newData = await loadResources('adjustment/');
+            setData(newData);
+            lastLoadTime.current = now;
+            initialLoadDone.current = true;
             setError(null);
+            return newData;
         } catch (err) {
             setError(err.detail || 'Ошибка загрузки данных');
             console.error('Ошибка загрузки справочных данных:', err);
+            return null;
         } finally {
             setLoading(false);
         }
+    }, [loadResources, data]);
+    
+    const loadGroups = useCallback(async () => {
+        try {
+            const groupsData = await loadResources('groups/');
+            setData(prev => ({
+                ...prev,
+                groups: groupsData
+            }));
+            return groupsData;
+        } catch (err) {
+            console.error('Ошибка при обновлении групп:', err);
+            return null;
+        }
     }, [loadResources]);
-
+    
     useEffect(() => {
-        loadAllReferenceData();
-    }, [loadAllReferenceData]);
-
-    const updateGroups = useCallback(async () => {
-        try {
-            const groups = await loadResources('groups/');
-            setReferenceData(prev => ({ ...prev, groups }));
-        } catch (error) {
-            console.error('Ошибка обновления групп:', error);
-        }
-    }, [loadResources]);
-
-    const updateBreeders = useCallback(async () => {
-        try {
-            const breeders = await loadResources('breeders/');
-            setReferenceData(prev => ({ ...prev, breeders }));
-        } catch (error) {
-            console.error('Ошибка обновления селекционеров:', error);
-        }
-    }, [loadResources]);
-
-    const updatePests = useCallback(async () => {
-        try {
-            const pests = await loadResources('pests/');
-            setReferenceData(prev => ({ ...prev, pests }));
-        } catch (error) {
-            console.error('Ошибка обновления вредителей:', error);
-        }
-    }, [loadResources]);
-
-    const updateFungi = useCallback(async () => {
-        try {
-            const fungi = await loadResources('fungi/');
-            setReferenceData(prev => ({ ...prev, fungi }));
-        } catch (error) {
-            console.error('Ошибка обновления грибов:', error);
-        }
-    }, [loadResources]);
-
-    const updateGroupsDirectly = useCallback((groups) => {
-        setReferenceData(prev => ({ ...prev, groups }));
+        loadData();
     }, []);
-
-    const updateBreedersDirectly = useCallback((breeders) => {
-        setReferenceData(prev => ({ ...prev, breeders }));
+    
+    const updateData = useCallback((type, newData) => {
+        setData(prev => ({ ...prev, [type]: newData }));
     }, []);
-
-    const updatePestsDirectly = useCallback((pests) => {
-        setReferenceData(prev => ({ ...prev, pests }));
-    }, []);
-
-    const updateFungiDirectly = useCallback((fungi) => {
-        setReferenceData(prev => ({ ...prev, fungi }));
-    }, []);
-
+    
     const value = {
-        ...referenceData,
+        ...data,
         loading,
         error,
         filter,
         setFilter,
-        loadAllReferenceData,
-        updateGroups,
-        updateBreeders,
-        updatePests,
-        updateFungi,
-        updateGroupsDirectly,
-        updateBreedersDirectly,
-        updatePestsDirectly,
-        updateFungiDirectly
+        updateData,
+        loadData,
+        loadGroups,
     };
-
+    
+    console.log('DataContext on board, my captain!');
+    
     return (
         <DataContext.Provider value={value}>
             {children}

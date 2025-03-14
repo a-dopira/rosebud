@@ -1,15 +1,12 @@
 import { useContext } from "react";
-import { useNavigate } from 'react-router-dom';
 import AuthContext from "../../context/AuthContext";
 
 function Logout() {
     const { logout } = useContext(AuthContext);
-    const navigate = useNavigate();
 
     const handleLogout = async (event) => {
         event.preventDefault();
         await logout();
-        navigate('/login');
     };
 
     return (

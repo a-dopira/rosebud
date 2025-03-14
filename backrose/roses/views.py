@@ -129,7 +129,15 @@ class GroupViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            return Response({"message": f"Группа {serializer.data['name']} успешно добавлена."}, status=status.HTTP_201_CREATED)
+            
+            # Получаем обновленный список групп
+            updated_groups = Group.objects.annotate(rose_count=Count("roses"))
+            groups_serializer = self.get_serializer(updated_groups, many=True)
+            
+            return Response({
+                "message": f"Группа {serializer.data['name']} успешно добавлена.",
+                "items": groups_serializer.data  # Добавляем полный список групп в ответ
+            }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response(
                 {"detail": "Группа с таким названием уже существует."},
@@ -139,9 +147,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            data = {"id": instance.id, "name": instance.name}
+            name = instance.name
             self.perform_destroy(instance)
-            return Response({"message": f"Группа {instance.name} удалена."}, status=status.HTTP_200_OK)
+            
+            # Получаем обновленный список групп
+            updated_groups = Group.objects.annotate(rose_count=Count("roses"))
+            groups_serializer = self.get_serializer(updated_groups, many=True)
+            
+            return Response({
+                "message": f"Группа {name} удалена.",
+                "items": groups_serializer.data  # Добавляем полный список групп в ответ
+            }, status=status.HTTP_200_OK)
         except ProtectedError:
             return Response(
                 {"detail": "Невозможно удалить группу поскольку к ней привязаны розы."},
@@ -209,6 +225,14 @@ class FungicideViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class RosePhotoViewSet(DynamicViewSet):
+    model = RosePhoto
+
+
+class VideoViewSet(DynamicViewSet):
+    model = Video
+
+
 class BreederViewSet(DynamicViewSet):
     model = Breeder
     exclude = ["slug"]
@@ -223,14 +247,6 @@ class FungusViewSet(DynamicViewSet):
 class PestViewSet(DynamicViewSet):
     model = Pest
     entity_name = "Вредитель"
-
-
-class RosePhotoViewSet(DynamicViewSet):
-    model = RosePhoto
-
-
-class VideoViewSet(DynamicViewSet):
-    model = Video
 
 
 class AdjustmentViewSet(viewsets.ViewSet):

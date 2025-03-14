@@ -21,7 +21,8 @@ function RegisterPage() {
     resolver: yupResolver(schema)
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, event) => {
+    event.preventDefault();
     registerUser(data.email, data.username, data.password, data.password2);
   };
 
@@ -32,61 +33,71 @@ function RegisterPage() {
       </Helmet>
       <div className="animate-fade-in">
         <div className="min-h-max mx-auto">
-          <form className="max-w-sm mx-auto" onSubmit={handleSubmit(onSubmit)}>
-            <div className="mb-5">
-              <label htmlFor="username" className="block mb-2 text-3xl font-medium text-gray-900">Логин</label>
+          <form className="max-w-sm mx-auto space-y-5" onSubmit={handleSubmit(onSubmit)}>
+
+            <div className="space-y-2">
+              <label htmlFor="username" className="form-label">Логин</label>
               <input
                 id="username"
                 placeholder="Логин"
-                className={`border-2 text-2xl border-gray-300 p-2 rounded-md w-full ${errors.username ? 'border-red-500' : ''}`}
+                className={`form-input text-lg md:text-2xl ${errors.username ? 'border-red-500' : ''}`}
                 {...register('username')}
               />
-              {errors.username && <p className="text-red-500">Это поле обязательно</p>}
+              <span className='h-5 block text-red-500'>
+                {errors.username && 'Это поле обязательно'}
+              </span>
             </div>
 
-            <div className="mb-5">
-              <label htmlFor="email" className="block mb-2 text-3xl font-medium text-gray-900">Email</label>
+            <div className="space-y-2">
+              <label htmlFor="email" className="form-label">Email</label>
               <input
                 id="email"
                 placeholder="Email"
-                className={`border-2 text-2xl border-gray-300 p-2 rounded-md w-full ${errors.email ? 'border-red-500' : ''}`}
+                className={`form-input text-lg md:text-2xl ${errors.email ? 'border-red-500' : ''}`}
                 {...register('email')}
               />
-              {errors.email && <p className="text-red-500">Введите корректный email</p>}
+              <span className='h-5 block text-red-500'>
+                {errors.email && 'Введите корректный email'}
+              </span>
             </div>
 
-            <div className="mb-5">
-              <label htmlFor="password" className="block mb-2 text-3xl font-medium text-gray-900">Пароль</label>
+            <div className="space-y-2">
+              <label htmlFor="password" className="form-label">Пароль</label>
               <input
                 id="password"
                 type="password"
                 placeholder="Пароль"
-                className={`border-2 text-2xl border-gray-300 p-2 rounded-md w-full ${errors.password ? 'border-red-500' : ''}`}
+                className={`form-input text-lg md:text-2xl ${errors.password ? 'border-red-500' : ''}`}
                 {...register('password')}
               />
-              {errors.password && <p className="text-red-500">Пароль должен быть не менее 8 символов</p>}
+              <span className='h-5 block text-red-500'>
+                {errors.password && 'Пароль должен быть не менее 8 символов'}
+              </span>
             </div>
 
-            <div className="mb-5">
-              <label htmlFor="password2" className="block mb-2 text-3xl font-medium text-gray-900">Подтвердите пароль</label>
+            <div className="space-y-2"> 
+              <label htmlFor="password2" className="form-label font-medium">Подтвердите пароль</label>
               <input
                 id="password2"
                 type="password"
                 placeholder="Подтвердите пароль"
-                className={`border-2 text-2xl border-gray-300 p-2 rounded-md w-full ${errors.password2 ? 'border-red-500' : ''}`}
+                className={`form-input text-lg md:text-2xl ${errors.password2 ? 'border-red-500' : ''}`}
                 {...register('password2')}
               />
-              {errors.password2 && <p className="text-red-500">Пароли должны совпадать</p>}
+              <span className='h-5 block text-red-500'>
+                {errors.password2 && 'Пароли должны совпадать'}
+              </span>
             </div>
 
-            <div className="flex mx-auto items-center justify-center">
-              <button type="submit" className=" mr-5 w-60 py-1.5 btn-amber text-2xl bg-dotted-spacing-3.5 bg-dotted-gray-200 bg-dotted-radius-[1.5px]">
+            <div className="flex items-center justify-center min-w-max space-x-5">
+              <button type="submit" className="btn-amber h-10 w-full text-base md:text-2xl flex items-center justify-center">
                 Зарегистрироваться
               </button>
-              <button type="button" onClick={() => navigate('/login')} className="w-36 btn-red text-2xl bg-dotted-spacing-3.5 bg-dotted-gray-200 bg-dotted-radius-[1.5px]">
+              <button type="button" onClick={() => navigate('/login')} className="btn-red h-10 w-full text-base md:text-2xl flex items-center justify-center">
                 Войти
               </button>
             </div>
+
           </form>
         </div>
       </div>

@@ -4,10 +4,9 @@ startproject.bat
 simpleclassname.py
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
-frontend/src/utils/Loading.js
-frontend/src/context/RoseListContext.js
+frontend/src/utils/Loaders/*
+frontend/src/utils/Magnifier.js
 frontend/public/icons8-rose-96.svg
-frontend/public/magnifier.svg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

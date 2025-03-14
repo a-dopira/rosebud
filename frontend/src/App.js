@@ -4,11 +4,10 @@ import RegisterPage from "./pages/RegisterPage";
 import Homepage from "./pages/Homepage";
 import { DataProvider } from "./context/DataContext";
 import PrivateRouter from "./utils/PrivateRouter";
-import { NotificationProvider } from "./context/NotificationContext";
 import { useContext } from "react";
 import AuthContext from "./context/AuthContext";
 import useRosebud from "./hooks/useRosebud";
-import Loader from "./utils/Loader";
+import Loader from "./utils/Loaders/Loader";
 
 
 function App() {
@@ -22,13 +21,11 @@ function App() {
     { 
       path: '/*',
       element:
-      <NotificationProvider>
         <DataProvider>
           <PrivateRouter>
             <Homepage/>
           </PrivateRouter>
         </DataProvider>
-      </NotificationProvider> 
     },
     { path: 'login/*', element: <LoginPage/> },
     { path: 'register/*', element: <RegisterPage/> },

@@ -7,80 +7,52 @@ import DataContext from '../../context/DataContext';
 function Adjusting() {
     
     const { 
-        groups: groupList, 
-        breeders: breederList, 
+        groups, 
+        breeders, 
         pests,
         fungi,
-        updateGroupsDirectly,
-        updateBreedersDirectly,
-        updatePestsDirectly,
-        updateFungiDirectly
+        updateData
     } = useContext(DataContext);
     
-    const [group, setGroup] = useState({ id: '', name: '' });
-    const [breeder, setBreeder] = useState({ id: '', name: '' });
-    const [pest, setPest] = useState({ id: '', name: '' });
-    const [fungus, setFungus] = useState({ id: '', name: '' });
+    const [values, setValues] = useState({
+        groups: { id: '', name: '' },
+        breeders: { id: '', name: '' },
+        pests: { id: '', name: '' },
+        fungi: { id: '', name: '' }
+    });
     
-    console.log('adjusting');
-    
-    const syncGroupList = useCallback((newList) => {
-        updateGroupsDirectly(newList);
-    }, [updateGroupsDirectly]);
-    
-    const syncBreederList = useCallback((newList) => {
-        updateBreedersDirectly(newList);
-    }, [updateBreedersDirectly]);
-    
-    const syncPestList = useCallback((newList) => {
-        updatePestsDirectly(newList);
-    }, [updatePestsDirectly]);
-    
-    const syncFungiList = useCallback((newList) => {
-        updateFungiDirectly(newList);
-    }, [updateFungiDirectly]);
+    const setValue = useCallback((type, newValue) => {
+        setValues(prev => ({
+            ...prev,
+            [type]: newValue
+        }));
+    }, []);
     
     const configData = [
         {
+            type: 'groups',
             label: "Настроить группу:",
-            value: group,
-            setValue: setGroup,
-            list: groupList,
-            endpoint: 'groups/',
-            notificationMessages: {},
-            listId: "group_list",
-            setList: syncGroupList,
+            list: groups,
+            endpoint: 'groups/'
         },
         {
+            type: 'breeders',
             label: "Настроить селекционера:",
-            value: breeder,
-            setValue: setBreeder,
-            list: breederList,
-            endpoint: 'breeders/',
-            notificationMessages: {},
-            listId: "breeder_list",
-            setList: syncBreederList,
+            list: breeders,
+            endpoint: 'breeders/'
         },
         {
+            type: 'pests',
             label: "Настроить вредителей:",
-            value: pest,
-            setValue: setPest,
             list: pests,
-            endpoint: 'pests/',
-            notificationMessages: {},
-            listId: "pest_list",
-            setList: syncPestList,
+            endpoint: 'pests/'
         },
         {
+            type: 'fungi',
             label: "Настроить грибы:",
-            value: fungus,
-            setValue: setFungus,
             list: fungi,
-            endpoint: 'fungi/',
-            notificationMessages: {},
-            listId: "fungi_list",
-            setList: syncFungiList,
-        },
+            endpoint: 'fungi/'
+        }
     ];
     
     return (
@@ -89,17 +61,16 @@ function Adjusting() {
                 <title>{'Настроить'}</title>
             </Helmet>
             <div className="">
-                {configData.map(({ label, value, setValue, list, endpoint, notificationMessages, listId, setList }) => (
+                {configData.map(({ type, label, list, endpoint }) => (
                     <AdjustForm
-                        key={listId}
+                        key={type}
                         label={label}
-                        value={value}
-                        setValue={setValue}
+                        value={values[type]}
+                        setValue={(newValue) => setValue(type, newValue)}
                         list={list}
                         endpoint={endpoint}
-                        notificationMessages={notificationMessages}
-                        listId={listId}
-                        setList={setList}
+                        setList={(newList) => updateData(type, newList)}
+                        type={type}
                     />
                 ))}
             </div>

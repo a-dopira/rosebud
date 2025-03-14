@@ -1,10 +1,9 @@
-import { useEffect, useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import AuthContext from '../../context/AuthContext';
-import useAxios from '../../hooks/useAxios';
 import { Helmet } from 'react-helmet';
 
 const schema = yup.object().shape({
@@ -16,15 +15,15 @@ const schema = yup.object().shape({
     return supportedFormats.includes(value[0].type);
   }),
 });
+
 const Profile = () => {
-  const [profile, setProfile] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isEditing, setEditing] = useState(false);
 
   const modalRef = useRef(null);
   const modalContentRef = useRef(null);
 
-  const { user } = useContext(AuthContext);
+  const { user, updateUserProfile } = useContext(AuthContext);
 
   const {
     register,
@@ -33,25 +32,6 @@ const Profile = () => {
   } = useForm({
     resolver: yupResolver(schema)
   });
-
-  const api = useAxios();
-
-  const fetchProfile = async () => {
-    const response = await api.get('user-profile/');
-    setProfile(response.data);
-  };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const handleUpdateProfile = async (newData) => {
-    const response = await api.patch('user-profile/', newData);
-    if (response.status === 200) {
-      setProfile(response.data);
-      fetchProfile();
-    }
-  };
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -67,10 +47,10 @@ const Profile = () => {
   const handleCloseModal = () => {
     if (modalRef.current && modalContentRef.current) {
       requestAnimationFrame(() => {
-      modalRef.current.classList.remove('animate-fade-in');
-      modalRef.current.classList.add('animate-fade-out');
-      modalContentRef.current.classList.remove('animate-fade-in');
-      modalContentRef.current.classList.add('animate-fade-out');
+        modalRef.current.classList.remove('animate-fade-in');
+        modalRef.current.classList.add('animate-fade-out');
+        modalContentRef.current.classList.remove('animate-fade-in');
+        modalContentRef.current.classList.add('animate-fade-out');
       });
       
       setTimeout(() => {
@@ -88,7 +68,8 @@ const Profile = () => {
     if (data.image && data.image.length > 0) {
       formData.append('image', data.image[0]);
     }
-    handleUpdateProfile(formData);
+    
+    updateUserProfile(formData);
     handleCloseModal();
   };
 
@@ -96,7 +77,7 @@ const Profile = () => {
     username: profileUsername,
     app_header: profileHeader,
     image: profileImage
-  } = profile || {};
+  } = user || {};
 
   return (
     <>
@@ -151,16 +132,14 @@ const Profile = () => {
             `}>
               <div className="flex flex-wrap justify-center items-center sm:gap-20 gap-10 p-4 md:px-10 lg:px-20">
 
-                {/* Изображение */}
                 <div className="w-[300px] h-[300px] flex-shrink-0 rounded-full shadow-1xl overflow-hidden">
                   <img
-                    src={profileImage || '/default-avatar.png'}
+                    src={profileImage}
                     alt={profileUsername}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
-                {/* Оранжевый блок */}
                 <div className="flex flex-col items-center min-w-[250px]">
                   <div className="w-[290px] min-h-[250px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4 transition-all duration-500">
                     <div id="profileInfoBlock" className="text-center p-4 space-y-6">
@@ -185,7 +164,6 @@ const Profile = () => {
           </div>
         </div>
         
-        {/* Модальное окно */}
         {isEditing && (
           <div
             ref={modalRef}
@@ -197,7 +175,6 @@ const Profile = () => {
               onClick={(e) => e.stopPropagation()}
               className="relative bg-white rounded-lg p-6 max-w-[90%] md:max-w-[400px] shadow-3xl-rounded animate-fade-in"
             >
-              {/* Кнопка-крестик */}
               <button
                 onClick={handleCloseModal}
                 className="absolute top-3 right-3 w-8 h-8 p-1 rounded-full bg-white/20 hover:bg-white/30

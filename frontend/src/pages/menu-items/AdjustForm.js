@@ -1,6 +1,7 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useContext } from "react";
 
 import useRosebud from "../../hooks/useRosebud";
+import DataContext from "../../context/DataContext";
 import { useNotification } from "../../context/NotificationContext";
 
 import DropdownField from "../../utils/DropdownField";
@@ -13,9 +14,11 @@ const AdjustForm = memo(({
     list, 
     endpoint, 
     setList,
+    type
 }) => {
     const { loadResources } = useRosebud();
     const { showNotification } = useNotification();
+    const { updateData } = useContext(DataContext);
     
     const handleAdd = useCallback(async () => {
         if (!value?.name?.trim()) {
@@ -31,8 +34,15 @@ const AdjustForm = memo(({
                 body: { name: itemName },
             });
         
-            const updatedList = [...list, response];
-            setList(updatedList);
+            if (response && response.items) {
+                updateData(type, response.items);
+                console.log('сервер вернул обновленный список');
+            } else {
+                const updatedList = [...list, response];
+                console.log('запасной вариант');
+                setList(updatedList);
+            }
+            
             setValue({ id: '', name: '' });
             
             if (response && response.message) {
@@ -49,7 +59,7 @@ const AdjustForm = memo(({
                 showNotification(`Ошибка при добавлении ${itemName}`);
             }
         }
-    }, [value, endpoint, list, loadResources, setList, setValue, showNotification]);
+    }, [value, endpoint, list, loadResources, updateData, setList, setValue, showNotification, type]);
     
     const handleDelete = useCallback(async () => {
         if (!value?.id) {
@@ -66,8 +76,13 @@ const AdjustForm = memo(({
                 silent: true
             });
             
-            const updatedList = list.filter(item => item.id !== itemId);
-            setList(updatedList);
+            if (response && response.items) {
+                updateData(type, response.items);
+            } else {
+                const updatedList = list.filter(item => item.id !== itemId);
+                setList(updatedList);
+            }
+            
             setValue({ id: '', name: '' });
             
             if (response && response.message) {
@@ -82,7 +97,7 @@ const AdjustForm = memo(({
                 showNotification(`Ошибка при удалении ${itemName}`);
             }
         }
-    }, [value, endpoint, list, loadResources, setList, setValue, showNotification]);
+    }, [value, endpoint, list, loadResources, updateData, setList, setValue, showNotification, type]);
 
     const renderButtons = useCallback(() => (
         <>

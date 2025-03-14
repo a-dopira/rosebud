@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useRef } from 'react';
+import React, { createContext, useState, useContext, useRef, useEffect } from 'react';
 
 const NotificationContext = createContext();
 
@@ -7,13 +7,18 @@ export const NotificationProvider = ({ children }) => {
   const [visible, setVisible] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
-  // Refs to store timeouts
   const fadeOutTimeoutRef = useRef(null);
   const removeTimeoutRef = useRef(null);
 
+  useEffect(() => {
+    return () => {
+      if (fadeOutTimeoutRef.current) clearTimeout(fadeOutTimeoutRef.current);
+      if (removeTimeoutRef.current) clearTimeout(removeTimeoutRef.current);
+    };
+  }, []);
+
   const showNotification = (message) => {
 
-    // Clear any existing timeouts if a new notification appears quickly
     if (fadeOutTimeoutRef.current) clearTimeout(fadeOutTimeoutRef.current);
     if (removeTimeoutRef.current) clearTimeout(removeTimeoutRef.current);
 
@@ -27,7 +32,7 @@ export const NotificationProvider = ({ children }) => {
       removeTimeoutRef.current = setTimeout(() => {
         setVisible(false);
         setNotification(null);
-      }, 500); // the .5s fade-out
+      }, 500);
     }, 2000);
   };
 

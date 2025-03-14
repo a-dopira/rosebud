@@ -1,15 +1,16 @@
 from django.conf import settings
+from django.db import transaction
 
-from .serializers import LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer, RegisterSerializer
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import views, status
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
-class LoginView(APIView):
+class LoginView(views.APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -39,7 +40,7 @@ class LoginView(APIView):
         return response
 
 
-class LogoutView(APIView):
+class LogoutView(views.APIView):
     def post(self, request):
         response = Response({"message": "Logout successful"})
         
@@ -59,7 +60,7 @@ class LogoutView(APIView):
         return response
 
 
-class UserProfileView(APIView):
+class UserProfileView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -70,17 +71,31 @@ class UserProfileView(APIView):
         user = request.user
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
-
-            profile_data = serializer.validated_data.pop("profile", {})
-            if profile_data:
-                for attr, value in profile_data.items():
-                    setattr(user.profile, attr, value)
-                user.profile.save()
-
-            serializer.save()
+            with transaction.atomic():
+                profile_data = serializer.validated_data.pop("profile", {})
+                if profile_data:
+                    for attr, value in profile_data.items():
+                        setattr(user.profile, attr, value)
+                    user.profile.save()
+                serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+    
 
+class RegisterView(views.APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User registered successfully. Please log in."}, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):

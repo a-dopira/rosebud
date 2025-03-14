@@ -22,9 +22,6 @@ export const useRoses = () => {
       params.append('page', page);
       
       const response = await api.get(`/roses/?${params.toString()}`);
-      
-      // Обновляем список роз только если это обычное получение данных
-      // В случае с handleRoseDeletion мы иногда вручную устанавливаем rosesList
       setRosesList(response.data.results.roses);
       
       if (response.data.results.roses.length === 0) {
@@ -49,8 +46,6 @@ export const useRoses = () => {
   const deleteRose = useCallback(async (roseId) => {
     try {
       await api.delete(`/roses/${roseId}/`);
-      
-      // Не изменяем локальный state - это будет сделано при перезагрузке данных
       
       return { success: true };
     } catch (error) {
