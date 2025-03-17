@@ -74,42 +74,46 @@ function RoseHeader({ setFilter }) {
                        to={`home/${rose.group_name}`} onClick={() => setFilter(rose.group_name)}>
                     { rose.group_name }
                     </Link>
-                    <div className="w-0 h-0
-                    border-t-[16px] border-t-transparent
-                    border-l-[20px] border-l-rose-500
-                    border-b-[16px] border-b-transparent
-                    "></div>
+                    <div 
+                        className="
+                            w-0 h-0
+                            border-t-[16px] border-t-transparent
+                            border-l-[20px] border-l-rose-500
+                            border-b-[16px] border-b-transparent
+                        "
+                    />
                     <div className="bg-umbra px-2 py-1 text-white justify-center text-center">
                     { rose.title }
                     </div>
                 </div>
-                <div className="w-0 h-0
-                    border-t-[16px] border-t-transparent
-                    border-l-[20px] border-l-umbra
-                    border-b-[16px] border-b-transparent
-                    ">
-                </div>
+                    <div 
+                        className="
+                            w-0 h-0
+                            border-t-[16px] border-t-transparent
+                            border-l-[20px] border-l-umbra
+                            border-b-[16px] border-b-transparent
+                    "/>
             </div>
             <div className="mt-5 border-solid border-gray-300 border-[1px] rounded-lg">
                 <div className="relative"> 
             {!isEditing ? (
-                <div className="p-5 animate-fade-in">
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="p-5 space-y-2 animate-fade-in">
+                <div className="bg-white form-partials text-2xl">
                     {rose.title} ({rose.title_eng})
                 </div>
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="bg-white form-partials text-2xl">
                     {rose.const_width ? `Габитус: ${rose.const_width}см` : 'Габитус незадан'}
                 </div>
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="bg-white form-partials text-2xl">
                     {rose.const_height ? `Высота: ${rose.const_height}см` : 'Высота незадана'}
                 </div>
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="bg-white form-partials text-2xl">
                     {rose.breeder && rose.breeder_name ? `Селекционер: ${rose.breeder_name}` : 'Селекционер отсутствует'}
                 </div>
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="bg-white form-partials text-2xl">
                     {rose.landing_date ? `Дата посадки: ${rose.landing_date}` : 'Отсутсвует дата посадки'}
                 </div>
-                <div className="bg-white p-5 mb-2 border-solid border-gray-300 border-[1px] rounded-lg text-2xl">
+                <div className="bg-white form-partials text-2xl">
                     {rose.description ? `Описание:\n${rose.description}` : 'Добавьте описание'}
                 </div>
             </div>

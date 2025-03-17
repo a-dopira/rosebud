@@ -27,7 +27,6 @@ class DynamicViewSet(viewsets.ModelViewSet):
         
             entity_name = self.entity_name or self.model.__name__
             
-            # Получаем обновленный список всех объектов
             updated_queryset = self.get_queryset()
             updated_serializer = self.get_serializer(updated_queryset, many=True)
             
@@ -35,7 +34,7 @@ class DynamicViewSet(viewsets.ModelViewSet):
                 {
                     **serializer.data,
                     "message": f"{entity_name} {serializer.data['name']} успешно добавлен.",
-                    "items": updated_serializer.data  # Возвращаем полный обновленный список
+                    "items": updated_serializer.data
                 }, 
                 status=status.HTTP_201_CREATED
             )
@@ -65,14 +64,13 @@ class DynamicViewSet(viewsets.ModelViewSet):
             
             self.perform_destroy(instance)
             
-            # Получаем обновленный список всех объектов
             updated_queryset = self.get_queryset()
             updated_serializer = self.get_serializer(updated_queryset, many=True)
             
             return Response(
                 {
                     "message": f"{entity_name} {instance_name} удален.",
-                    "items": updated_serializer.data  # Возвращаем полный обновленный список
+                    "items": updated_serializer.data 
                 }, 
                 status=status.HTTP_200_OK
             )

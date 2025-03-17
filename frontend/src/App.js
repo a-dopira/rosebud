@@ -45,7 +45,7 @@ function App() {
       <div className={`bg-white w-full md:w-3/4 max-w-7xl mx-auto 
         ${location.pathname === '/home' || location.pathname === '/' ? 
           'sm:my-8 md:my-6' : 'sm:my-6'} 
-        sm:rounded-large sm:p-12 px-0 py-8 sm:shadow-1xl min-h-0`}
+        sm:rounded-large sm:p-12 px-0 sm:shadow-1xl min-h-0`}
       >
         {routes}
       </div>

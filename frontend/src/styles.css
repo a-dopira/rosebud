@@ -25,6 +25,15 @@
     touch-manipulation;
   }
 
+  .form-partials {
+    @apply w-full p-5 border-gray-300 rounded-lg text-black
+    touch-manipulation space-y-5 border-[1px];
+  }
+
+  .label-partials {
+    @apply text-xl font-bold text-black;
+  }
+
   .btn {
     @apply border-solid border-gray-300 border-[1px] px-4 py-1.5 text-white 
     rounded-md hover:translate-y-[-2px] hover:shadow-3xl-rounded touch-manipulation;

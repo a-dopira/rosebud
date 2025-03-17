@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useCallback, memo } from "react";
+import { useState, useContext, useEffect, useCallback, useRef, memo } from "react";
 import { useLocation, Link } from "react-router-dom";
 
 import DataContext from "../../context/DataContext";
@@ -12,6 +12,7 @@ const RoseGrid = memo(function RoseGrid() {
   const [modal, setShowModal] = useState(false);
   const [selectedRose, setSelectedRose] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
+  const gridRef = useRef(null);
 
   const location = useLocation();
   const { filter, setFilter } = useContext(DataContext);
@@ -25,6 +26,20 @@ const RoseGrid = memo(function RoseGrid() {
     handlePage,
     isLoading
   } = useContext(RoseListContext);
+
+  const scrollPosition = useCallback(() => {
+    return window.scrollY;
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && gridRef.current) {
+      const savedPosition = sessionStorage.getItem('scrollPosition');
+      if (savedPosition) {
+        window.scrollTo(0, parseInt(savedPosition));
+        sessionStorage.removeItem('scrollPosition');
+      }
+    }
+  }, [isLoading, rosesList]);
 
   useEffect(() => {
     if (location.pathname.includes('home/collection') && 
@@ -62,6 +77,13 @@ const RoseGrid = memo(function RoseGrid() {
     }
   }, [selectedRose, deleteRose]);
 
+  const handlePageChange = useCallback((newPage) => {
+    const position = scrollPosition();
+    sessionStorage.setItem('scrollPosition', position.toString());
+    
+    handlePage(newPage);
+  }, [handlePage, scrollPosition]);
+
   if (isLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -84,7 +106,7 @@ const RoseGrid = memo(function RoseGrid() {
   console.log("rosegrid rerender");
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in" ref={gridRef}>
       {rosesMessage && (
         <div className="text-black text-3xl mb-3 ml-8">
           {rosesMessage}
@@ -132,7 +154,7 @@ const RoseGrid = memo(function RoseGrid() {
       {rosesList.length > 0 && (
         <div className="pagination mt-5 flex justify-center items-center space-x-4">
           <button
-            onClick={() => handlePage(currentPage - 1)}
+            onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === 1
@@ -149,7 +171,7 @@ const RoseGrid = memo(function RoseGrid() {
             {currentPage}
           </span>
           <button
-            onClick={() => handlePage(currentPage + 1)}
+            onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
               ${currentPage === totalPages

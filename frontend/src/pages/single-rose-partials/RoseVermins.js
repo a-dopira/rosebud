@@ -1,61 +1,137 @@
-import { useContext, useState } from 'react';
-import DataContext from '../../context/DataContext';
-import RoseContext from '../../context/RoseContext';
+import { useContext } from 'react';
 import { Helmet } from 'react-helmet';
+import * as Yup from 'yup';
+import RoseContext from '../../context/RoseContext';
+import DataContext from '../../context/DataContext';
+import { GenericModule } from './RoseModule';
 
-import { NewProductForm, Product } from './Vermins';
 
-const Pesticides = ({ rosePesticides }) => {
-    
-    const { pests } = useContext(DataContext)
-
-    const [showForm, setShowForm] = useState(false);
-
-    return (
-        <div className='animate-fade-in'>
-            <h1 className="text-center text-2xl font-bold pb-2 border-b-2 border-gray-200">Инсектициды</h1>
-            <button className='btn-red my-2' onClick={() => setShowForm(!showForm)}>{showForm ? 'Скрыть' : 'Добавить'}</button>
-            {showForm && <NewProductForm vermins={pests} verminType={'вредителя'} apiEndpoint={'pesticides'} type={'pest'} setShowForm={setShowForm}/>}
-            {rosePesticides && rosePesticides.map((pesticide) => (
-                <Product key={pesticide.id} product={pesticide} apiEndpoint={'pesticides'} productType={'пестицид'} vermins={pests} type={'pest'}/>
-            ))}
-
+const RelationshipModule = ({ 
+  title,
+  apiEndpoint,
+  dataKey,
+  relationType, 
+  productType,
+  relationTypeLabel,
+  relationOptions
+}) => {
+  const fields = [
+    { 
+      name: 'name', 
+      label: `Название ${productType}а`, 
+      type: 'text' 
+    },
+    { 
+      name: 'date_added', 
+      label: `Дата обработки ${productType}а`, 
+      type: 'date' 
+    },
+    { 
+      name: `${relationType}_id`, 
+      label: `${relationTypeLabel} для ${productType}а`, 
+      type: 'select',
+      options: relationOptions,
+      renderDisplay: (product) => (
+        <div className="mt-2">
+          <span className="text-xl font-bold">
+            {relationType === 'fungicide' ? 'Гриб' : 'Вредитель'}:
+          </span> {product[relationType]?.name}
         </div>
-    )
-}
-
-const Fungicides = ({ roseFungicides }) => {
-    
-    const { fungi } = useContext(DataContext)
-    const { setRose } = useContext(RoseContext)
-
-    const [showForm, setShowForm] = useState(false);
-
+      )
+    }
+  ];
+  
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Обязательное поле'),
+    date_added: Yup.date().required('Обязательное поле'),
+    [`${relationType}_id`]: Yup.string().required('Обязательное поле')
+  });
+  
+  const customProductDisplay = (product) => {
     return (
-        <div className='animate-fade-in'>
-            <h1 className="text-center text-2xl font-bold pb-2 border-b-2 border-gray-200">Фунгициды</h1>
-            <button className='btn-red my-2' onClick={() => setShowForm(!showForm)}>{showForm ? 'Скрыть' : 'Добавить'}</button>
-            {showForm && <NewProductForm vermins={fungi} verminType={'грибок'} setRose={setRose} apiEndpoint={'fungicides'} type={'fungicide'} setShowForm={setShowForm}/>}
-            {roseFungicides && roseFungicides.map((fungicide) => (
-                <Product key={fungicide.id} product={fungicide} apiEndpoint={'fungicides'} productType={'фунгицид'} vermins={fungi} type={'fungicide'}/>
-            ))}
+      <div className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg">
+        <div className="mt-2">
+          <span className="text-xl font-bold">
+            {relationType === 'fungicide' ? 'Гриб' : 'Вредитель'}:
+          </span> {product[relationType]?.name}
         </div>
-    )
-}
+        <div className="mt-2">
+          <span className="text-xl font-bold">
+            {relationType === 'fungicide' ? 'Фунгицид' : 'Пестицид'}:
+          </span> {product.name}
+        </div>
+        <div className="mt-2">
+          <span className="text-xl font-bold">Добавлено: </span> {product.date_added}
+        </div>
+      </div>
+    );
+  };
+  
+  return (
+    <div className="animate-fade-in">
+      <GenericModule
+        title={title}
+        apiEndpoint={apiEndpoint}
+        dataKey={dataKey}
+        fields={fields}
+        validationSchema={validationSchema}
+        productType={productType}
+        customProductDisplay={customProductDisplay}
+      />
+    </div>
+  );
+};
+
+const Pesticides = () => {
+  const { pests } = useContext(DataContext);
+  
+  return (
+    <RelationshipModule
+      title="Инсектициды"
+      apiEndpoint="pesticides"
+      dataKey="pesticides"
+      relationType="pest"
+      productType="пестицид"
+      relationTypeLabel="Вредитель"
+      relationOptions={pests.map(pest => ({ 
+        value: pest.id, 
+        label: pest.name 
+      }))}
+    />
+  );
+};
+
+const Fungicides = () => {
+  const { fungi } = useContext(DataContext);
+  
+  return (
+    <RelationshipModule
+      title="Фунгициды"
+      apiEndpoint="fungicides"
+      dataKey="fungicides"
+      relationType="fungicide"
+      productType="фунгицид"
+      relationTypeLabel="Гриб"
+      relationOptions={fungi.map(fungus => ({ 
+        value: fungus.id, 
+        label: fungus.name 
+      }))}
+    />
+  );
+};
 
 const MedControl = () => {
+  const { rose } = useContext(RoseContext);
 
-    const { rose } = useContext(RoseContext)
+  return (
+    <>
+      <Helmet>
+        <title>{`${rose.title} | Вредители`}</title>
+      </Helmet>
+      <Pesticides />
+      <Fungicides />
+    </>
+  );
+};
 
-    return (
-        <>
-            <Helmet>
-                <title>{`${rose.title} | Вредители`}</title>
-            </Helmet>
-            <Pesticides rosePesticides={ rose.pesticides }/>
-            <Fungicides roseFungicides={ rose.fungicides }/>
-        </>
-    )
-}
-
-export default MedControl
+export default MedControl;

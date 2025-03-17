@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import RoseContext from "../../context/RoseContext";
-import Sizes from "./RoseNoteSizes";
+import RoseNoteSizes from "./RoseNoteSizes";
 import useAxios from "../../hooks/useAxios";
 import { useNotification } from "../../context/NotificationContext";
 import { Helmet } from 'react-helmet';
@@ -67,7 +67,7 @@ function RoseNote() {
                 )}
                 <button className="btn-red mt-2" onClick={() => setIsEditing(!isEditing)}>{isEditing ? 'Скрыть' : 'Изменить'}</button>
                 
-                <Sizes/>
+                <RoseNoteSizes/>
                 
             </div>
         </>
