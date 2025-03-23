@@ -70,7 +70,6 @@ export const AuthProvider = ({ children }) => {
           });
           
           if (response.status === 200) {
-            // Обновляем данные пользователя в состоянии
             setUser(response.data);
             showNotification('Профиль успешно обновлен!');
             return true;

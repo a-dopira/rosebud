@@ -3,18 +3,8 @@ import RoseContext from '../../context/RoseContext';
 import { GenericProduct } from '../../utils/RoseComponents/Product';
 import { GenericNewProductForm } from '../../utils/RoseComponents/NewProductForm';
 import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
+import { Helmet } from 'react-helmet';
 
-
-/**
- * Generic module component to be used for all different modules
- * @param {Object} props - Component props
- * @param {String} props.title - Module title
- * @param {String} props.apiEndpoint - API endpoint for the module
- * @param {Array} props.dataKey - Data key in the rose object
- * @param {Array} props.fields - Field configuration array
- * @param {Object} props.validationSchema - Yup validation schema
- * @param {String} props.productType - Type of product (for display)
- */
 
 export const GenericModule = ({ 
   title,
@@ -33,6 +23,9 @@ export const GenericModule = ({
 
   return (
     <>
+      <Helmet>
+        <title>{`${rose.title} | ${title}`}</title>
+      </Helmet>
       <div className="animate-fade-in space-y-2">
         <h1 className="text-center label-partials border-b-2 border-gray-200">{title}</h1>
         <button className="btn-red" onClick={openAddModal}>

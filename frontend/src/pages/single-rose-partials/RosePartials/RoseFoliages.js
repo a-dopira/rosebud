@@ -1,6 +1,5 @@
-import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
-import { GenericModule } from './RoseModule';
+import { GenericModule } from '../RoseModule';
 
 
 const Foliage = () => {
@@ -16,19 +15,14 @@ const Foliage = () => {
     });
 
     return (
-        <>
-            <Helmet>
-                <title>Обрезки</title>
-            </Helmet>
-            <GenericModule
-                title="Обрезки"
-                apiEndpoint="foliages"
-                dataKey="foliages"
-                fields={fields}
-                validationSchema={validationSchema}
-                productType="обрезка"
-            />
-        </>
+        <GenericModule
+            title="Обрезки"
+            apiEndpoint="foliages"
+            dataKey="foliages"
+            fields={fields}
+            validationSchema={validationSchema}
+            productType="обрезка"
+        />
     );
 };
 

@@ -1,6 +1,5 @@
-import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
-import { GenericModule } from './RoseModule';
+import { GenericModule } from '../RoseModule';
 
 
 const RoseFeedings = () => {
@@ -20,19 +19,14 @@ const RoseFeedings = () => {
     });
 
     return (
-        <>
-            <Helmet>
-                <title>Подкормки</title>
-            </Helmet>
-            <GenericModule
-                title="Подкормки"
-                apiEndpoint="feedings"
-                dataKey="feedings"
-                fields={fields}
-                validationSchema={validationSchema}
-                productType="подкормка"
-            />
-        </>
+        <GenericModule
+            title="Подкормки"
+            apiEndpoint="feedings"
+            dataKey="feedings"
+            fields={fields}
+            validationSchema={validationSchema}
+            productType="подкормка"
+        />
     );
 };
 

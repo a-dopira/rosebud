@@ -71,4 +71,5 @@ const DeleteNotificationModal = ({
     </div>
   );
 };
+
 export default DeleteNotificationModal;

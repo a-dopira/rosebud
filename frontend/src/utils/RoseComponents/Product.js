@@ -5,14 +5,6 @@ import { useNotification } from '../../context/NotificationContext';
 import { GenericProductForm } from './ProductForm';
 import { GenericModal } from './ModalProduct';
 
-/**
- * Generic Product component that can be used for all product types
- * @param {Object} props - Component props
- * @param {Object} props.product - Product data
- * @param {String} props.productType - Type of product (for display and deletion)
- * @param {String} props.apiEndpoint - API endpoint for the product
- * @param {Array} props.fields - Field configuration array
- */
 
 export const GenericProduct = ({ 
     product, 
@@ -21,23 +13,21 @@ export const GenericProduct = ({
     fields, 
     validationSchema,
   }) => {
+
     const api = useAxios();
     const { setRose } = useContext(RoseContext);
     const { showNotification } = useNotification();
-  
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
-    const openEditModal = () => setIsEditModalOpen(true);
-    const closeEditModal = () => setIsEditModalOpen(false);
-    
-    const openDeleteModal = () => setIsDeleteModalOpen(true);
-    const closeDeleteModal = () => setIsDeleteModalOpen(false);
-  
+
+    const toggleEditModal = () => setIsEditModalOpen(prev => !prev);
+    const toggleDeleteModal = () => setIsDeleteModalOpen(prev => !prev);
+
     const handleSubmit = async (updatedProduct) => {
       try {
         const response = await api.patch(`${apiEndpoint}/${product.id}/`, updatedProduct);
-        closeEditModal();
+        toggleEditModal();
         setRose(prevRose => {
           const updatedProducts = prevRose[apiEndpoint].map((p) =>
             p.id === response.data.id ? response.data : p
@@ -49,11 +39,11 @@ export const GenericProduct = ({
         showNotification('Произошла ошибка при сохранении изменений');
       }
     };
-  
+
     const handleDelete = async () => {
       try {
         await api.delete(`${apiEndpoint}/${product.id}/`);
-        closeDeleteModal();
+        toggleDeleteModal();
         setRose((prevRose) => ({
           ...prevRose,
           [apiEndpoint]: prevRose[apiEndpoint].filter(
@@ -65,7 +55,7 @@ export const GenericProduct = ({
         showNotification('Произошла ошибка при удалении');
       }
     };
-  
+
     const renderField = (field) => {
       if (field.type === 'image') {
         return (
@@ -84,31 +74,30 @@ export const GenericProduct = ({
           </div>
         );
       }
-  
+
       if (field.type === 'select' && field.renderDisplay) {
         return field.renderDisplay(product);
       }
-  
+
       return (
         <div key={field.name}>
           <span className="label-partials">{field.label}: </span> {product[field.name]}
         </div>
       );
     };
-  
+
     return (
       <div className="space-y-2">
         <div className="animate-fade-in form-partials">
           {fields.map(field => renderField(field))}
         </div>
         
-        <button className="btn-red mr-2" onClick={openEditModal}>Изменить</button>
-        <button className="btn-red" onClick={openDeleteModal}>Удалить</button>
+        <button className="btn-red mr-2" onClick={toggleEditModal}>Изменить</button>
+        <button className="btn-red" onClick={toggleDeleteModal}>Удалить</button>
         
-        {/* Edit Modal */}
         <GenericModal 
           isOpen={isEditModalOpen} 
-          onClose={closeEditModal} 
+          onClose={toggleEditModal} 
           title="Редактировать"
           roseName={product?.rose_name}
         >
@@ -120,10 +109,9 @@ export const GenericProduct = ({
           />
         </GenericModal>
         
-        {/* Delete Confirmation Modal */}
         <GenericModal 
           isOpen={isDeleteModalOpen} 
-          onClose={closeDeleteModal} 
+          onClose={toggleDeleteModal} 
           title="Подтверждение удаления"
           roseName={product?.rose_name}
         >
@@ -131,10 +119,11 @@ export const GenericProduct = ({
             <p className="mb-4">Вы уверены, что хотите удалить этот {productType}?</p>
             <div className="flex justify-center space-x-4">
               <button className="btn-red" onClick={handleDelete}>Удалить</button>
-              <button className="btn-gray" onClick={closeDeleteModal}>Отмена</button>
+              <button className="btn-gray" onClick={toggleDeleteModal}>Отмена</button>
             </div>
           </div>
         </GenericModal>
+
       </div>
     );
-  };
+};

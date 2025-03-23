@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { GenericModule } from "./RoseModule";
+import { GenericModule } from "../RoseModule";
 import { Helmet } from "react-helmet";
 
 const RosePhoto = () => {

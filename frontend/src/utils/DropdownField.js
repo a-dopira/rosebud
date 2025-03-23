@@ -17,7 +17,6 @@ const Dropdown = memo(({
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Мемоизируем фильтрацию опций
   const filteredOptions = useMemo(() => {
     return options.filter(item => 
       item && 
@@ -28,7 +27,6 @@ const Dropdown = memo(({
     );
   }, [options, inputValue]);
 
-  // Мемоизируем расчет позиции дропдауна
   const calculateDropdownPosition = useCallback(() => {
     if (isOpen && inputRef.current && dropdownRef.current) {
       const inputRect = inputRef.current.getBoundingClientRect();
@@ -42,9 +40,8 @@ const Dropdown = memo(({
     }
   }, [isOpen, filteredOptions.length, maxVisibleItems]);
 
-  // Обработчик кликов вне компонента
   useEffect(() => {
-    if (!isOpen) return; // Не добавляем слушатель, если дропдаун закрыт
+    if (!isOpen) return;
     
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -58,19 +55,16 @@ const Dropdown = memo(({
     };
   }, [isOpen]);
 
-  // Синхронизация inputValue с внешним value
   useEffect(() => {
     if (value?.name !== inputValue) {
       setInputValue(value?.name || '');
     }
   }, [value?.name, inputValue]);
 
-  // Расчет позиции при открытии дропдауна
   useLayoutEffect(() => {
     if (isOpen) {
       calculateDropdownPosition();
       
-      // Добавляем слушатель для ресайза
       window.addEventListener('resize', calculateDropdownPosition);
       return () => {
         window.removeEventListener('resize', calculateDropdownPosition);
@@ -78,7 +72,6 @@ const Dropdown = memo(({
     }
   }, [isOpen, calculateDropdownPosition]);
 
-  // Мемоизируем обработчики событий
   const handleInputChange = useCallback((e) => {
     const newValue = e.target.value;
     setInputValue(newValue);
@@ -103,7 +96,6 @@ const Dropdown = memo(({
     setIsOpen(false);
   }, [onChange]);
 
-  // Мемоизируем рендеринг списка элементов
   const renderDropdownItems = useMemo(() => {
     if (!isOpen || filteredOptions.length === 0) return null;
     
@@ -151,7 +143,5 @@ const Dropdown = memo(({
     </div>
   );
 });
-
-Dropdown.displayName = 'Dropdown'; // для отладки
 
 export default Dropdown;

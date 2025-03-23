@@ -1,7 +1,7 @@
 import { memo } from "react";
 
-import AdaptiveMenu from "../../utils/AdaptiveMenu";
-import NavButton from "../../utils/NavButton";
+import AdaptiveMenu from "../../../utils/AdaptiveMenu";
+import NavButton from "../../../utils/NavButton";
 
 
 const RoseMenu = memo(() => {

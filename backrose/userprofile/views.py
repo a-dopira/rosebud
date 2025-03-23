@@ -29,6 +29,7 @@ class LoginView(views.APIView):
             httponly=True,
             secure=True,
             samesite="None",
+            max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
         )
         response.set_cookie(
             key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
@@ -36,6 +37,7 @@ class LoginView(views.APIView):
             httponly=True,
             secure=True,
             samesite="None",
+            max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
         )
         return response
 

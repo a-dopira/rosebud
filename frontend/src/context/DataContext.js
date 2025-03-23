@@ -12,6 +12,7 @@ export const DataProvider = ({ children }) => {
         fungi: []
     });
     const [filter, setFilter] = useState({});
+    const [sortOrder, setSortOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
@@ -26,13 +27,11 @@ export const DataProvider = ({ children }) => {
             initialLoadDone.current && 
             data.groups.length > 0 && 
             now - lastLoadTime.current < CACHE_DURATION) {
-            console.log('Using cached adjustment data');
             return data;
         }
         
         try {
             setLoading(true);
-            console.log('Loading adjustment data from API');
             const newData = await loadResources('adjustment/');
             setData(newData);
             lastLoadTime.current = now;
@@ -41,7 +40,6 @@ export const DataProvider = ({ children }) => {
             return newData;
         } catch (err) {
             setError(err.detail || 'Ошибка загрузки данных');
-            console.error('Ошибка загрузки справочных данных:', err);
             return null;
         } finally {
             setLoading(false);
@@ -57,7 +55,6 @@ export const DataProvider = ({ children }) => {
             }));
             return groupsData;
         } catch (err) {
-            console.error('Ошибка при обновлении групп:', err);
             return null;
         }
     }, [loadResources]);
@@ -76,12 +73,12 @@ export const DataProvider = ({ children }) => {
         error,
         filter,
         setFilter,
+        sortOrder,
+        setSortOrder,
         updateData,
         loadData,
         loadGroups,
     };
-    
-    console.log('DataContext on board, my captain!');
     
     return (
         <DataContext.Provider value={value}>

@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.filters import OrderingFilter
 
 from .filters import RoseFilter
 from .pagination import RosePagination
@@ -47,8 +48,10 @@ class RoseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = RoseSerializer
     pagination_class = RosePagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = RoseFilter
+    ordering_fields = ['title', 'id']
+    ordering = ['id']
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -56,6 +59,7 @@ class RoseViewSet(viewsets.ModelViewSet):
 
         group = request.query_params.get("group")
         search = request.query_params.get("search")
+        ordering = request.query_params.get("ordering")
 
         message = ""
         if group:
@@ -64,6 +68,15 @@ class RoseViewSet(viewsets.ModelViewSet):
             if message:
                 message += ", "
             message += f"Результаты по запросу: {search}"
+
+        if ordering:
+            if message:
+                message += ", "
+            
+            if ordering == "title":
+                message += "Отсортировано по алфавиту (А-Я)"
+            elif ordering == "-title":
+                message += "Отсортировано по алфавиту (Я-А)"
 
         if not queryset.exists():
             message = "По результату поиска"
@@ -78,12 +91,16 @@ class RoseViewSet(viewsets.ModelViewSet):
         
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response_data = self.get_paginated_response(serializer.data).data
+            response_data = self.get_paginated_response(serializer.data)
+            return Response(
+                {"message": message, "results": response_data.data}, 
+                status=status.HTTP_200_OK
+            )
         else:
             serializer = self.get_serializer(queryset, many=True)
-            response_data = serializer.data
-        return Response(
-                {"message": message, "results": response_data}, status=status.HTTP_200_OK
+            return Response(
+                {"message": message, "results": serializer.data}, 
+                status=status.HTTP_200_OK
             )
 
     def get_serializer_class(self):
@@ -130,13 +147,12 @@ class GroupViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             
-            # Получаем обновленный список групп
             updated_groups = Group.objects.annotate(rose_count=Count("roses"))
             groups_serializer = self.get_serializer(updated_groups, many=True)
             
             return Response({
                 "message": f"Группа {serializer.data['name']} успешно добавлена.",
-                "items": groups_serializer.data  # Добавляем полный список групп в ответ
+                "items": groups_serializer.data 
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response(
@@ -150,13 +166,12 @@ class GroupViewSet(viewsets.ModelViewSet):
             name = instance.name
             self.perform_destroy(instance)
             
-            # Получаем обновленный список групп
             updated_groups = Group.objects.annotate(rose_count=Count("roses"))
             groups_serializer = self.get_serializer(updated_groups, many=True)
             
             return Response({
                 "message": f"Группа {name} удалена.",
-                "items": groups_serializer.data  # Добавляем полный список групп в ответ
+                "items": groups_serializer.data
             }, status=status.HTTP_200_OK)
         except ProtectedError:
             return Response(

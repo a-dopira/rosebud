@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
-import { GenericModule } from './RoseModule';
+import { GenericModule } from '../RoseModule';
 
 const RoseVideo = () => {
 

@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
-import { GenericModule } from './RoseModule';
-import RoseContext from '../../context/RoseContext';
+import { GenericModule } from '../RoseModule';
+import RoseContext from '../../../context/RoseContext';
 
 const RoseNoteSizes = () => {
+    
     const { rose } = useContext(RoseContext);
     
     const fields = [
@@ -32,19 +32,14 @@ const RoseNoteSizes = () => {
     });
 
     return (
-        <>
-            <Helmet>
-                <title>Размеры</title>
-            </Helmet>
-            <GenericModule
-                title="Размеры"
-                apiEndpoint="sizes"
-                dataKey="sizes"
-                fields={fields}
-                validationSchema={validationSchema}
-                productType="размер"
-            />
-        </>
+        <GenericModule
+            title="Размеры"
+            apiEndpoint="sizes"
+            dataKey="sizes"
+            fields={fields}
+            validationSchema={validationSchema}
+            productType="размер"
+        />
     );
 };
 

@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
-import RoseContext from "../../context/RoseContext";
+import RoseContext from "../../../context/RoseContext";
 import RoseNoteSizes from "./RoseNoteSizes";
-import useAxios from "../../hooks/useAxios";
-import { useNotification } from "../../context/NotificationContext";
+import useAxios from "../../../hooks/useAxios";
+import { useNotification } from "../../../context/NotificationContext";
 import { Helmet } from 'react-helmet';
 
 function RoseNote() {

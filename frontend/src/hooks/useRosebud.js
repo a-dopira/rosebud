@@ -37,7 +37,6 @@ const useRosebud = () => {
             
             return response.data || {};
         } catch (error) {
-            console.error(`Error in ${method} ${path}:`, error);
             
             if (error.response && error.response.data) {
                 const apiError = new Error(error.response.data.detail || 'Ошибка API');

@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         }
       } catch (refreshError) {
-        console.log(refreshError);
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);

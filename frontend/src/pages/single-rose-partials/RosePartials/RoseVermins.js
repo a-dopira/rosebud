@@ -1,9 +1,7 @@
 import { useContext } from 'react';
-import { Helmet } from 'react-helmet';
 import * as Yup from 'yup';
-import RoseContext from '../../context/RoseContext';
-import DataContext from '../../context/DataContext';
-import { GenericModule } from './RoseModule';
+import DataContext from '../../../context/DataContext';
+import { GenericModule } from '../RoseModule';
 
 
 const RelationshipModule = ({ 
@@ -49,19 +47,19 @@ const RelationshipModule = ({
   
   const customProductDisplay = (product) => {
     return (
-      <div className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg">
-        <div className="mt-2">
-          <span className="text-xl font-bold">
+      <div className="animate-fade-in my-2 p-5 space-y-2 border-solid border-gray-300 border-[1px] rounded-lg">
+        <div>
+          <span className="label-partials">
             {relationType === 'fungicide' ? 'Гриб' : 'Вредитель'}:
           </span> {product[relationType]?.name}
         </div>
-        <div className="mt-2">
-          <span className="text-xl font-bold">
+        <div>
+          <span className="label-partials">
             {relationType === 'fungicide' ? 'Фунгицид' : 'Пестицид'}:
           </span> {product.name}
         </div>
-        <div className="mt-2">
-          <span className="text-xl font-bold">Добавлено: </span> {product.date_added}
+        <div>
+          <span className="label-partials">Добавлено: </span> {product.date_added}
         </div>
       </div>
     );
@@ -106,7 +104,7 @@ const Fungicides = () => {
   
   return (
     <RelationshipModule
-      title="Фунгициды"
+      title="Вредители"
       apiEndpoint="fungicides"
       dataKey="fungicides"
       relationType="fungicide"
@@ -121,13 +119,8 @@ const Fungicides = () => {
 };
 
 const MedControl = () => {
-  const { rose } = useContext(RoseContext);
-
   return (
     <>
-      <Helmet>
-        <title>{`${rose.title} | Вредители`}</title>
-      </Helmet>
       <Pesticides />
       <Fungicides />
     </>
