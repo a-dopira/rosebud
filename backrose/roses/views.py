@@ -2,6 +2,8 @@ from common import DynamicViewSet, dynamic_serializer
 from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
+from django.views.generic import TemplateView
+from django.views.decorators.cache import never_cache
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -294,3 +296,5 @@ class AdjustmentViewSet(viewsets.ViewSet):
                 {"detail": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+index = never_cache(TemplateView.as_view(template_name='index.html'))

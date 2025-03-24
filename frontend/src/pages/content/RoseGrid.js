@@ -6,6 +6,7 @@ import { RoseListContext } from "../../context/RoseListContext";
 
 import Loader from "../../utils/Loaders/Loader";
 import { RoseLoader } from "../../utils/Loaders/RoseLoader";
+import SmartMedia from "../../utils/SmartMedia";
 import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
 
 const RoseGrid = memo(function RoseGrid() {
@@ -196,24 +197,20 @@ const RoseGrid = memo(function RoseGrid() {
               </button>
               <Link to={`/${rose.id}/notes`} className="text-center w-full space-y-2">
                 <div className="p-4 h-48 relative flex items-center justify-center">
-                    {rose.photo ? (
-                      <img
+                  {rose.photo ? (
+                    <SmartMedia
+                      type="image"
                       src={rose.photo}
                       alt={rose.title}
-                      className="h-full object-contain transition-opacity duration-300 opacity-0"
+                      className="h-full object-contain"
+                      loaderId={`loader-${rose.id}`}
                       loading="lazy"
-                      onLoad={(e) => {
-                        e.target.classList.replace('opacity-0', 'opacity-100');
-                        const loader = document.getElementById(`loader-${rose.id}`);
-                        if (loader) loader.classList.add('opacity-0');
-                      }}
                     />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-300" 
-                            id={`loader-${rose.id}`}>
-                        <RoseLoader />
-                      </div>
-                    )}
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <RoseLoader />
+                    </div>
+                  )}
                 </div>
                 <div>{rose.title}</div>
               </Link>

@@ -76,7 +76,9 @@ ROOT_URLCONF = "backrose.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / 'frontend' / 'build',
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -170,3 +172,7 @@ STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend' / 'build' / 'static',  
+]
