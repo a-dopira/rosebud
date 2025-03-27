@@ -5,21 +5,24 @@ import DataContext from '../../context/DataContext';
 import { RoseListContext } from '../../context/RoseListContext';
 
 import Loader from '../../utils/Loaders/Loader';
-import { RoseLoader } from '../../utils/Loaders/RoseLoader';
-import SmartMedia from '../../utils/SmartMedia';
+import {
+  Pagination,
+  RoseCard,
+  SortDropdown,
+} from '../../utils/RoseGridComponents/RoseGridComponents';
 import DeleteNotificationModal from '../../utils/DeleteNotificationModal';
 
 const RoseGrid = memo(function RoseGrid() {
-  const [modal, setShowModal] = useState(false);
-  const [selectedRose, setSelectedRose] = useState(null);
-  const [deleteError, setDeleteError] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    selectedRose: null,
+    error: null,
+  });
+
   const gridRef = useRef(null);
-  const dropdownRef = useRef(null);
-
   const location = useLocation();
-  const { filter, setFilter, sortOrder, setSortOrder } = useContext(DataContext);
 
+  const { filter, setFilter, sortOrder, setSortOrder } = useContext(DataContext);
   const {
     rosesList,
     rosesMessage,
@@ -31,9 +34,7 @@ const RoseGrid = memo(function RoseGrid() {
     clearCache,
   } = useContext(RoseListContext);
 
-  const scrollPosition = useCallback(() => {
-    return window.scrollY;
-  }, []);
+  const getScrollPosition = useCallback(() => window.scrollY, []);
 
   useEffect(() => {
     if (!isLoading && gridRef.current) {
@@ -54,15 +55,19 @@ const RoseGrid = memo(function RoseGrid() {
     }
   }, [location.pathname, location.state, filter, setFilter]);
 
-  const openModal = useCallback((roseData) => {
-    setSelectedRose(roseData);
-    setShowModal(true);
-    setDeleteError(null);
+  const openDeleteModal = useCallback((rose) => {
+    setDeleteModal({
+      isOpen: true,
+      selectedRose: rose,
+      error: null,
+    });
   }, []);
 
   const handleRoseDeletion = useCallback(async () => {
+    const { selectedRose } = deleteModal;
+
     if (!selectedRose?.id) {
-      setDeleteError('Неверный ID розы');
+      setDeleteModal((prev) => ({ ...prev, error: 'Неверный ID розы' }));
       return;
     }
 
@@ -70,44 +75,32 @@ const RoseGrid = memo(function RoseGrid() {
       const result = await deleteRose(selectedRose.id);
 
       if (!result.success) {
-        setDeleteError(result.error);
+        setDeleteModal((prev) => ({ ...prev, error: result.error }));
         return;
       }
 
-      setShowModal(false);
-      setSelectedRose(null);
+      setDeleteModal({ isOpen: false, selectedRose: null, error: null });
     } catch (error) {
-      setDeleteError('Ошибка при удалении розы');
+      setDeleteModal((prev) => ({ ...prev, error: 'Ошибка при удалении розы' }));
     }
-  }, [selectedRose, deleteRose]);
+  }, [deleteModal, deleteRose]);
 
   const handlePageChange = useCallback(
     (newPage) => {
-      const position = scrollPosition();
-      sessionStorage.setItem('scrollPosition', position.toString());
-
+      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
       handlePage(newPage);
     },
-    [handlePage, scrollPosition]
+    [handlePage, getScrollPosition]
   );
 
   const handleSortSelect = useCallback(
     (sortType) => {
-      const position = scrollPosition();
-      sessionStorage.setItem('scrollPosition', position.toString());
-
+      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
       clearCache();
-
       setSortOrder(sortType);
-
-      setDropdownOpen(false);
     },
-    [setSortOrder, scrollPosition, clearCache]
+    [setSortOrder, getScrollPosition, clearCache]
   );
-
-  const toggleDropdown = useCallback(() => {
-    setDropdownOpen((prev) => !prev);
-  }, []);
 
   if (isLoading) {
     return (
@@ -131,144 +124,37 @@ const RoseGrid = memo(function RoseGrid() {
   return (
     <div className="animate-fade-in space-y-5" ref={gridRef}>
       <div className="flex justify-between items-center">
-        <div className="flex-grow">
-          {rosesMessage && (
+        {rosesMessage && (
+          <div className="flex-grow">
             <div className="text-black md:text-3xl text-2xl mb-3 ml-8">
               {rosesMessage}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="relative ml-auto" ref={dropdownRef}>
-          <button
-            onClick={toggleDropdown}
-            className={`p-2 rounded ${
-              sortOrder ? 'bg-red-500 text-white' : 'bg-gray-200'
-            }`}
-            aria-label="Сортировка"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
-          </button>
-
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-1 w-48 bg-white rounded shadow-lg z-10 border">
-              <div className="py-1">
-                <button
-                  onClick={() => handleSortSelect('asc')}
-                  className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === 'asc' ? 'bg-grey-800' : ''}`}
-                >
-                  По алфавиту (А - Я)
-                </button>
-                <button
-                  onClick={() => handleSortSelect('desc')}
-                  className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === 'desc' ? 'bg-grey-800' : ''}`}
-                >
-                  По алфавиту (Я - А)
-                </button>
-                <button
-                  onClick={() => handleSortSelect(null)}
-                  className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === null ? 'bg-grey-800' : ''}`}
-                >
-                  Сбросить сортировку
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        <SortDropdown sortOrder={sortOrder} onSortSelect={handleSortSelect} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">
         {rosesList.map((rose) => (
-          <div
-            id={rose.id}
-            key={rose.id}
-            className="flex justify-center relative isolate"
-          >
-            <div className="rose-card">
-              <button
-                id="open-delete-modal"
-                className="absolute top-2 right-2 p-1 text-red-500 text-3xl font-semibold hover:text-umbra z-10"
-                onClick={() => openModal(rose)}
-              >
-                &times;
-              </button>
-              <Link to={`/${rose.id}/notes`} className="text-center w-full space-y-2">
-                <div className="p-4 h-48 relative flex items-center justify-center">
-                  {rose.photo ? (
-                    <SmartMedia
-                      type="image"
-                      src={rose.photo}
-                      alt={rose.title}
-                      className="h-full object-contain"
-                      loaderId={`loader-${rose.id}`}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <RoseLoader />
-                    </div>
-                  )}
-                </div>
-                <div>{rose.title}</div>
-              </Link>
-            </div>
-          </div>
+          <RoseCard key={rose.id} rose={rose} onDelete={openDeleteModal} />
         ))}
       </div>
 
       {rosesList.length > 0 && (
-        <div className="pagination flex justify-center items-center space-x-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
-              ${
-                currentPage === 1
-                  ? 'bg-rose-800 cursor-not-allowed'
-                  : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
-              }`}
-          >
-            &#60;
-          </button>
-          <span
-            className="bg-rose-500 border-solid hover:cursor-default border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md text-center"
-            style={{ minWidth: '3.5rem' }}
-          >
-            {currentPage}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
-              ${
-                currentPage === totalPages
-                  ? 'bg-rose-800 cursor-not-allowed'
-                  : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
-              }`}
-          >
-            &#62;
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
 
-      {modal && (
+      {deleteModal.isOpen && (
         <DeleteNotificationModal
-          itemId={selectedRose.id}
-          itemType={selectedRose.name}
+          itemId={deleteModal.selectedRose.id}
+          itemType={deleteModal.selectedRose.name}
           apiEndpoint="roses"
-          setShowModal={setShowModal}
+          setShowModal={(isOpen) => setDeleteModal((prev) => ({ ...prev, isOpen }))}
           onDelete={handleRoseDeletion}
         />
       )}

@@ -1,6 +1,6 @@
 import RosePhoto from './RoseMediaPhoto';
 import RoseVideo from './RoseMediaVideo';
-import SmartMedia from '../../../utils/SmartMedia';
+import SmartMedia from '../../../utils/RoseComponents/SmartMedia';
 import { useContext } from 'react';
 import RoseContext from '../../../context/RoseContext';
 import { Helmet } from 'react-helmet';

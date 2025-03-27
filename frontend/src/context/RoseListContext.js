@@ -169,10 +169,6 @@ export const RoseListProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    loadRoses(1, filter);
-  }, [filter, loadRoses]);
-
-  useEffect(() => {
     loadRoses(1, filter, true);
   }, [sortOrder, filter, loadRoses]);
 

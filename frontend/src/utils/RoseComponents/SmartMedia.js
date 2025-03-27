@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RoseLoader } from './Loaders/RoseLoader';
+import { RoseLoader } from '../Loaders/RoseLoader';
 
 const SmartMedia = ({
   type,
