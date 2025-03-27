@@ -43,8 +43,7 @@ function RoseNote() {
         {!isEditing ? (
           <div className="animate-fade-in my-2 p-5 border-solid border-gray-300 border-[1px] rounded-lg">
             <div className="mt-2">
-              <span className="text-xl font-bold">Наблюдение: </span>{' '}
-              {rose.observation}
+              <span className="text-xl font-bold">Наблюдение: </span> {rose.observation}
             </div>
             <div className="mt-2">
               <span className="text-xl font-bold">Уязвимости: </span>{' '}
@@ -77,10 +76,7 @@ function RoseNote() {
             </button>
           </form>
         )}
-        <button
-          className="btn-red mt-2"
-          onClick={() => setIsEditing(!isEditing)}
-        >
+        <button className="btn-red mt-2" onClick={() => setIsEditing(!isEditing)}>
           {isEditing ? 'Скрыть' : 'Изменить'}
         </button>
 

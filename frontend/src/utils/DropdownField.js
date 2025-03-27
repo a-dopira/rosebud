@@ -54,10 +54,7 @@ const Dropdown = memo(
       if (!isOpen) return;
 
       const handleClickOutside = (event) => {
-        if (
-          dropdownRef.current &&
-          !dropdownRef.current.contains(event.target)
-        ) {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
           setIsOpen(false);
         }
       };
@@ -131,8 +128,7 @@ const Dropdown = memo(
                 filteredOptions.length > maxVisibleItems
                   ? `${maxVisibleItems * 41}px`
                   : 'auto',
-              overflowY:
-                filteredOptions.length > maxVisibleItems ? 'auto' : 'visible',
+              overflowY: filteredOptions.length > maxVisibleItems ? 'auto' : 'visible',
             }}
           >
             {filteredOptions.map((item) => (
@@ -141,9 +137,7 @@ const Dropdown = memo(
                 className={`drop-menu-item w-full hover:bg-gray-100 touch-auto ${itemClassName}`}
                 onClick={() => handleItemSelect(item)}
               >
-                <div className="cursor-pointer hover:bg-gray-300 p-3">
-                  {item.name}
-                </div>
+                <div className="cursor-pointer hover:bg-gray-300 p-3">{item.name}</div>
               </li>
             ))}
           </ul>

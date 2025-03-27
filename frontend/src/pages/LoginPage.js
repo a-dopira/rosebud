@@ -73,10 +73,7 @@ function LoginPage() {
         <title>{'Добро пожаловать!'}</title>
       </Helmet>
       <div className="h-full w-full flex items-center justify-center">
-        <form
-          className="max-w-sm mx-auto space-y-5"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="max-w-sm mx-auto space-y-5" onSubmit={handleSubmit(onSubmit)}>
           <label htmlFor="email" className="form-label text-xl md:text-3xl">
             Почта
           </label>

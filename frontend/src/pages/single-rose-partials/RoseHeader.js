@@ -128,36 +128,26 @@ function RoseHeader() {
                     <tr>
                       <td className="text-xl font-medium w-1/3">Габитус:</td>
                       <td className="text-xl">
-                        {rose.const_width
-                          ? `${rose.const_width} см`
-                          : 'Не задан'}
+                        {rose.const_width ? `${rose.const_width} см` : 'Не задан'}
                       </td>
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Высота:</td>
                       <td className="text-xl">
-                        {rose.const_height
-                          ? `${rose.const_height} см`
-                          : 'Не задана'}
+                        {rose.const_height ? `${rose.const_height} см` : 'Не задана'}
                       </td>
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Селекционер:</td>
-                      <td className="text-xl">
-                        {rose.breeder_name || 'Не указан'}
-                      </td>
+                      <td className="text-xl">{rose.breeder_name || 'Не указан'}</td>
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Дата посадки:</td>
-                      <td className="text-xl">
-                        {rose.landing_date || 'Не указана'}
-                      </td>
+                      <td className="text-xl">{rose.landing_date || 'Не указана'}</td>
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Описание:</td>
-                      <td className="text-xl">
-                        {rose.description || 'Отсутствует'}
-                      </td>
+                      <td className="text-xl">{rose.description || 'Отсутствует'}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -237,11 +227,7 @@ function RoseHeader() {
             <label className="block w-full mb-1" htmlFor="breeder">
               Изменить селекционера
             </label>
-            <select
-              className="form-input"
-              name="breeder"
-              defaultValue={rose.breeder}
-            >
+            <select className="form-input" name="breeder" defaultValue={rose.breeder}>
               {breeders.map((breeder) => (
                 <option key={breeder.id} value={breeder.id}>
                   {breeder.name}
@@ -324,9 +310,7 @@ function RoseHeader() {
         roseName={rose.title}
       >
         <div className="text-center space-y-4">
-          <p className="mb-4">
-            Вы уверены, что хотите удалить фотографию розы?
-          </p>
+          <p className="mb-4">Вы уверены, что хотите удалить фотографию розы?</p>
           <div className="flex space-x-4">
             <button
               onClick={async () => {

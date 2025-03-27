@@ -9,17 +9,11 @@ import { Helmet } from 'react-helmet';
 const schema = yup.object().shape({
   username: yup
     .string()
-    .matches(
-      /^[a-zA-Zа-яА-Я\s]+$/,
-      'Имя пользователя может содержать только буквы'
-    )
+    .matches(/^[a-zA-Zа-яА-Я\s]+$/, 'Имя пользователя может содержать только буквы')
     .required(),
   app_header: yup
     .string()
-    .matches(
-      /^[a-zA-Zа-яА-Я\s]+$/,
-      'Заголовок может может содержать только буквы'
-    )
+    .matches(/^[a-zA-Zа-яА-Я\s]+$/, 'Заголовок может может содержать только буквы')
     .required(),
   image: yup.mixed().test('fileFormat', 'Unsupported Format', (value) => {
     if (!value.length) return true;
@@ -50,8 +44,7 @@ const Profile = () => {
   };
 
   const handleEditClick = () => {
-    const scrollBarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = `${scrollBarWidth}px`;
     setEditing(true);
@@ -156,10 +149,7 @@ const Profile = () => {
 
                 <div className="flex flex-col items-center min-w-[250px]">
                   <div className="w-[290px] min-h-[250px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4 transition-all duration-500">
-                    <div
-                      id="profileInfoBlock"
-                      className="text-center p-4 space-y-6"
-                    >
+                    <div id="profileInfoBlock" className="text-center p-4 space-y-6">
                       <div className="font-bold text-white text-xl md:text-3xl break-words">
                         {profileUsername}
                       </div>
@@ -219,9 +209,7 @@ const Profile = () => {
                   {...register('username')}
                   className="w-full text-sm rounded-md p-2 border border-gray-300"
                 />
-                <p className="text-red-600 text-sm">
-                  {errors.username?.message}
-                </p>
+                <p className="text-red-600 text-sm">{errors.username?.message}</p>
 
                 <label htmlFor="app_header" className="form-label">
                   ИЗМЕНИТЬ НАЗВАНИЕ
@@ -233,9 +221,7 @@ const Profile = () => {
                   {...register('app_header')}
                   className="w-full text-sm rounded-md p-2 border border-gray-300"
                 />
-                <p className="text-red-600 text-sm">
-                  {errors.app_header?.message}
-                </p>
+                <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
 
                 <label htmlFor="image" className="form-label">
                   ЗАГРУЗИТЬ ФОТО

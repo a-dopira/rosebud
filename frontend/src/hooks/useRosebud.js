@@ -39,18 +39,14 @@ const useRosebud = () => {
         return response.data || {};
       } catch (error) {
         if (error.response && error.response.data) {
-          const apiError = new Error(
-            error.response.data.detail || 'Ошибка API'
-          );
+          const apiError = new Error(error.response.data.detail || 'Ошибка API');
           apiError.data = error.response.data;
           apiError.status = error.response.status;
           apiError.statusText = error.response.statusText;
           throw apiError;
         }
 
-        throw new Error(
-          error.message || 'Произошла ошибка при выполнении запроса'
-        );
+        throw new Error(error.message || 'Произошла ошибка при выполнении запроса');
       } finally {
         setLoading((prevState) => (prevState > 0 ? prevState - 1 : 0));
       }

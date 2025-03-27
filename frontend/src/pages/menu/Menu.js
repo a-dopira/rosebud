@@ -9,10 +9,7 @@ import AdaptiveMenu from '../../utils/AdaptiveMenu';
 
 const Menu = memo(() => {
   return (
-    <AdaptiveMenu
-      className="bg-amber-500 dotted-back my-12"
-      stickyPosition="top-5"
-    >
+    <AdaptiveMenu className="bg-amber-500 dotted-back my-12" stickyPosition="top-5">
       <SearchPanel />
       <Logout />
       <NavButton to="/home/collection">Коллекция</NavButton>

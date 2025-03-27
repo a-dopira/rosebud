@@ -61,8 +61,7 @@ const RelationshipModule = ({
           {product.name}
         </div>
         <div>
-          <span className="label-partials">Добавлено: </span>{' '}
-          {product.date_added}
+          <span className="label-partials">Добавлено: </span> {product.date_added}
         </div>
       </div>
     );

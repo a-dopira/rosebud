@@ -24,10 +24,7 @@ export const GenericProduct = ({
 
   const handleSubmit = async (updatedProduct) => {
     try {
-      const response = await api.patch(
-        `${apiEndpoint}/${product.id}/`,
-        updatedProduct
-      );
+      const response = await api.patch(`${apiEndpoint}/${product.id}/`, updatedProduct);
       toggleEditModal();
       setRose((prevRose) => {
         const updatedProducts = prevRose[apiEndpoint].map((p) =>
@@ -47,9 +44,7 @@ export const GenericProduct = ({
       toggleDeleteModal();
       setRose((prevRose) => ({
         ...prevRose,
-        [apiEndpoint]: prevRose[apiEndpoint].filter(
-          (item) => item.id !== product.id
-        ),
+        [apiEndpoint]: prevRose[apiEndpoint].filter((item) => item.id !== product.id),
       }));
       showNotification('Успешно удалено');
     } catch (error) {
@@ -83,8 +78,7 @@ export const GenericProduct = ({
 
     return (
       <div key={field.name}>
-        <span className="label-partials">{field.label}: </span>{' '}
-        {product[field.name]}
+        <span className="label-partials">{field.label}: </span> {product[field.name]}
       </div>
     );
   };
@@ -123,9 +117,7 @@ export const GenericProduct = ({
         roseName={product?.rose_name}
       >
         <div className="text-center">
-          <p className="mb-4">
-            Вы уверены, что хотите удалить этот {productType}?
-          </p>
+          <p className="mb-4">Вы уверены, что хотите удалить этот {productType}?</p>
           <div className="flex justify-center space-x-4">
             <button className="btn-red" onClick={handleDelete}>
               Удалить

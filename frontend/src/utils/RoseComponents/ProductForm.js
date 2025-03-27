@@ -1,11 +1,6 @@
 import { useFormik } from 'formik';
 
-export const GenericProductForm = ({
-  product,
-  onSubmit,
-  fields,
-  validationSchema,
-}) => {
+export const GenericProductForm = ({ product, onSubmit, fields, validationSchema }) => {
   const initialValues = {};
   fields.forEach((field) => {
     initialValues[field.name] = product[field.name] || '';
@@ -20,10 +15,7 @@ export const GenericProductForm = ({
   });
 
   return (
-    <form
-      className="animate-fade-in form-partials"
-      onSubmit={formik.handleSubmit}
-    >
+    <form className="animate-fade-in form-partials" onSubmit={formik.handleSubmit}>
       {fields.map((field) => (
         <div key={field.name} className="form-group">
           <label className="form-label" htmlFor={field.name}>

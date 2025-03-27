@@ -83,9 +83,7 @@ export const RoseListProvider = ({ children }) => {
         setRosesList(roses);
 
         if (roses.length === 0) {
-          setRosesMessage(
-            'Нет роз по заданному поиску. Попробуй что-то другое...'
-          );
+          setRosesMessage('Нет роз по заданному поиску. Попробуй что-то другое...');
         } else {
           setRosesMessage(message);
         }
@@ -199,8 +197,6 @@ export const RoseListProvider = ({ children }) => {
   };
 
   return (
-    <RoseListContext.Provider value={context}>
-      {children}
-    </RoseListContext.Provider>
+    <RoseListContext.Provider value={context}>{children}</RoseListContext.Provider>
   );
 };

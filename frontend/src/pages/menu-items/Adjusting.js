@@ -5,8 +5,7 @@ import AdjustForm from './AdjustForm';
 import DataContext from '../../context/DataContext';
 
 function Adjusting() {
-  const { groups, breeders, pests, fungi, updateData } =
-    useContext(DataContext);
+  const { groups, breeders, pests, fungi, updateData } = useContext(DataContext);
 
   const [values, setValues] = useState({
     groups: { id: '', name: '' },

@@ -29,10 +29,7 @@ function AddRose() {
 
   const renderField = ({ label, name, type = 'text', isRequired = false }) => (
     <div className="w-full text-sm rounded-md p-2 mr-2">
-      <label
-        htmlFor={name}
-        className="form-label font-bold inline-block min-w-[245px]"
-      >
+      <label htmlFor={name} className="form-label font-bold inline-block min-w-[245px]">
         {label}:
       </label>
       <input
@@ -84,11 +81,7 @@ function AddRose() {
               ДОБАВИТЬ РОЗУ
             </h2>
           </div>
-          <form
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={handleSubmit}
-          >
+          <form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
             {fields.map((field) => (
               <Fragment key={field.name}>{renderField(field)}</Fragment>
             ))}

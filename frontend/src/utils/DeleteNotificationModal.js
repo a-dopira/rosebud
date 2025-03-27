@@ -31,9 +31,7 @@ const DeleteNotificationModal = ({
         showNotification('Удаление успешно выполнено.');
         setShowModal(false);
       } else {
-        showNotification(
-          'Ошибка: отсутствует ID элемента или конечная точка API.'
-        );
+        showNotification('Ошибка: отсутствует ID элемента или конечная точка API.');
       }
     } catch (error) {
       console.error('Ошибка при удалении:', error);

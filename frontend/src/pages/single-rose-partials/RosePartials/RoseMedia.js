@@ -90,9 +90,7 @@ const RoseMedia = () => {
           </Splide>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          Медиа контент отсутствует
-        </div>
+        <div className="text-center py-8 text-gray-500">Медиа контент отсутствует</div>
       )}
 
       <RosePhoto />

@@ -32,8 +32,7 @@ function App() {
   ]);
 
   const isAuthPage =
-    location.pathname.includes('/login') ||
-    location.pathname.includes('/register');
+    location.pathname.includes('/login') || location.pathname.includes('/register');
 
   if (authLoading || loading) {
     return <Loader />;

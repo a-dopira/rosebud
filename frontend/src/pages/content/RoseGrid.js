@@ -1,11 +1,4 @@
-import {
-  useState,
-  useContext,
-  useEffect,
-  useCallback,
-  useRef,
-  memo,
-} from 'react';
+import { useState, useContext, useEffect, useCallback, useRef, memo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 import DataContext from '../../context/DataContext';
@@ -25,8 +18,7 @@ const RoseGrid = memo(function RoseGrid() {
   const dropdownRef = useRef(null);
 
   const location = useLocation();
-  const { filter, setFilter, sortOrder, setSortOrder } =
-    useContext(DataContext);
+  const { filter, setFilter, sortOrder, setSortOrder } = useContext(DataContext);
 
   const {
     rosesList,
@@ -212,10 +204,7 @@ const RoseGrid = memo(function RoseGrid() {
               >
                 &times;
               </button>
-              <Link
-                to={`/${rose.id}/notes`}
-                className="text-center w-full space-y-2"
-              >
+              <Link to={`/${rose.id}/notes`} className="text-center w-full space-y-2">
                 <div className="p-4 h-48 relative flex items-center justify-center">
                   {rose.photo ? (
                     <SmartMedia

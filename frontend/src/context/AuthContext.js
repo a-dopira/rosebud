@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  createContext,
-} from 'react';
+import { useState, useEffect, useCallback, useMemo, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from './NotificationContext';
 import useAxios from '../hooks/useAxios';
@@ -84,9 +78,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Profile update error:', error);
       if (error.response && error.response.data) {
         setAuthError(error.response.data);
-        showNotification(
-          'Ошибка обновления профиля. Проверьте введенные данные.'
-        );
+        showNotification('Ошибка обновления профиля. Проверьте введенные данные.');
       } else {
         setAuthError({ message: 'Ошибка при соединении с сервером' });
         showNotification('Ошибка соединения с сервером.');
@@ -145,7 +137,5 @@ export const AuthProvider = ({ children }) => {
     [user, authLoading]
   );
 
-  return (
-    <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={context}>{children}</AuthContext.Provider>;
 };

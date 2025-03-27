@@ -17,11 +17,7 @@ function FormField({
         {label}
       </label>
       {type === 'select' ? (
-        <select
-          name={name}
-          {...register(name)}
-          className="form-input inline-block"
-        >
+        <select name={name} {...register(name)} className="form-input inline-block">
           {!options
             ? null
             : options.map((option) => {
@@ -37,12 +33,7 @@ function FormField({
               })}
         </select>
       ) : type === 'textarea' ? (
-        <textarea
-          name={name}
-          cols="40"
-          rows="5"
-          className="form-input inline-block"
-        />
+        <textarea name={name} cols="40" rows="5" className="form-input inline-block" />
       ) : (
         <input
           type={type}
@@ -53,9 +44,7 @@ function FormField({
           className="form-input inline-block"
         />
       )}
-      {errors[name] && (
-        <div className="text-red-900">{errors[name].message}</div>
-      )}
+      {errors[name] && <div className="text-red-900">{errors[name].message}</div>}
     </>
   );
 }
