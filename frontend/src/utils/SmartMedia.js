@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { RoseLoader } from './Loaders/RoseLoader';
 
-
-const SmartMedia = ({ type, src, alt, className, loaderId, controls = true, ...props }) => {
+const SmartMedia = ({
+  type,
+  src,
+  alt,
+  className,
+  loaderId,
+  controls = true,
+  ...props
+}) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -24,14 +31,14 @@ const SmartMedia = ({ type, src, alt, className, loaderId, controls = true, ...p
   return (
     <div className="relative">
       {!isLoaded && (
-        <div 
-          className="absolute inset-0 flex items-center justify-center transition-opacity duration-300" 
+        <div
+          className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
           id={loaderId || `loader-${alt?.replace(/\s+/g, '-') || 'media'}`}
         >
           <RoseLoader />
         </div>
       )}
-      
+
       {type === 'image' ? (
         <img
           src={src}

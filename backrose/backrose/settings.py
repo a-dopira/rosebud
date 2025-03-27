@@ -73,7 +73,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / 'frontend' / 'build',
+            BASE_DIR / "frontend" / "build",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -117,9 +117,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "userprofile.authenticate.CustomAuthentication",
     ),
-    "DEFAULT_FILTER_BACKENDS": (
-        "django_filters.rest_framework.DjangoFilterBackend",
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 SIMPLE_JWT = {
@@ -127,14 +125,12 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFETIME"))),
     "ROTATE_REFRESH_TOKENS": bool(os.getenv("ROTATE_REFRESH_TOKENS")),
     "BLACKLIST_AFTER_ROTATION": bool(os.getenv("BLACKLIST_AFTER_ROTATION")),
-
     "AUTH_COOKIE": os.getenv("AUTH_COOKIE"),
     "AUTH_COOKIE_REFRESH": os.getenv("AUTH_COOKIE_REFRESH"),
     "AUTH_COOKIE_SECURE": bool(os.getenv("AUTH_COOKIE_SECURE")),
     "AUTH_COOKIE_HTTP_ONLY": bool(os.getenv("AUTH_COOKIE_HTTP_ONLY")),
     "AUTH_COOKIE_PATH": os.getenv("AUTH_COOKIE_PATH"),
     "AUTH_COOKIE_SAMESITE": os.getenv("AUTH_COOKIE_SAMESITE"),
-
 }
 
 LANGUAGE_CODE = "en-us"
@@ -152,5 +148,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'frontend' / 'build' / 'static',  
+    BASE_DIR / "frontend" / "build" / "static",
 ]

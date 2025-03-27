@@ -1,13 +1,20 @@
-import { useState, useContext, useEffect, useCallback, useRef, memo } from "react";
-import { useLocation, Link } from "react-router-dom";
+import {
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+  useRef,
+  memo,
+} from 'react';
+import { useLocation, Link } from 'react-router-dom';
 
-import DataContext from "../../context/DataContext";
-import { RoseListContext } from "../../context/RoseListContext";
+import DataContext from '../../context/DataContext';
+import { RoseListContext } from '../../context/RoseListContext';
 
-import Loader from "../../utils/Loaders/Loader";
-import { RoseLoader } from "../../utils/Loaders/RoseLoader";
-import SmartMedia from "../../utils/SmartMedia";
-import DeleteNotificationModal from "../../utils/DeleteNotificationModal";
+import Loader from '../../utils/Loaders/Loader';
+import { RoseLoader } from '../../utils/Loaders/RoseLoader';
+import SmartMedia from '../../utils/SmartMedia';
+import DeleteNotificationModal from '../../utils/DeleteNotificationModal';
 
 const RoseGrid = memo(function RoseGrid() {
   const [modal, setShowModal] = useState(false);
@@ -18,17 +25,18 @@ const RoseGrid = memo(function RoseGrid() {
   const dropdownRef = useRef(null);
 
   const location = useLocation();
-  const { filter, setFilter, sortOrder, setSortOrder } = useContext(DataContext);
-  
-  const { 
-    rosesList, 
+  const { filter, setFilter, sortOrder, setSortOrder } =
+    useContext(DataContext);
+
+  const {
+    rosesList,
     rosesMessage,
     totalPages,
     currentPage,
     deleteRose,
     handlePage,
     isLoading,
-    clearCache
+    clearCache,
   } = useContext(RoseListContext);
 
   const scrollPosition = useCallback(() => {
@@ -46,8 +54,10 @@ const RoseGrid = memo(function RoseGrid() {
   }, [isLoading, rosesList]);
 
   useEffect(() => {
-    if (location.pathname.includes('home/collection') && 
-        (Object.keys(filter).length > 0 || location.state?.resetFilter)) {
+    if (
+      location.pathname.includes('home/collection') &&
+      (Object.keys(filter).length > 0 || location.state?.resetFilter)
+    ) {
       setFilter({});
     }
   }, [location.pathname, location.state, filter, setFilter]);
@@ -63,15 +73,15 @@ const RoseGrid = memo(function RoseGrid() {
       setDeleteError('Неверный ID розы');
       return;
     }
-    
+
     try {
       const result = await deleteRose(selectedRose.id);
-      
+
       if (!result.success) {
         setDeleteError(result.error);
         return;
       }
-      
+
       setShowModal(false);
       setSelectedRose(null);
     } catch (error) {
@@ -79,28 +89,33 @@ const RoseGrid = memo(function RoseGrid() {
     }
   }, [selectedRose, deleteRose]);
 
-  const handlePageChange = useCallback((newPage) => {
-    const position = scrollPosition();
-    sessionStorage.setItem('scrollPosition', position.toString());
-    
-    handlePage(newPage);
-  }, [handlePage, scrollPosition]);
+  const handlePageChange = useCallback(
+    (newPage) => {
+      const position = scrollPosition();
+      sessionStorage.setItem('scrollPosition', position.toString());
 
-  const handleSortSelect = useCallback((sortType) => {
-    const position = scrollPosition();
-    sessionStorage.setItem('scrollPosition', position.toString());
-    
-    clearCache();
-    
-    setSortOrder(sortType);
-    
-    setDropdownOpen(false);
-  }, [setSortOrder, scrollPosition, clearCache]);
+      handlePage(newPage);
+    },
+    [handlePage, scrollPosition]
+  );
+
+  const handleSortSelect = useCallback(
+    (sortType) => {
+      const position = scrollPosition();
+      sessionStorage.setItem('scrollPosition', position.toString());
+
+      clearCache();
+
+      setSortOrder(sortType);
+
+      setDropdownOpen(false);
+    },
+    [setSortOrder, scrollPosition, clearCache]
+  );
 
   const toggleDropdown = useCallback(() => {
-    setDropdownOpen(prev => !prev);
+    setDropdownOpen((prev) => !prev);
   }, []);
-
 
   if (isLoading) {
     return (
@@ -123,9 +138,7 @@ const RoseGrid = memo(function RoseGrid() {
 
   return (
     <div className="animate-fade-in space-y-5" ref={gridRef}>
-
       <div className="flex justify-between items-center">
-
         <div className="flex-grow">
           {rosesMessage && (
             <div className="text-black md:text-3xl text-2xl mb-3 ml-8">
@@ -135,44 +148,44 @@ const RoseGrid = memo(function RoseGrid() {
         </div>
 
         <div className="relative ml-auto" ref={dropdownRef}>
-          <button 
+          <button
             onClick={toggleDropdown}
             className={`p-2 rounded ${
               sortOrder ? 'bg-red-500 text-white' : 'bg-gray-200'
             }`}
             aria-label="Сортировка"
           >
-
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
           </button>
-          
+
           {dropdownOpen && (
             <div className="absolute right-0 mt-1 w-48 bg-white rounded shadow-lg z-10 border">
               <div className="py-1">
-                <button 
+                <button
                   onClick={() => handleSortSelect('asc')}
                   className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === 'asc' ? 'bg-grey-800' : ''}`}
                 >
                   По алфавиту (А - Я)
                 </button>
-                <button 
+                <button
                   onClick={() => handleSortSelect('desc')}
                   className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === 'desc' ? 'bg-grey-800' : ''}`}
                 >
                   По алфавиту (Я - А)
                 </button>
-                <button 
+                <button
                   onClick={() => handleSortSelect(null)}
                   className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${sortOrder === null ? 'bg-grey-800' : ''}`}
                 >
@@ -186,7 +199,11 @@ const RoseGrid = memo(function RoseGrid() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">
         {rosesList.map((rose) => (
-          <div id={rose.id} key={rose.id} className="flex justify-center relative isolate">
+          <div
+            id={rose.id}
+            key={rose.id}
+            className="flex justify-center relative isolate"
+          >
             <div className="rose-card">
               <button
                 id="open-delete-modal"
@@ -195,7 +212,10 @@ const RoseGrid = memo(function RoseGrid() {
               >
                 &times;
               </button>
-              <Link to={`/${rose.id}/notes`} className="text-center w-full space-y-2">
+              <Link
+                to={`/${rose.id}/notes`}
+                className="text-center w-full space-y-2"
+              >
                 <div className="p-4 h-48 relative flex items-center justify-center">
                   {rose.photo ? (
                     <SmartMedia
@@ -219,16 +239,16 @@ const RoseGrid = memo(function RoseGrid() {
         ))}
       </div>
 
-
       {rosesList.length > 0 && (
         <div className="pagination flex justify-center items-center space-x-4">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
-              ${currentPage === 1
-                ? 'bg-rose-800 cursor-not-allowed'
-                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
+              ${
+                currentPage === 1
+                  ? 'bg-rose-800 cursor-not-allowed'
+                  : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
               }`}
           >
             &#60;
@@ -243,9 +263,10 @@ const RoseGrid = memo(function RoseGrid() {
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
             className={`bg-rose-500 border-solid border-gray-300 border-[1px] px-5 py-1.5 text-white rounded-md
-              ${currentPage === totalPages
-                ? 'bg-rose-800 cursor-not-allowed'
-                : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
+              ${
+                currentPage === totalPages
+                  ? 'bg-rose-800 cursor-not-allowed'
+                  : 'hover:bg-rose-800 hover:translate-y-[-2px] hover:shadow-3xl-rounded'
               }`}
           >
             &#62;
@@ -261,7 +282,7 @@ const RoseGrid = memo(function RoseGrid() {
           setShowModal={setShowModal}
           onDelete={handleRoseDeletion}
         />
-      )}    
+      )}
     </div>
   );
 });

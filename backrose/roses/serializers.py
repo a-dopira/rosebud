@@ -75,30 +75,47 @@ class RoseSerializer(serializers.ModelSerializer):
     rosephotos = dynamic_serializer(RosePhoto)(many=True, read_only=True)
     sizes = dynamic_serializer(Size)(many=True, read_only=True)
     videos = dynamic_serializer(Video)(many=True, read_only=True)
-    
+
     delete_photo = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = Rose
         fields = [
-            "id", "title", "title_eng", "group", "group_name", "breeder", 
-            "breeder_name", "photo", "description", "landing_date",
-            "observation", "susceptibility", "const_width", "const_height", 
-            "feedings", "foliages", "sizes", "pesticides", "fungicides", 
-            "rosephotos", "videos", "delete_photo",
+            "id",
+            "title",
+            "title_eng",
+            "group",
+            "group_name",
+            "breeder",
+            "breeder_name",
+            "photo",
+            "description",
+            "landing_date",
+            "observation",
+            "susceptibility",
+            "const_width",
+            "const_height",
+            "feedings",
+            "foliages",
+            "sizes",
+            "pesticides",
+            "fungicides",
+            "rosephotos",
+            "videos",
+            "delete_photo",
         ]
 
     def create(self, validated_data):
-        validated_data.pop('delete_photo', None)
+        validated_data.pop("delete_photo", None)
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if validated_data.pop('delete_photo', False):
+        if validated_data.pop("delete_photo", False):
             instance.photo.delete()
             instance.photo = "images/cap_rose.png"
-            
+
         return super().update(instance, validated_data)
-    
+
 
 class RoseListSerializer(serializers.ModelSerializer):
     class Meta:

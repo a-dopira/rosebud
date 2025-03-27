@@ -19,4 +19,3 @@ class Profile(models.Model):
         max_length=1000, default="Изменить название", blank=True, null=True
     )
     image = models.ImageField(upload_to="images/userphoto/", blank=True, null=True)
-

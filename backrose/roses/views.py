@@ -36,16 +36,25 @@ from .serializers import (
 
 
 class RoseViewSet(viewsets.ModelViewSet):
-    queryset = Rose.objects.all().order_by("id").prefetch_related(
-        'feedings', 'foliages', 'rosephotos', 'sizes', 
-        'videos', 'pesticides', 'fungicides'
+    queryset = (
+        Rose.objects.all()
+        .order_by("id")
+        .prefetch_related(
+            "feedings",
+            "foliages",
+            "rosephotos",
+            "sizes",
+            "videos",
+            "pesticides",
+            "fungicides",
+        )
     )
     permission_classes = [IsAuthenticated]
     pagination_class = RosePagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = RoseFilter
-    ordering_fields = ['title', 'id']
-    ordering = ['id']
+    ordering_fields = ["title", "id"]
+    ordering = ["id"]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -54,28 +63,26 @@ class RoseViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        
+
         message = self._build_search_message(request, queryset)
-        
+
         if not queryset.exists():
             return Response(
-                {"message": message, "results": []}, 
-                status=status.HTTP_200_OK
+                {"message": message, "results": []}, status=status.HTTP_200_OK
             )
-        
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             response_data = self.get_paginated_response(serializer.data)
             return Response(
-                {"message": message, "results": response_data.data}, 
-                status=status.HTTP_200_OK
+                {"message": message, "results": response_data.data},
+                status=status.HTTP_200_OK,
             )
-        
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(
-            {"message": message, "results": serializer.data}, 
-            status=status.HTTP_200_OK
+            {"message": message, "results": serializer.data}, status=status.HTTP_200_OK
         )
 
     def _build_search_message(self, request, queryset):
@@ -83,7 +90,7 @@ class RoseViewSet(viewsets.ModelViewSet):
         group = request.query_params.get("group")
         search = request.query_params.get("search")
         ordering = request.query_params.get("ordering")
-        
+
         if not queryset.exists():
             message = "По результату поиска"
             if group:
@@ -91,7 +98,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             if search:
                 message += f" по запросу: {search}"
             return message + " ничего не найдено, попробуйте что-то другое."
-        
+
         message_parts = []
         if group:
             message_parts.append(f"Результаты по группе: {group}")
@@ -102,7 +109,7 @@ class RoseViewSet(viewsets.ModelViewSet):
                 message_parts.append("Отсортировано по алфавиту (А-Я)")
             elif ordering == "-title":
                 message_parts.append("Отсортировано по алфавиту (Я-А)")
-                
+
         return ", ".join(message_parts)
 
     def destroy(self, request, *args, **kwargs):
@@ -117,7 +124,9 @@ class RoseViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
+            )
         except IntegrityError:
             return Response(
                 {"detail": "Роза с таким title или title_eng уже существует."},
@@ -132,25 +141,28 @@ class GroupViewSet(viewsets.ModelViewSet):
     filter_fields = ["name"]
 
     def create(self, request, *args, **kwargs):
-        name = request.data.get('name')
+        name = request.data.get("name")
         if name and Group.objects.filter(name=name).exists():
             return Response(
                 {"detail": "Группа с таким названием уже существует."},
                 status=status.HTTP_409_CONFLICT,
             )
-        
+
         try:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            
+
             updated_groups = Group.objects.annotate(rose_count=Count("roses"))
             groups_serializer = self.get_serializer(updated_groups, many=True)
-            
-            return Response({
-                "message": f"Группа {serializer.data['name']} успешно добавлена.",
-                "items": groups_serializer.data 
-            }, status=status.HTTP_201_CREATED)
+
+            return Response(
+                {
+                    "message": f"Группа {serializer.data['name']} успешно добавлена.",
+                    "items": groups_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
         except IntegrityError:
             return Response(
                 {"detail": "Группа с таким названием уже существует."},
@@ -162,14 +174,14 @@ class GroupViewSet(viewsets.ModelViewSet):
             instance = self.get_object()
             name = instance.name
             self.perform_destroy(instance)
-            
+
             updated_groups = Group.objects.annotate(rose_count=Count("roses"))
             groups_serializer = self.get_serializer(updated_groups, many=True)
-            
-            return Response({
-                "message": f"Группа {name} удалена.",
-                "items": groups_serializer.data
-            }, status=status.HTTP_200_OK)
+
+            return Response(
+                {"message": f"Группа {name} удалена.", "items": groups_serializer.data},
+                status=status.HTTP_200_OK,
+            )
         except ProtectedError:
             return Response(
                 {"detail": "Невозможно удалить группу поскольку к ней привязаны розы."},
@@ -265,30 +277,31 @@ class AdjustmentViewSet(viewsets.ViewSet):
     """
     Get breeders, pests, fungi, groups all at once
     """
+
     permission_classes = [IsAuthenticated]
-    
+
     def list(self, request):
         try:
 
-            groups = Group.objects.annotate(rose_count = Count("roses"))
+            groups = Group.objects.annotate(rose_count=Count("roses"))
             breeders = Breeder.objects.all()
             pests = Pest.objects.all()
             fungi = Fungus.objects.all()
-            
+
             group_serializer = GroupSerializer(groups, many=True)
-            breeder_serializer = dynamic_serializer(Breeder, exclude=["slug"])(breeders, many=True)
+            breeder_serializer = dynamic_serializer(Breeder, exclude=["slug"])(
+                breeders, many=True
+            )
             pest_serializer = dynamic_serializer(Pest)(pests, many=True)
             fungi_serializer = dynamic_serializer(Fungus)(fungi, many=True)
-            
-            return Response({
-                'groups': group_serializer.data,
-                'breeders': breeder_serializer.data,
-                'pests': pest_serializer.data,
-                'fungi': fungi_serializer.data
-            })
-        except Exception as e:
+
             return Response(
-                {"detail": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "groups": group_serializer.data,
+                    "breeders": breeder_serializer.data,
+                    "pests": pest_serializer.data,
+                    "fungi": fungi_serializer.data,
+                }
             )
-        
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

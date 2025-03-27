@@ -1,46 +1,46 @@
 import { useNotification } from '../context/NotificationContext';
 import useAxios from '../hooks/useAxios';
 
-
 const DeleteNotificationModal = ({
   itemId,
   itemType,
   apiEndpoint,
   setShowModal,
   onDelete,
-  updateState
+  updateState,
 }) => {
   const api = useAxios();
   const { showNotification } = useNotification();
-  
+
   const handleDelete = async () => {
     try {
-
       if (onDelete) {
         await onDelete();
         showNotification('Удаление успешно выполнено.');
         setShowModal(false);
         return;
       }
-      
+
       if (itemId && apiEndpoint) {
         await api.delete(`${apiEndpoint}/${itemId}/`);
-        
+
         if (typeof updateState === 'function') {
           updateState();
         }
-        
+
         showNotification('Удаление успешно выполнено.');
         setShowModal(false);
       } else {
-        showNotification('Ошибка: отсутствует ID элемента или конечная точка API.');
+        showNotification(
+          'Ошибка: отсутствует ID элемента или конечная точка API.'
+        );
       }
     } catch (error) {
       console.error('Ошибка при удалении:', error);
       showNotification('Произошла ошибка при удалении.');
     }
   };
-  
+
   const closeModal = () => {
     setShowModal(false);
   };
@@ -55,16 +55,10 @@ const DeleteNotificationModal = ({
           ×
         </span>
         <p>Вы уверены, что хотите удалить {itemType}?</p>
-        <button
-          onClick={handleDelete}
-          className="btn-red rounded"
-        >
+        <button onClick={handleDelete} className="btn-red rounded">
           Да, удалить
         </button>
-        <button
-          onClick={closeModal}
-          className="btn-gray rounded"
-        >
+        <button onClick={closeModal} className="btn-gray rounded">
           Нет, отмена
         </button>
       </div>

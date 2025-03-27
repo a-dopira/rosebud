@@ -1,8 +1,7 @@
-import { memo } from "react";
+import { memo } from 'react';
 
-import AdaptiveMenu from "../../../utils/AdaptiveMenu";
-import NavButton from "../../../utils/NavButton";
-
+import AdaptiveMenu from '../../../utils/AdaptiveMenu';
+import NavButton from '../../../utils/NavButton';
 
 const RoseMenu = memo(() => {
   return (
@@ -10,7 +9,7 @@ const RoseMenu = memo(() => {
       className="
           pattern-vertical-lines pattern-amber-500 pattern-size-16 
           pattern-bg-umbra pattern-opacity-100 my-6
-      " 
+      "
       stickyPosition="top-32"
     >
       <NavButton to="notes">Заметки</NavButton>
@@ -22,4 +21,4 @@ const RoseMenu = memo(() => {
   );
 });
 
-export default RoseMenu
+export default RoseMenu;

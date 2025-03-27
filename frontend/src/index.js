@@ -11,7 +11,7 @@ root.render(
   <BrowserRouter>
     <NotificationProvider>
       <AuthProvider>
-        <App/>
+        <App />
       </AuthProvider>
     </NotificationProvider>
   </BrowserRouter>

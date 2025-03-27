@@ -1,21 +1,17 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from 'react';
 
-import Arrow from "./Arrow";
+import Arrow from './Arrow';
 
-const AdaptiveMenu = ({ 
-  children, 
-  className, 
-  stickyPosition,
-}) => {
+const AdaptiveMenu = ({ children, className, stickyPosition }) => {
   const [scrollState, setScrollState] = useState({
     canScrollLeft: false,
     canScrollRight: false,
-    isWideScreen: false
+    isWideScreen: false,
   });
 
   const containerRef = useRef(null);
   const contentRef = useRef(null);
-  
+
   const checkScroll = useCallback(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -25,7 +21,7 @@ const AdaptiveMenu = ({
     setScrollState({
       isWideScreen: clientWidth > childrenWidth + 100,
       canScrollLeft: scrollLeft > 10,
-      canScrollRight: scrollLeft < scrollWidth - clientWidth - 10
+      canScrollRight: scrollLeft < scrollWidth - clientWidth - 10,
     });
   }, []);
 
@@ -37,48 +33,48 @@ const AdaptiveMenu = ({
       window.requestAnimationFrame(checkScroll);
     };
 
-    window.addEventListener("resize", handleScroll);
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    
+    window.addEventListener('resize', handleScroll);
+    container.addEventListener('scroll', handleScroll, { passive: true });
+
     handleScroll();
 
     return () => {
-      window.removeEventListener("resize", handleScroll);
-      container.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      container.removeEventListener('scroll', handleScroll);
     };
   }, [checkScroll]);
 
   const scroll = useCallback((direction) => {
     containerRef.current?.scrollBy({
       left: direction * 200,
-      behavior: "smooth"
+      behavior: 'smooth',
     });
   }, []);
 
   const { canScrollLeft, canScrollRight, isWideScreen } = scrollState;
   const showArrows = !isWideScreen && (canScrollLeft || canScrollRight);
-  
+
   return (
-    <div 
+    <div
       className={`w-full h-20 overflow-visible sticky ${stickyPosition} z-50 shadow-lg mx-auto ${className || ''}`}
     >
-      <div 
+      <div
         ref={containerRef}
         className="overflow-x-auto overflow-y-visible menu-scrollbar-hide h-full relative w-full"
       >
-        <div 
+        <div
           ref={contentRef}
           className={`flex items-center h-full px-7 gap-7 justify-between
-            ${isWideScreen ? 'w-full' : 'min-w-max'}`} 
+            ${isWideScreen ? 'w-full' : 'min-w-max'}`}
         >
           {children}
         </div>
       </div>
-      
+
       {showArrows && (
         <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-between">
           {canScrollLeft && (
-            <button 
+            <button
               onClick={() => scroll(-1)}
               className="ml-0 h-full bg-white/90 p-2 shadow-lg pointer-events-auto
                       hover:bg-white transition-colors touch-manipulation"
@@ -86,11 +82,11 @@ const AdaptiveMenu = ({
               <Arrow direction="15 18 9 12 15 6" />
             </button>
           )}
-          
-          <div className="flex-1"/>
-          
+
+          <div className="flex-1" />
+
           {canScrollRight && (
-            <button 
+            <button
               onClick={() => scroll(1)}
               className="mr-0 h-full bg-white/90 p-2 shadow-lg pointer-events-auto
                       hover:bg-white transition-colors touch-manipulation"
@@ -104,4 +100,4 @@ const AdaptiveMenu = ({
   );
 };
 
-export default AdaptiveMenu
+export default AdaptiveMenu;

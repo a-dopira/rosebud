@@ -18,7 +18,6 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const showNotification = (message) => {
-
     if (fadeOutTimeoutRef.current) clearTimeout(fadeOutTimeoutRef.current);
     if (removeTimeoutRef.current) clearTimeout(removeTimeoutRef.current);
 

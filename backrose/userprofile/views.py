@@ -45,7 +45,7 @@ class LoginView(views.APIView):
 class LogoutView(views.APIView):
     def post(self, request):
         response = Response({"message": "Logout successful"})
-        
+
         response.delete_cookie(
             key=settings.SIMPLE_JWT["AUTH_COOKIE"],
             domain=settings.SIMPLE_JWT.get("AUTH_COOKIE_DOMAIN", None),
@@ -82,7 +82,7 @@ class UserProfileView(views.APIView):
                 serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
+
 
 class RegisterView(views.APIView):
     permission_classes = [AllowAny]
@@ -93,26 +93,26 @@ class RegisterView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "User registered successfully. Please log in."}, 
-                status=status.HTTP_201_CREATED
+                {"message": "User registered successfully. Please log in."},
+                status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
         if not refresh_token:
             return Response({"error": "Refresh token not found"}, status=401)
-        
+
         try:
-            
+
             serializer = self.get_serializer(data={"refresh": refresh_token})
             serializer.is_valid(raise_exception=True)
             access_token = serializer.validated_data["access"]
-            
+
             response = Response({"message": "Token refreshed successfully"})
-            
+
             response.set_cookie(
                 key=settings.SIMPLE_JWT["AUTH_COOKIE"],
                 value=access_token,
@@ -121,17 +121,22 @@ class CookieTokenRefreshView(TokenRefreshView):
                 samesite="None",
                 max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
             )
-            
-            if settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", False) and "refresh" in serializer.validated_data:
+
+            if (
+                settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", False)
+                and "refresh" in serializer.validated_data
+            ):
                 response.set_cookie(
                     key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
                     value=serializer.validated_data["refresh"],
                     httponly=True,
                     secure=True,
                     samesite="None",
-                    max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+                    max_age=settings.SIMPLE_JWT[
+                        "REFRESH_TOKEN_LIFETIME"
+                    ].total_seconds(),
                 )
-            
+
             return response
         except TokenError as e:
             return Response({"error": str(e)}, status=401)

@@ -5,7 +5,7 @@ simpleclassname.py
 management/
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
-frontendsrc/utils/Loaders/*
+frontend/src/utils/Loaders/*
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg

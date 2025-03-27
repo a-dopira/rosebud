@@ -5,8 +5,7 @@ import { GenericNewProductForm } from '../../utils/RoseComponents/NewProductForm
 import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 import { Helmet } from 'react-helmet';
 
-
-export const GenericModule = ({ 
+export const GenericModule = ({
   title,
   apiEndpoint,
   dataKey,
@@ -27,41 +26,42 @@ export const GenericModule = ({
         <title>{`${rose.title} | ${title}`}</title>
       </Helmet>
       <div className="animate-fade-in space-y-2">
-        <h1 className="text-center label-partials border-b-2 border-gray-200">{title}</h1>
+        <h1 className="text-center label-partials border-b-2 border-gray-200">
+          {title}
+        </h1>
         <button className="btn-red" onClick={openAddModal}>
           Добавить
         </button>
-        
-        {rose[dataKey] && rose[dataKey].map((item) => (
-          <GenericProduct 
-            key={item.id} 
-            productType={productType} 
-            product={item} 
-            apiEndpoint={apiEndpoint}
-            fields={fields}
-            validationSchema={validationSchema}
-            useFormData={useFormData}
-          />
-        ))}
+
+        {rose[dataKey] &&
+          rose[dataKey].map((item) => (
+            <GenericProduct
+              key={item.id}
+              productType={productType}
+              product={item}
+              apiEndpoint={apiEndpoint}
+              fields={fields}
+              validationSchema={validationSchema}
+              useFormData={useFormData}
+            />
+          ))}
       </div>
 
-      <GenericModal 
-        isOpen={showAddModal} 
-        onClose={closeAddModal} 
+      <GenericModal
+        isOpen={showAddModal}
+        onClose={closeAddModal}
         title={`Добавить ${title}`}
         roseName={rose?.name}
       >
-        <GenericNewProductForm 
-          setRose={setRose} 
-          apiEndpoint={apiEndpoint} 
+        <GenericNewProductForm
+          setRose={setRose}
+          apiEndpoint={apiEndpoint}
           setShowForm={closeAddModal}
           fields={fields}
           validationSchema={validationSchema}
           useFormData={useFormData}
         />
       </GenericModal>
-      
     </>
   );
 };
-  
