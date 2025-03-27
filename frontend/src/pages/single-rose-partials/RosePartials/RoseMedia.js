@@ -1,27 +1,20 @@
 import RosePhoto from "./RoseMediaPhoto";
 import RoseVideo from "./RoseMediaVideo";
-import { useState,useContext } from "react";
+import SmartMedia from "../../../utils/SmartMedia";
+import { useContext } from "react";
 import RoseContext from "../../../context/RoseContext";
-import { RoseLoader } from "../../../utils/Loaders/RoseLoader";
 import { Helmet } from 'react-helmet';
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 
 const RoseMedia = () => {
     const { rose } = useContext(RoseContext);
-    const [imageErrors, setImageErrors] = useState({});
 
-    const handleImageError = (itemKey) => {
-        setImageErrors(prev => ({
-            ...prev,
-            [itemKey]: true
-        }));
-    };
     const mediaItems = [];
     
     if (rose.photo) {
         mediaItems.push({
-            type: 'photo',
+            type: 'image',
             src: rose.photo,
             alt: rose.title,
             key: 'main-photo'
@@ -32,7 +25,7 @@ const RoseMedia = () => {
         rose.rosephotos.forEach((photo, index) => {
             if (photo && photo.photo) {
                 mediaItems.push({
-                    type: 'photo',
+                    type: 'image',
                     src: photo.photo,
                     alt: photo.descr || `${rose.title} - фото ${index + 1}`,
                     key: `photo-${index}`
@@ -82,30 +75,16 @@ const RoseMedia = () => {
                             }
                         }}
                     >
-                        
+
                         {mediaItems.map(item => (
                             <SplideSlide key={item.key}>
                                 <div className="flex justify-center items-center h-full">
-                                    {item.type === 'photo' ? (
-                                        imageErrors[item.key] ? (
-                                            <RoseLoader />
-                                        ) : (
-                                            <img 
-                                                src={item.src} 
-                                                alt={item.alt}
-                                                className="max-h-full max-w-full object-contain"
-                                                onError={() => handleImageError(item.key)}
-                                            />
-                                        )
-                                    ) : (
-                                        <video 
-                                            controls
-                                            className="max-h-full max-w-full"
-                                        >
-                                            <source src={item.src} type="video/mp4" />
-                                            Ваш браузер не поддерживает видео.
-                                        </video>
-                                    )}
+                                    <SmartMedia 
+                                        type={item.type}
+                                        src={item.src} 
+                                        alt={item.alt}
+                                        className="max-h-full max-w-full object-contain"
+                                    />
                                 </div>
                             </SplideSlide>
                         ))}
@@ -122,5 +101,6 @@ const RoseMedia = () => {
         </>
     );
 };
+
 
 export default RoseMedia

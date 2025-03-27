@@ -106,8 +106,6 @@ class CookieTokenRefreshView(TokenRefreshView):
             return Response({"error": "Refresh token not found"}, status=401)
         
         try:
-
-            # token = RefreshToken(refresh_token)
             
             serializer = self.get_serializer(data={"refresh": refresh_token})
             serializer.is_valid(raise_exception=True)

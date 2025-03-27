@@ -2,12 +2,13 @@ node_modules/
 .venv
 startproject.bat
 simpleclassname.py
-# frontend/src/assets/fonts/*
-# frontend/src/assets/icons/*
-# frontend/src/utils/Loaders/*
-# frontend/src/utils/Magnifier.js
-# frontend/src/utils/Arrow.js
-# frontend/public/icons8-rose-96.svg
+management/
+frontend/src/assets/fonts/*
+frontend/src/assets/icons/*
+frontendsrc/utils/Loaders/*
+frontend/src/utils/Magnifier.js
+frontend/src/utils/Arrow.js
+frontend/public/icons8-rose-96.svg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -35,6 +36,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.vscode
 MANIFEST
 
 # PyInstaller

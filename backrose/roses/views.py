@@ -2,8 +2,6 @@ from common import DynamicViewSet, dynamic_serializer
 from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
-from django.views.generic import TemplateView
-from django.views.decorators.cache import never_cache
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -39,58 +37,33 @@ from .serializers import (
 
 class RoseViewSet(viewsets.ModelViewSet):
     queryset = Rose.objects.all().order_by("id").prefetch_related(
-        'feedings',
-        'foliages',
-        'rosephotos',
-        'sizes',
-        'videos',
-        'pesticides',
-        'fungicides'
+        'feedings', 'foliages', 'rosephotos', 'sizes', 
+        'videos', 'pesticides', 'fungicides'
     )
     permission_classes = [IsAuthenticated]
-    serializer_class = RoseSerializer
     pagination_class = RosePagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = RoseFilter
     ordering_fields = ['title', 'id']
     ordering = ['id']
 
+    def get_serializer_class(self):
+        if self.action == "list":
+            return RoseListSerializer
+        return RoseSerializer
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-
-        group = request.query_params.get("group")
-        search = request.query_params.get("search")
-        ordering = request.query_params.get("ordering")
-
-        message = ""
-        if group:
-            message += f"Результаты по группе: {group}"
-        if search:
-            if message:
-                message += ", "
-            message += f"Результаты по запросу: {search}"
-
-        if ordering:
-            if message:
-                message += ", "
-            
-            if ordering == "title":
-                message += "Отсортировано по алфавиту (А-Я)"
-            elif ordering == "-title":
-                message += "Отсортировано по алфавиту (Я-А)"
-
+        
+        message = self._build_search_message(request, queryset)
+        
         if not queryset.exists():
-            message = "По результату поиска"
-            if group:
-                message += f" по группе: {group}"
-            if search:
-                message += f" по запросу: {search}"
-            message += " ничего не найдено, попробуйте что-то другое."
             return Response(
-                {"message": message, "results": []}, status=status.HTTP_200_OK
+                {"message": message, "results": []}, 
+                status=status.HTTP_200_OK
             )
         
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             response_data = self.get_paginated_response(serializer.data)
@@ -98,17 +71,39 @@ class RoseViewSet(viewsets.ModelViewSet):
                 {"message": message, "results": response_data.data}, 
                 status=status.HTTP_200_OK
             )
-        else:
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(
-                {"message": message, "results": serializer.data}, 
-                status=status.HTTP_200_OK
-            )
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            {"message": message, "results": serializer.data}, 
+            status=status.HTTP_200_OK
+        )
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return RoseListSerializer
-        return RoseSerializer
+    def _build_search_message(self, request, queryset):
+
+        group = request.query_params.get("group")
+        search = request.query_params.get("search")
+        ordering = request.query_params.get("ordering")
+        
+        if not queryset.exists():
+            message = "По результату поиска"
+            if group:
+                message += f" по группе: {group}"
+            if search:
+                message += f" по запросу: {search}"
+            return message + " ничего не найдено, попробуйте что-то другое."
+        
+        message_parts = []
+        if group:
+            message_parts.append(f"Результаты по группе: {group}")
+        if search:
+            message_parts.append(f"Результаты по запросу: {search}")
+        if ordering:
+            if ordering == "title":
+                message_parts.append("Отсортировано по алфавиту (А-Я)")
+            elif ordering == "-title":
+                message_parts.append("Отсортировано по алфавиту (Я-А)")
+                
+        return ", ".join(message_parts)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -122,7 +117,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            return Response(status=status.HTTP_201_CREATED, headers=headers)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except IntegrityError:
             return Response(
                 {"detail": "Роза с таким title или title_eng уже существует."},
@@ -297,4 +292,3 @@ class AdjustmentViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-index = never_cache(TemplateView.as_view(template_name='index.html'))

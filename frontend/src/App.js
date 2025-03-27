@@ -32,7 +32,8 @@ function App() {
     { path: '/', element: <Navigate to="/login" replace /> },
   ]);
 
-  
+  const isAuthPage = location.pathname.includes('/login') || location.pathname.includes('/register');
+
   if (authLoading || loading) {
     return <Loader/>
   }
@@ -40,13 +41,10 @@ function App() {
   return (
     <div className="bg-umbra pattern-dots pattern-white pattern-bg-umbra 
                       pattern-size-6 pattern-opacity-100 min-h-screen flex 
-                      items-center justify-center font-hedwig"
-    >
+                      items-center justify-center font-hedwig">
       <div className={`bg-white w-full md:w-3/4 max-w-7xl mx-auto 
-        ${location.pathname === '/home' || location.pathname === '/' ? 
-          'sm:my-8 md:my-6' : 'sm:my-6'} 
-        sm:rounded-large sm:p-12 px-0 sm:shadow-1xl min-h-0`}
-      >
+                     md:my-8 sm:my-6 sm:rounded-large sm:p-12 px-0 
+                     sm:shadow-1xl ${isAuthPage ? 'min-h-0' : 'min-h-[700px]'}`}>
         {routes}
       </div>
     </div>

@@ -25,13 +25,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://0.0.0.0:3000",
-]
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -127,36 +123,18 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int("3")),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int("10")),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": os.getenv("UPDATE_LAST_LOGIN"),
-    "ALGORITHM": os.getenv("ALGORITHM"),
-    "VERIFYING_KEY": None,
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-    "JTI_CLAIM": "jti",
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-    "AUTH_COOKIE": "access",
-    "AUTH_COOKIE_REFRESH": "refresh",
-    "AUTH_COOKIE_DOMAIN": None,
-    "AUTH_COOKIE_SECURE": True,
-    "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_SAMESITE": "None",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("ACCESS_TOKEN_LIFETIME"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFETIME"))),
+    "ROTATE_REFRESH_TOKENS": bool(os.getenv("ROTATE_REFRESH_TOKENS")),
+    "BLACKLIST_AFTER_ROTATION": bool(os.getenv("BLACKLIST_AFTER_ROTATION")),
+
+    "AUTH_COOKIE": os.getenv("AUTH_COOKIE"),
+    "AUTH_COOKIE_REFRESH": os.getenv("AUTH_COOKIE_REFRESH"),
+    "AUTH_COOKIE_SECURE": bool(os.getenv("AUTH_COOKIE_SECURE")),
+    "AUTH_COOKIE_HTTP_ONLY": bool(os.getenv("AUTH_COOKIE_HTTP_ONLY")),
+    "AUTH_COOKIE_PATH": os.getenv("AUTH_COOKIE_PATH"),
+    "AUTH_COOKIE_SAMESITE": os.getenv("AUTH_COOKIE_SAMESITE"),
+
 }
 
 LANGUAGE_CODE = "en-us"

@@ -8,7 +8,6 @@ from userprofile.models import User
 class CustomAuthentication(jwt_authentication.JWTAuthentication):
     def authenticate(self, request):
         access_token = request.COOKIES.get("access")
-        print("Access Token: ", access_token)
         if access_token is None:
             return None
 
