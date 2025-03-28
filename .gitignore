@@ -9,6 +9,11 @@ frontend/src/utils/Loaders/*
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
+backrose/staticfiles/css*
+backrose/staticfiles/js*
+backrose/staticfiles/images*
+backrose/staticfiles/fonts*
+backrose/staticfiles/manifest.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -71,7 +76,7 @@ cover/
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
+# db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:

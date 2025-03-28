@@ -1,28 +1,28 @@
+version: '3.8'
+
 services:
   backend:
     build:
-      context: ./backrose
-      dockerfile: Dockerfile
-    container_name: backend
+      context: .
+      dockerfile: ./backrose/Dockerfile
+    restart: always
     volumes:
       - ./backrose:/app
-      - ./backrose/db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./db.sqlite3:/app/db.sqlite3  # Mount SQLite database file
     env_file:
       - ./.env
-    ports:
-      - 8000:8000
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend
-    stdin_open: true
-    tty: true
-    ports:
-      - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
     depends_on:
       - backend
 
@@ -30,11 +30,12 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    container_name: nginx
     ports:
       - "80:80"
+    volumes:
+      - ./frontend/build:/usr/share/nginx/html
+      - ./staticfiles:/usr/share/nginx/html/static
+      - ./media:/app/media
     depends_on:
       - backend
       - frontend
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
