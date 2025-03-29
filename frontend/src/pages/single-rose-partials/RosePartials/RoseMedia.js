@@ -1,6 +1,6 @@
 import RosePhoto from './RoseMediaPhoto';
 import RoseVideo from './RoseMediaVideo';
-import SmartMedia from '../../../utils/RoseComponents/SmartMedia';
+import EnhancedMedia from '../../../utils/RoseComponents/EnhancedMedia';
 import { useContext } from 'react';
 import RoseContext from '../../../context/RoseContext';
 import { Helmet } from 'react-helmet';
@@ -12,6 +12,7 @@ const RoseMedia = () => {
 
   const mediaItems = [];
 
+  // Добавляем основное фото розы, если оно есть
   if (rose.photo) {
     mediaItems.push({
       type: 'image',
@@ -21,6 +22,7 @@ const RoseMedia = () => {
     });
   }
 
+  // Добавляем все остальные фото розы
   if (rose.rosephotos && rose.rosephotos.length > 0) {
     rose.rosephotos.forEach((photo, index) => {
       if (photo && photo.photo) {
@@ -29,11 +31,14 @@ const RoseMedia = () => {
           src: photo.photo,
           alt: photo.descr || `${rose.title} - фото ${index + 1}`,
           key: `photo-${index}`,
+          description: photo.descr,
+          year: photo.year,
         });
       }
     });
   }
 
+  // Добавляем все видео розы
   if (rose.videos && rose.videos.length > 0) {
     rose.videos.forEach((video, index) => {
       if (video && video.video) {
@@ -41,13 +46,14 @@ const RoseMedia = () => {
           type: 'video',
           src: video.video,
           key: `video-${index}`,
+          description: video.descr,
+          year: video.year,
         });
       }
     });
   }
 
   const hasMedia = mediaItems.length > 0;
-
   const showArrows = mediaItems.length > 1;
 
   return (
@@ -57,7 +63,9 @@ const RoseMedia = () => {
       </Helmet>
 
       {hasMedia ? (
-        <div className="flex justify-center items-center animate-fade-in">
+        <div className="flex flex-col space-y-4 animate-fade-in">
+          <h2 className="text-xl font-semibold mb-2">Галерея медиа</h2>
+          
           <Splide
             aria-label="Медиа галерея"
             options={{
@@ -78,23 +86,52 @@ const RoseMedia = () => {
             {mediaItems.map((item) => (
               <SplideSlide key={item.key}>
                 <div className="flex justify-center items-center h-full">
-                  <SmartMedia
-                    type={item.type}
-                    src={item.src}
-                    alt={item.alt}
-                    className="max-h-full max-w-full object-contain"
-                  />
+                  <div className="flex flex-col items-center">
+                    <EnhancedMedia
+                      type={item.type}
+                      src={item.src}
+                      alt={item.alt}
+                      thumbnail={false}
+                    />
+                    {(item.description || item.year) && (
+                      <div className="mt-2 text-center">
+                        {item.description && <p className="text-sm">{item.description}</p>}
+                        {item.year && <p className="text-xs text-gray-500">Год: {item.year}</p>}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SplideSlide>
             ))}
           </Splide>
+          
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {mediaItems.map((item) => (
+              <div key={`thumb-${item.key}`} className="flex flex-col items-center">
+                <EnhancedMedia
+                  type={item.type}
+                  src={item.src}
+                  alt={item.alt}
+                  thumbnail={true}
+                />
+                {item.year && <p className="text-xs text-gray-500 mt-1">{item.year}</p>}
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">Медиа контент отсутствует</div>
       )}
 
-      <RosePhoto />
-      <RoseVideo />
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Управление медиа</h2>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <RosePhoto />
+        </div>
+        <div className="bg-gray-50 p-4 rounded-lg mt-4">
+          <RoseVideo />
+        </div>
+      </div>
     </>
   );
 };

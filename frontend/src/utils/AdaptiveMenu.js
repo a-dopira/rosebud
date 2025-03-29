@@ -56,7 +56,7 @@ const AdaptiveMenu = ({ children, className, stickyPosition }) => {
 
   return (
     <div
-      className={`w-full h-20 overflow-visible sticky ${stickyPosition} z-50 shadow-lg mx-auto ${className || ''}`}
+      className={`w-full h-20 overflow-visible sticky ${stickyPosition} z-40 shadow-lg mx-auto ${className || ''}`}
     >
       <div
         ref={containerRef}

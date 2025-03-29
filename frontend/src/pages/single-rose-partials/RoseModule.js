@@ -26,7 +26,7 @@ export const GenericModule = ({
         <title>{`${rose.title} | ${title}`}</title>
       </Helmet>
       <div className="animate-fade-in space-y-2">
-        <h1 className="text-center label-partials border-b-2 border-gray-200">
+        <h1 className="text-center label-partials mt-5 border-b-2 border-gray-200">
           {title}
         </h1>
         <button className="btn-red" onClick={openAddModal}>

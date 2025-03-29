@@ -1,3 +1,4 @@
+import os
 from django.apps import AppConfig
 
 class UserprofileConfig(AppConfig):
@@ -6,3 +7,7 @@ class UserprofileConfig(AppConfig):
 
     def ready(self):
         import userprofile.signals
+
+        if os.environ.get('RUN_MAIN', None) != 'true':
+            from django.core import management
+            management.call_command('cleartokens')

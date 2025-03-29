@@ -1,16 +1,13 @@
-version: '3.8'
-
 services:
   backend:
     build:
-      context: .
-      dockerfile: ./backrose/Dockerfile
+      context: ./backrose
+      dockerfile: ./Dockerfile
     restart: always
     volumes:
-      - ./backrose:/app
-      - ./media:/app/media
-      - ./staticfiles:/app/staticfiles
-      - ./db.sqlite3:/app/db.sqlite3  # Mount SQLite database file
+      - ./backrose/media:/app/media
+      - ./backrose/staticfiles:/app/staticfiles
+      - ./backrose/db.sqlite3:/app/db.sqlite3
     env_file:
       - ./.env
 
@@ -19,12 +16,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - backend
+      - build_volume:/app/build
 
   nginx:
     build:
@@ -33,9 +25,12 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./frontend/build:/usr/share/nginx/html
-      - ./staticfiles:/usr/share/nginx/html/static
-      - ./media:/app/media
+      - build_volume:/usr/share/nginx/html
+      - ./backrose/staticfiles:/usr/share/nginx/html/static
+      - ./backrose/media:/app/media
     depends_on:
       - backend
       - frontend
+
+volumes:
+  build_volume:

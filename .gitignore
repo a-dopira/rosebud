@@ -9,11 +9,7 @@ frontend/src/utils/Loaders/*
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
-backrose/staticfiles/css*
-backrose/staticfiles/js*
-backrose/staticfiles/images*
-backrose/staticfiles/fonts*
-backrose/staticfiles/manifest.json
+backrose/staticfiles/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

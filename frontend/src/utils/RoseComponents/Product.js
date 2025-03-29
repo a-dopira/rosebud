@@ -4,6 +4,7 @@ import RoseContext from '../../context/RoseContext';
 import { useNotification } from '../../context/NotificationContext';
 import { GenericProductForm } from './ProductForm';
 import { GenericModal } from './ModalProduct';
+import EnhancedMedia from './EnhancedMedia';
 
 export const GenericProduct = ({
   product,
@@ -53,11 +54,28 @@ export const GenericProduct = ({
   };
 
   const renderField = (field) => {
-    if (field.type === 'image') {
+    if (field.type === 'file' || field.type === 'image' || field.name === 'photo') {
       return (
-        <div key={field.name}>
-          <span className="label-partials">{field.label}: </span>
-          <img src={product[field.name]} alt={product.descr || 'Изображение'} />
+        <div key={field.name} className="mb-2">
+          <span className="label-partials block mb-1">{field.label}: </span>
+          <EnhancedMedia
+            type="image"
+            src={product[field.name]}
+            alt={product.descr || 'Изображение'}
+          />
+        </div>
+      );
+    }
+    
+    if (field.type === 'video' || field.name === 'video') {
+      return (
+        <div key={field.name} className="mb-2">
+          <span className="label-partials block mb-1">{field.label}: </span>
+          <EnhancedMedia
+            type="video"
+            src={product[field.name]}
+            alt={product.descr || 'Видео'}
+          />
         </div>
       );
     }
@@ -84,17 +102,19 @@ export const GenericProduct = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 mb-6 p-4 border border-gray-200 rounded shadow-sm bg-white">
       <div className="animate-fade-in form-partials">
         {fields.map((field) => renderField(field))}
       </div>
 
-      <button className="btn-red mr-2" onClick={toggleEditModal}>
-        Изменить
-      </button>
-      <button className="btn-red" onClick={toggleDeleteModal}>
-        Удалить
-      </button>
+      <div className="flex space-x-2 mt-3">
+        <button className="btn-red" onClick={toggleEditModal}>
+          Изменить
+        </button>
+        <button className="btn-red" onClick={toggleDeleteModal}>
+          Удалить
+        </button>
+      </div>
 
       <GenericModal
         isOpen={isEditModalOpen}

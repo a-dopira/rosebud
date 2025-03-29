@@ -204,7 +204,7 @@ class SizeViewSet(viewsets.ModelViewSet):
 class FeedingViewSet(viewsets.ModelViewSet):
     queryset = Feeding.objects.all()
     serializer_class = FeedingSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -251,7 +251,6 @@ class FungicideViewSet(viewsets.ModelViewSet):
 
 class RosePhotoViewSet(DynamicViewSet):
     model = RosePhoto
-
 
 class VideoViewSet(DynamicViewSet):
     model = Video
