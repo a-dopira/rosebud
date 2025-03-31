@@ -1,7 +1,11 @@
 #!/bin/sh
 
-python manage.py makemigrations
-python manage.py migrate --no-input
+until [ -f /app/frontend/build/index.html ]
+do
+  echo "assembling frontend..."
+  sleep 2
+done
+
 python manage.py collectstatic --no-input
 
-gunicorn backrose.wsgi:application --bind 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000

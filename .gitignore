@@ -2,14 +2,20 @@ node_modules/
 .venv
 startproject.bat
 simpleclassname.py
-management/
+
+# React
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
 frontend/src/utils/Loaders/*
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
+
+# Django
+backrose/db.sqlite3
+backrose/userprofile/management/*
 backrose/staticfiles/*
+backrose/media/images/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

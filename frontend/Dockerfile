@@ -8,4 +8,6 @@ RUN npm install
 
 COPY . .
 
+ENV BUILD_PATH=/app/build
+
 RUN npm run build

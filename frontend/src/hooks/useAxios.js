@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: process.env.REACT_APP_API_URL,
   withCredentials: true,
 });
 
@@ -26,7 +26,7 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshResponse = await axios.post(
-          'http://127.0.0.1:8000/api/token/refresh/',
+          process.env.REACT_APP_API_URL + 'token/refresh/',
           {},
           { withCredentials: true }
         );
