@@ -4,19 +4,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from pytils.translit import slugify
 
-import os
-
-
-def get_filename(instance, filename):
-    title_eng = (
-        instance.title_eng if isinstance(instance, Rose) else instance.rose.title_eng
-    )
-    filename = f"{title_eng}_{filename}"
-
-    if isinstance(instance, Rose):
-        return os.path.join("images", title_eng, "thumbnails", filename)
-
-    return os.path.join("images", title_eng, filename)
+from common.utils import get_filename
 
 
 class Group(models.Model):
@@ -32,15 +20,6 @@ class Group(models.Model):
 
     def get_absolute_url(self):
         return reverse("group", kwargs={"group_slug": self.slug})
-
-
-@receiver(pre_delete, sender=Group)
-def prevent_group_deletion(sender, instance, **kwargs):
-    if instance.roses.exists():
-        raise models.ProtectedError(
-            f"Невозможно удалить группу {instance.name} поскольку к ней привязаны розы",
-            instance,
-        )
 
 
 class Breeder(models.Model):

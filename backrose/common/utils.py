@@ -1,6 +1,6 @@
 import os
+from django.apps import apps
 from rest_framework import serializers
-from roses.models import Rose
 
 
 def dynamic_serializer(
@@ -19,6 +19,8 @@ def dynamic_serializer(
 
 
 def get_filename(instance, filename):
+    Rose = apps.get_model("roses", "Rose")
+
     title_eng = (
         instance.title_eng if isinstance(instance, Rose) else instance.rose.title_eng
     )

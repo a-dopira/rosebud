@@ -66,7 +66,7 @@ export const GenericProduct = ({
         </div>
       );
     }
-    
+
     if (field.type === 'video' || field.name === 'video') {
       return (
         <div key={field.name} className="mb-2">

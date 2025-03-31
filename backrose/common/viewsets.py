@@ -26,10 +26,10 @@ class DynamicViewSet(viewsets.ModelViewSet):
             self.perform_create(serializer)
 
             entity_name = self.entity_name or self.model.__name__
-            
+
             display_identifier = ""
-            if 'name' in serializer.data:
-                display_identifier = serializer.data['name']
+            if "name" in serializer.data:
+                display_identifier = serializer.data["name"]
             else:
                 display_identifier = f"ID {serializer.data.get('id', '')}"
 
@@ -44,16 +44,26 @@ class DynamicViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_201_CREATED,
             )
-        
+
         except serializers.ValidationError as e:
-            field_with_error = next((field for field in getattr(e, "detail", {}) 
-                                    if any("already exists" in str(error) 
-                                        for error in e.detail.get(field, []))), None)
-            
+            field_with_error = next(
+                (
+                    field
+                    for field in getattr(e, "detail", {})
+                    if any(
+                        "already exists" in str(error)
+                        for error in e.detail.get(field, [])
+                    )
+                ),
+                None,
+            )
+
             if field_with_error:
                 entity_name = self.entity_name or self.model.__name__
                 return Response(
-                    {"detail": f"{entity_name} с таким значением поля '{field_with_error}' уже существует."},
+                    {
+                        "detail": f"{entity_name} с таким значением поля '{field_with_error}' уже существует."
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -64,15 +74,19 @@ class DynamicViewSet(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
             entity_name = self.entity_name or self.model.__name__
-            
+
             instance_id = instance.id
-            display_name = getattr(instance, 'name', f"ID {instance_id}") if hasattr(instance, 'name') else f"ID {instance_id}"
-            
+            display_name = (
+                getattr(instance, "name", f"ID {instance_id}")
+                if hasattr(instance, "name")
+                else f"ID {instance_id}"
+            )
+
             self.perform_destroy(instance)
-            
+
             updated_queryset = self.get_queryset()
             updated_serializer = self.get_serializer(updated_queryset, many=True)
-            
+
             return Response(
                 {
                     "message": f"{entity_name} {display_name} удален.",

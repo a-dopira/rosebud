@@ -18,13 +18,10 @@ services:
     restart: always
     volumes:
       - ./backrose/media:/app/media
-      - ./backrose/staticfiles:/app/staticfiles
       - ./backrose/db.sqlite3:/app/db.sqlite3
-      - build_volume:/app/staticfiles 
+      - build_volume:/app/frontend/build 
     env_file:
       - ./backrose/.env
-    depends_on:
-      - frontend
 
   nginx:
     build:

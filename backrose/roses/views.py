@@ -252,6 +252,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
 class RosePhotoViewSet(DynamicViewSet):
     model = RosePhoto
 
+
 class VideoViewSet(DynamicViewSet):
     model = Video
 

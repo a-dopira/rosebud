@@ -65,7 +65,7 @@ const RoseMedia = () => {
       {hasMedia ? (
         <div className="flex flex-col space-y-4 animate-fade-in">
           <h2 className="text-xl font-semibold mb-2">Галерея медиа</h2>
-          
+
           <Splide
             aria-label="Медиа галерея"
             options={{
@@ -95,8 +95,12 @@ const RoseMedia = () => {
                     />
                     {(item.description || item.year) && (
                       <div className="mt-2 text-center">
-                        {item.description && <p className="text-sm">{item.description}</p>}
-                        {item.year && <p className="text-xs text-gray-500">Год: {item.year}</p>}
+                        {item.description && (
+                          <p className="text-sm">{item.description}</p>
+                        )}
+                        {item.year && (
+                          <p className="text-xs text-gray-500">Год: {item.year}</p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -104,7 +108,7 @@ const RoseMedia = () => {
               </SplideSlide>
             ))}
           </Splide>
-          
+
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {mediaItems.map((item) => (
               <div key={`thumb-${item.key}`} className="flex flex-col items-center">
