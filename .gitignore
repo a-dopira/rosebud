@@ -2,7 +2,7 @@ node_modules/
 .venv
 startproject.bat
 simpleclassname.py
-run_project.vbs
+launcher.vbs
 
 # React
 frontend/src/assets/fonts/*
