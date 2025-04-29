@@ -9,8 +9,12 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
+    @property
     def profile(self):
-        profile = Profile.objects.get(user=self)
+        return Profile.objects.get(user=self)
+
+    def __str__(self):
+        return self.username
 
 
 class Profile(models.Model):

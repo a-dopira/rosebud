@@ -1,19 +1,34 @@
-from rest_framework_simplejwt import authentication as jwt_authentication
-from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.exceptions import AuthenticationFailed
-
-from userprofile.models import User
+from rest_framework_simplejwt import authentication as jwt_auth
+from rest_framework import authentication, exceptions as rest_exceptions
 
 
-class CustomAuthentication(jwt_authentication.JWTAuthentication):
+def enforce_csrf(request):
+    check = authentication.CSRFCheck(request)
+    reason = check.process_view(request, None, (), {})
+    if reason:
+        print(f"CSRF Failed: {reason}")
+        raise rest_exceptions.PermissionDenied(f"CSRF Failed: {reason}")
+
+
+class CustomAuthentication(jwt_auth.JWTAuthentication):
     def authenticate(self, request):
-        access_token = request.COOKIES.get("access")
-        if access_token is None:
+        raw_token = request.COOKIES.get("access")
+
+        if raw_token is None:
             return None
 
         try:
-            token = AccessToken(access_token)
-            user = User.objects.get(id=token["user_id"])
-            return (user, None)
+            validated_token = self.get_validated_token(raw_token)
+            user = self.get_user(validated_token)
+
+            if request.method not in ["GET", "HEAD", "OPTIONS", "TRACE"]:
+                try:
+                    enforce_csrf(request)
+                except Exception as e:
+                    raise rest_exceptions.PermissionDenied(
+                        f"CSRF проверка не пройдена: {e}"
+                    )
+
+            return user, validated_token
         except Exception as e:
-            raise AuthenticationFailed("Invalid access token")
+            raise rest_exceptions.AuthenticationFailed("Invalid access token")

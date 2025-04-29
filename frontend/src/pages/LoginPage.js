@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useForm } from 'react-hook-form';
@@ -6,7 +6,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import AuthContext from '../context/AuthContext';
-import useAxios from '../hooks/useAxios';
 
 const schema = yup.object().shape({
   email: yup.string().required('Почта обязательна для заполнения'),
@@ -15,10 +14,8 @@ const schema = yup.object().shape({
 
 function LoginPage() {
   const [loginErrors, setLoginError] = useState(null);
-  const { fetchUserProfile, user } = useContext(AuthContext);
-  const api = useAxios();
+  const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
@@ -26,46 +23,20 @@ function LoginPage() {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const isMounted = useRef(false);
+
   useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true;
-      if (user) {
-        requestAnimationFrame(() => {
-          navigate('/home');
-        });
-      }
+    if (user) {
+      navigate('/home');
     }
-  }, []);
-  const login = useCallback(
-    async (email, password) => {
-      try {
-        const response = await api.post('/login/', { email, password });
-        if (response.status === 200) {
-          await fetchUserProfile();
-          return true;
-        } else {
-          setLoginError('Неверный логин или пароль');
-          return false;
-        }
-      } catch (error) {
-        setLoginError('Ошибка соединения с сервером');
-        return false;
-      }
-    },
-    [fetchUserProfile]
-  );
-  const onSubmit = useCallback(
-    async (data) => {
-      const success = await login(data.email, data.password);
-      if (success) {
-        requestAnimationFrame(() => {
-          navigate('/home');
-        });
-      }
-    },
-    [login, navigate]
-  );
+  }, [user, navigate]);
+
+  const onSubmit = async (data) => {
+    setLoginError(null);
+    const success = await login(data.email, data.password);
+    if (!success) {
+      setLoginError('Неверный логин или пароль');
+    }
+  };
 
   return (
     <>

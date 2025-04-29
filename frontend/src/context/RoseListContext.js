@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
+
 import useAxios from '../hooks/useAxios';
 
 import DataContext from './DataContext';
@@ -15,13 +16,13 @@ export const RoseListContext = createContext();
 export const RoseListProvider = ({ children }) => {
   const { filter, loadGroups, sortOrder } = useContext(DataContext);
 
-  const api = useAxios();
+  const { api, isLoading } = useAxios();
 
   const [rosesList, setRosesList] = useState([]);
   const [rosesMessage, setRosesMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const requestCache = useRef({});
   const lastRequest = useRef({ page: null, filterKey: null, sortKey: null });
@@ -57,8 +58,6 @@ export const RoseListProvider = ({ children }) => {
         }
       }
 
-      setIsLoading(true);
-
       try {
         const params = new URLSearchParams();
 
@@ -74,9 +73,10 @@ export const RoseListProvider = ({ children }) => {
 
         params.append('page', page);
 
-        const response = await api.get(`/roses/?${params.toString()}`);
+        const response = await api.get(`roses/?${params.toString()}`);
 
         const roses = response.data.results.roses || [];
+        console.log('roses', roses);
         const totalPagesCount = response.data.results.total_pages || 1;
         const message = response.data.message || null;
 
@@ -103,12 +103,10 @@ export const RoseListProvider = ({ children }) => {
           timestamp: Date.now(),
         };
 
-        setIsLoading(false);
         return responseData;
       } catch (error) {
         console.error('Ошибка при загрузке роз:', error);
         setRosesMessage('Что-то пошло не так...');
-        setIsLoading(false);
         return { totalPages: 1, roses: [] };
       }
     },
@@ -169,8 +167,17 @@ export const RoseListProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    loadRoses(1, filter, true);
-  }, [sortOrder, filter, loadRoses]);
+    if (isInitialLoad) {
+      loadRoses(1, filter);
+      setIsInitialLoad(false);
+    }
+  }, [isInitialLoad, filter, loadRoses]);
+
+  useEffect(() => {
+    if (!isInitialLoad) {
+      loadRoses(1, filter);
+    }
+  }, [sortOrder, filter, loadRoses, isInitialLoad]);
 
   useEffect(() => {
     return () => {
@@ -182,7 +189,6 @@ export const RoseListProvider = ({ children }) => {
   const context = {
     rosesList,
     rosesMessage,
-    isLoading,
     totalPages,
     currentPage,
     loadRoses,
@@ -190,6 +196,7 @@ export const RoseListProvider = ({ children }) => {
     setTotalPages,
     handlePage,
     clearCache,
+    isLoading,
   };
 
   return (

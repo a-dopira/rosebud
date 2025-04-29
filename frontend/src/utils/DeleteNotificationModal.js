@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import { useNotification } from '../context/NotificationContext';
 import useAxios from '../hooks/useAxios';
 
@@ -9,8 +11,9 @@ const DeleteNotificationModal = ({
   onDelete,
   updateState,
 }) => {
-  const api = useAxios();
+  const { api } = useAxios();
   const { showNotification } = useNotification();
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     try {
@@ -22,7 +25,7 @@ const DeleteNotificationModal = ({
       }
 
       if (itemId && apiEndpoint) {
-        await api.delete(`${apiEndpoint}/${itemId}/`);
+        await api.delete(`/${apiEndpoint}/${itemId}/`);
 
         if (typeof updateState === 'function') {
           updateState();
@@ -30,6 +33,10 @@ const DeleteNotificationModal = ({
 
         showNotification('Удаление успешно выполнено.');
         setShowModal(false);
+
+        if (apiEndpoint === 'roses') {
+          navigate('/');
+        }
       } else {
         showNotification('Ошибка: отсутствует ID элемента или конечная точка API.');
       }

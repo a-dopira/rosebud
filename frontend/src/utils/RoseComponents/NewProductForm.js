@@ -11,7 +11,7 @@ export const GenericNewProductForm = ({
   validationSchema,
   useFormData = false,
 }) => {
-  const api = useAxios();
+  const { api } = useAxios();
   const { roseId } = useParams();
   const { showNotification } = useNotification();
 

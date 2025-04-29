@@ -8,7 +8,7 @@ services:
       - build_volume:/app/build
     environment:
       - BUILD_PATH=/app/build
-      - REACT_APP_API_URL=http://localhost:80/api/
+      - REACT_APP_API_URL=http://localhost:8000/api/
       - BROWSER=none
 
   backend:
@@ -28,7 +28,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8000:8000"
     volumes:
       - build_volume:/usr/share/nginx/html
       - ./backrose/media:/usr/share/nginx/html/media

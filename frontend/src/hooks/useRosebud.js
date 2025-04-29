@@ -1,16 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import useAxios from './useAxios';
 
 const useRosebud = () => {
-  const api = useAxios();
-  const [loading, setLoading] = useState(0);
+  const { api } = useAxios();
 
   const loadResources = useCallback(
     async (path, options = {}) => {
       const { method = 'GET', body = null } = options;
-
-      setLoading((prevState) => prevState + 1);
 
       try {
         let response;
@@ -47,14 +44,12 @@ const useRosebud = () => {
         }
 
         throw new Error(error.message || 'Произошла ошибка при выполнении запроса');
-      } finally {
-        setLoading((prevState) => (prevState > 0 ? prevState - 1 : 0));
       }
     },
     [api]
   );
 
-  return { loadResources, loading };
+  return { loadResources };
 };
 
 export default useRosebud;

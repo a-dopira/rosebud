@@ -4,7 +4,7 @@ import useRosebud from '../../hooks/useRosebud';
 import DataContext from '../../context/DataContext';
 import { useNotification } from '../../context/NotificationContext';
 
-import DropdownField from '../../utils/DropdownField';
+import Dropdown from '../../utils/DropdownField';
 
 const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type }) => {
   const { loadResources } = useRosebud();
@@ -20,17 +20,15 @@ const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type
     const itemName = value.name.trim();
 
     try {
-      const response = await loadResources(endpoint, {
+      const response = await loadResources(`${endpoint}/`, {
         method: 'POST',
         body: { name: itemName },
       });
 
       if (response && response.items) {
         updateData(type, response.items);
-        console.log('сервер вернул обновленный список');
       } else {
         const updatedList = [...list, response];
-        console.log('запасной вариант');
         setList(updatedList);
       }
 
@@ -40,8 +38,6 @@ const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type
         showNotification(response.message);
       }
     } catch (err) {
-      console.log('Ошибка при добавлении:', err);
-
       if (err && err.detail) {
         showNotification(err.detail);
       } else if (err && err.error) {
@@ -72,7 +68,7 @@ const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type
     const itemId = value.id;
 
     try {
-      const response = await loadResources(`${endpoint}${itemId}/`, {
+      const response = await loadResources(`/${endpoint}${itemId}/`, {
         method: 'DELETE',
         silent: true,
       });
@@ -127,7 +123,7 @@ const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type
   return (
     <form className="px-10 sm:px-0 space-y-4 space-x-2">
       <label className="form-label inline-block w-full">{label}</label>
-      <DropdownField
+      <Dropdown
         value={value}
         onChange={setValue}
         options={list}

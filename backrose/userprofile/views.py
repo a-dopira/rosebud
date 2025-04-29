@@ -1,92 +1,153 @@
 from django.conf import settings
-from django.db import transaction
-
-from .serializers import LoginSerializer, UserSerializer, RegisterSerializer
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import views, status
-from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.middleware.csrf import get_token
+from .authenticate import CustomAuthentication
+from .serializers import (
+    CustomTokenObtainPairSerializer,
+    TokenRefreshSerializer,
+    UserSerializer,
+    ProfileSerializer,
+    RegisterSerializer,
+)
 
 
-class LoginView(views.APIView):
+class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
-    authentication_classes = []
+    serializer_class = CustomTokenObtainPairSerializer
 
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    def post(self, request, *args, **kwargs):
+        print(f"📝 Login attempt for: {request.data.get('email', 'unknown')}")
+        serializer = self.get_serializer(data=request.data)
 
-        user = serializer.validated_data["user"]
-        refresh = RefreshToken.for_user(user)
-        access_token = refresh.access_token
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            print(f"Ошибка валидации: {str(e)}")
+            return Response(
+                {"detail": "Неверные учетные данные"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
-        response = Response({"message": "Login successful"})
-        response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-            value=str(access_token),
-            httponly=True,
-            secure=True,
-            samesite="None",
-            max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+        data = serializer.validated_data
+
+        response = Response(
+            {"user": data["user"], "detail": "Успешная авторизация"},
+            status=status.HTTP_200_OK,
         )
+
+        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH", "refresh")
+        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE", "access")
+
         response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-            value=str(refresh),
-            httponly=True,
-            secure=True,
-            samesite="None",
+            refresh_cookie_name,
+            str(data.get("refresh")),
             max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE", False),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY", True),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", "Lax"),
+            path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
         )
+
+        response.set_cookie(
+            access_cookie_name,
+            str(data.get("access")),
+            max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY"),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
+            path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH"),
+        )
+
+        response.set_cookie(
+            "csrftoken",
+            request.COOKIES.get("csrftoken", get_token(request)),
+            max_age=60 * 60 * 24 * 7,  # 7 days
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
+            path="/",
+        )
+
         return response
 
 
-class LogoutView(views.APIView):
-    def post(self, request):
-        response = Response({"message": "Logout successful"})
+class CustomTokenRefreshView(APIView):
+    permission_classes = [AllowAny]
 
-        response.delete_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-            domain=settings.SIMPLE_JWT.get("AUTH_COOKIE_DOMAIN", None),
-            path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", None),
+    def post(self, request, *args, **kwargs):
+        serializer = TokenRefreshSerializer(
+            data=request.data, context={"request": request}
         )
-        response.delete_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-            domain=settings.SIMPLE_JWT.get("AUTH_COOKIE_DOMAIN", None),
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            print(f"Ошибка при обновлении токена: {str(e)}")
+            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+        data = serializer.validated_data
+
+        response = Response(
+            {"detail": "Token refreshed successfully"}, status=status.HTTP_200_OK
+        )
+
+        response.set_cookie(
+            settings.SIMPLE_JWT.get("AUTH_COOKIE"),
+            str(data["access"]),
+            max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE", False),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY", True),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", "Lax"),
             path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", None),
         )
 
         return response
 
 
-class UserProfileView(views.APIView):
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        response = Response({"detail": "Успешный выход из системы"})
+
+        response.delete_cookie("access", path="/")
+        response.delete_cookie("refresh", path="/")
+
+        return response
+
+
+class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
+    print("🔥 Пользовательский профиль импортирован")
+
     def get(self, request):
+        print(request.user)
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
+
     def patch(self, request):
         user = request.user
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            with transaction.atomic():
-                profile_data = serializer.validated_data.pop("profile", {})
-                if profile_data:
-                    for attr, value in profile_data.items():
-                        setattr(user.profile, attr, value)
-                    user.profile.save()
-                serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+        profile = user.profile
+
+        profile_serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            user_serializer = UserSerializer(user)
+            return Response(user_serializer.data)
+        return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RegisterView(views.APIView):
+class RegisterView(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = []
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -97,48 +158,3 @@ class RegisterView(views.APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CookieTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
-        if not refresh_token:
-            return Response({"error": "Refresh token not found"}, status=401)
-
-        try:
-
-            serializer = self.get_serializer(data={"refresh": refresh_token})
-            serializer.is_valid(raise_exception=True)
-            access_token = serializer.validated_data["access"]
-
-            response = Response({"message": "Token refreshed successfully"})
-
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-                value=access_token,
-                httponly=True,
-                secure=True,
-                samesite="None",
-                max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
-            )
-
-            if (
-                settings.SIMPLE_JWT.get("ROTATE_REFRESH_TOKENS", False)
-                and "refresh" in serializer.validated_data
-            ):
-                response.set_cookie(
-                    key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-                    value=serializer.validated_data["refresh"],
-                    httponly=True,
-                    secure=True,
-                    samesite="None",
-                    max_age=settings.SIMPLE_JWT[
-                        "REFRESH_TOKEN_LIFETIME"
-                    ].total_seconds(),
-                )
-
-            return response
-        except TokenError as e:
-            return Response({"error": str(e)}, status=401)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)

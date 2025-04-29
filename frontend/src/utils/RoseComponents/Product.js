@@ -13,7 +13,7 @@ export const GenericProduct = ({
   fields,
   validationSchema,
 }) => {
-  const api = useAxios();
+  const { api } = useAxios();
   const { setRose } = useContext(RoseContext);
   const { showNotification } = useNotification();
 
@@ -25,7 +25,10 @@ export const GenericProduct = ({
 
   const handleSubmit = async (updatedProduct) => {
     try {
-      const response = await api.patch(`${apiEndpoint}/${product.id}/`, updatedProduct);
+      const response = await api.patch(
+        `/${apiEndpoint}/${product.id}/`,
+        updatedProduct
+      );
       toggleEditModal();
       setRose((prevRose) => {
         const updatedProducts = prevRose[apiEndpoint].map((p) =>
@@ -41,7 +44,7 @@ export const GenericProduct = ({
 
   const handleDelete = async () => {
     try {
-      await api.delete(`${apiEndpoint}/${product.id}/`);
+      await api.delete(`/${apiEndpoint}/${product.id}/`);
       toggleDeleteModal();
       setRose((prevRose) => ({
         ...prevRose,

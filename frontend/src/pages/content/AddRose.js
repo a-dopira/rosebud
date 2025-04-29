@@ -4,7 +4,7 @@ import DataContext from '../../context/DataContext';
 import { useNotification } from '../../context/NotificationContext';
 
 function AddRose() {
-  const api = useAxios();
+  const { api } = useAxios();
   const { showNotification } = useNotification();
 
   const { groups, breeders, loadGroups } = useContext(DataContext);

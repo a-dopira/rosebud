@@ -16,7 +16,7 @@ function SearchPanel() {
     if (!searchValue) return;
 
     setFilter({ search: searchValue });
-    navigate(`home/search/?search=${searchValue}`);
+    navigate(`search/?search=${searchValue}`);
     setInputValue('');
   };
 

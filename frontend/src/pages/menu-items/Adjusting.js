@@ -26,25 +26,25 @@ function Adjusting() {
       type: 'groups',
       label: 'Настроить группу:',
       list: groups,
-      endpoint: 'groups/',
+      endpoint: '/groups',
     },
     {
       type: 'breeders',
       label: 'Настроить селекционера:',
       list: breeders,
-      endpoint: 'breeders/',
+      endpoint: '/breeders',
     },
     {
       type: 'pests',
       label: 'Настроить вредителей:',
       list: pests,
-      endpoint: 'pests/',
+      endpoint: '/pests',
     },
     {
       type: 'fungi',
       label: 'Настроить грибы:',
       list: fungi,
-      endpoint: 'fungi/',
+      endpoint: '/fungi',
     },
   ];
 
@@ -53,7 +53,7 @@ function Adjusting() {
       <Helmet>
         <title>{'Настроить'}</title>
       </Helmet>
-      <div className="">
+      <div className="animate-fade-in">
         {configData.map(({ type, label, list, endpoint }) => (
           <AdjustForm
             key={type}

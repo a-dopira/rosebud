@@ -3,25 +3,17 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
-
-def load_env(path):
-    with open(path) as file:
-        for line in file:
-            line = line.strip()
-            if not line.startswith("#"):
-                key, value = line.split("=", 1)
-                os.environ.setdefault(key, value)
-
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env_path = BASE_DIR / ".env"
 
-load_env(env_path)
+load_dotenv(env_path)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = bool(os.getenv("DEBUG"))
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -31,15 +23,35 @@ CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False  # if samesite=None then True
 
-CSRF_COOKIE_HTTP_ONLY = False
+CSRF_COOKIE_SECURE = False  # if samesite=None then True
 
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
 
-CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_NAME = "csrftoken"
 
-SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "Lax"  # None for cross-domain
+
+CSRF_COOKIE_SAMESITE = "Lax"  # None for cross-domain
+
+# USE_X_FORWARDED_HOST = bool(os.getenv("USE_X_FORWARDED_HOST"))
+
+# USE_X_FORWARDED_PORT = bool(os.getenv("USE_X_FORWARDED_PORT"))
+
+# SECURE_PROXY_SSL_HEADER = os.getenv("SECURE_PROXY_SSL_HEADER").split(",")
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -50,15 +62,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    "django_filters",
     "rest_framework_simplejwt.token_blacklist",
+    "django_filters",
     "roses.apps.RosesConfig",
     "userprofile.apps.UserprofileConfig",
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -111,27 +123,31 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "userprofile.User"
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+    "AUTH_COOKIE": "access",
+    "AUTH_COOKIE_REFRESH": "refresh",
+    "AUTH_COOKIE_DOMAIN": None,
+    "AUTH_COOKIE_SECURE": False,  # true for https
+    "AUTH_COOKIE_HTTP_ONLY": True,  # False for js read cookie
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SAMESITE": "Lax",  # None for cross domain
+}
+
+print(type(SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE")))
+print(SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"))
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "userprofile.authenticate.CustomAuthentication",
-    ),
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [],
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("ACCESS_TOKEN_LIFETIME"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFETIME"))),
-    "ROTATE_REFRESH_TOKENS": bool(os.getenv("ROTATE_REFRESH_TOKENS")),
-    "BLACKLIST_AFTER_ROTATION": bool(os.getenv("BLACKLIST_AFTER_ROTATION")),
-    "AUTH_COOKIE": os.getenv("AUTH_COOKIE"),
-    "AUTH_COOKIE_REFRESH": os.getenv("AUTH_COOKIE_REFRESH"),
-    "AUTH_COOKIE_SECURE": bool(os.getenv("AUTH_COOKIE_SECURE")),
-    "AUTH_COOKIE_HTTP_ONLY": bool(os.getenv("AUTH_COOKIE_HTTP_ONLY")),
-    "AUTH_COOKIE_PATH": os.getenv("AUTH_COOKIE_PATH"),
-    "AUTH_COOKIE_SAMESITE": os.getenv("AUTH_COOKIE_SAMESITE"),
-}
+AUTH_USER_MODEL = "userprofile.User"
 
 LANGUAGE_CODE = "en-us"
 

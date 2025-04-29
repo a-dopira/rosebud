@@ -2,20 +2,25 @@ node_modules/
 .venv
 startproject.bat
 simpleclassname.py
+run_project.vbs
 
 # React
 frontend/src/assets/fonts/*
 frontend/src/assets/icons/*
-frontend/src/utils/Loaders/*
+frontend/src/utils/Loaders/RoseLoader.js
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
+frontend/.prettierignore
 
 # Django
 backrose/db.sqlite3
 backrose/userprofile/management/*
 backrose/staticfiles/*
 backrose/media/images/
+backrose/userprofile/debug_middleware.py
+backrose/backrose/load_env.py
+backrose/userprofile/tests/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -171,3 +176,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# pytest
+.pytest_cache/
+
+# prettier
+.prettierignore

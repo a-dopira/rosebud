@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import { memo, useContext, useEffect } from 'react';
 
 import Menu from './menu/Menu';
 import Profile from './profile/Profile';
@@ -10,36 +11,51 @@ import RoseLayout from './content/RoseLayout';
 import { RoseProvider } from '../context/RoseContext';
 import { RoseListProvider } from '../context/RoseListContext';
 
-function RoseList() {
+import DataContext from '../context/DataContext';
+
+const RoseList = memo(function RoseList() {
+  const { groupName } = useParams();
+  const location = useLocation();
+  const { setFilter } = useContext(DataContext);
+
+  useEffect(() => {
+    if (groupName) {
+      console.log('Установка фильтра по группе из URL:', groupName);
+      setFilter({ group: groupName });
+    } else if (location.pathname.includes('/home/collection')) {
+      setFilter({});
+    }
+  }, [groupName, location.pathname, setFilter]);
+
   return (
     <RoseListProvider>
-      <Routes>
-        <Route index element={<RoseGrid />} />
-        <Route path="collection" element={<RoseGrid />} />
-        <Route path="group/:groupName" element={<RoseGrid />} />
-        <Route path="search" element={<RoseGrid />} />
-      </Routes>
+      <RoseGrid />
     </RoseListProvider>
   );
-}
+});
 
 export default function Homepage() {
   return (
     <div className="animate-fade-in">
-      <Profile className="w-full" />
+      <Profile />
       <Menu />
       <Routes>
-        <Route path="home/*" element={<RoseList />} />
         <Route path="addrose/" element={<AddRose />} />
         <Route path="adjusting/" element={<Adjusting />} />
+        <Route path="collection/*" element={<RoseList />} />
+        <Route path="group/:groupName" element={<RoseList />} />
+        <Route path="search/*" element={<RoseList />} />
+
         <Route
-          path="/:roseId/*"
+          path=":roseId/*"
           element={
             <RoseProvider>
               <RoseLayout />
             </RoseProvider>
           }
         />
+
+        <Route index element={<Navigate to="collection" replace />} />
       </Routes>
     </div>
   );

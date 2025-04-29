@@ -6,6 +6,8 @@ do
   sleep 2
 done
 
+python manage.py migrate --no-input
+
 python manage.py collectstatic --clear --no-input
 
 python manage.py runserver 0.0.0.0:8000

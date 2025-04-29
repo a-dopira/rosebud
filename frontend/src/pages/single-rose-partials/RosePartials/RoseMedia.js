@@ -12,7 +12,6 @@ const RoseMedia = () => {
 
   const mediaItems = [];
 
-  // Добавляем основное фото розы, если оно есть
   if (rose.photo) {
     mediaItems.push({
       type: 'image',
@@ -22,7 +21,6 @@ const RoseMedia = () => {
     });
   }
 
-  // Добавляем все остальные фото розы
   if (rose.rosephotos && rose.rosephotos.length > 0) {
     rose.rosephotos.forEach((photo, index) => {
       if (photo && photo.photo) {
@@ -38,7 +36,6 @@ const RoseMedia = () => {
     });
   }
 
-  // Добавляем все видео розы
   if (rose.videos && rose.videos.length > 0) {
     rose.videos.forEach((video, index) => {
       if (video && video.video) {
@@ -87,12 +84,7 @@ const RoseMedia = () => {
               <SplideSlide key={item.key}>
                 <div className="flex justify-center items-center h-full">
                   <div className="flex flex-col items-center">
-                    <EnhancedMedia
-                      type={item.type}
-                      src={item.src}
-                      alt={item.alt}
-                      thumbnail={false}
-                    />
+                    <EnhancedMedia type={item.type} src={item.src} alt={item.alt} />
                     {(item.description || item.year) && (
                       <div className="mt-2 text-center">
                         {item.description && (
@@ -112,12 +104,7 @@ const RoseMedia = () => {
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {mediaItems.map((item) => (
               <div key={`thumb-${item.key}`} className="flex flex-col items-center">
-                <EnhancedMedia
-                  type={item.type}
-                  src={item.src}
-                  alt={item.alt}
-                  thumbnail={true}
-                />
+                <EnhancedMedia type={item.type} src={item.src} alt={item.alt} />
                 {item.year && <p className="text-xs text-gray-500 mt-1">{item.year}</p>}
               </div>
             ))}

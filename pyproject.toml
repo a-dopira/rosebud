@@ -7,3 +7,8 @@ exclude = '''
   | __pycache__
 )/
 '''
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backrose.settings"
+python_files = ["test_*.py"]
+django_find_project = true

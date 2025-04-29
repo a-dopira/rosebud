@@ -5,7 +5,7 @@ import DataContext from '../../context/DataContext';
 import Arrow from '../../utils/Arrow';
 
 function CategorySelect() {
-  const { groups, setFilter } = useContext(DataContext);
+  const { groups } = useContext(DataContext);
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -109,9 +109,8 @@ function CategorySelect() {
                   className="drop-menu-item w-full hover:bg-gray-100 touch-auto"
                 >
                   <Link
-                    to={`home/group/${group.name}`}
+                    to={`/home/group/${group.name}/`}
                     onClick={() => {
-                      setFilter({ group: group.name });
                       setIsOpen(false);
                     }}
                   >

@@ -1,4 +1,4 @@
-import { useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -22,7 +22,7 @@ const schema = yup.object().shape({
   }),
 });
 
-const Profile = () => {
+const Profile = memo(() => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isEditing, setEditing] = useState(false);
 
@@ -79,11 +79,11 @@ const Profile = () => {
     handleCloseModal();
   };
 
-  const {
-    username: profileUsername,
-    app_header: profileHeader,
-    image: profileImage,
-  } = user || {};
+  const { username: profileUsername, profile } = user || {};
+
+  const profileImage = profile?.image || '';
+
+  const profileHeader = profile?.app_header || '';
 
   return (
     <>
@@ -249,6 +249,6 @@ const Profile = () => {
       </div>
     </>
   );
-};
+});
 
 export default Profile;

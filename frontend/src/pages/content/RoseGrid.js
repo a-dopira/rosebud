@@ -34,6 +34,8 @@ const RoseGrid = memo(function RoseGrid() {
     clearCache,
   } = useContext(RoseListContext);
 
+  console.log('filter, sortOrder: ', filter, sortOrder);
+
   const getScrollPosition = useCallback(() => window.scrollY, []);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ const RoseGrid = memo(function RoseGrid() {
 
   useEffect(() => {
     if (
-      location.pathname.includes('home/collection') &&
+      location.pathname.includes('/home/collection') &&
       (Object.keys(filter).length > 0 || location.state?.resetFilter)
     ) {
       setFilter({});
@@ -115,7 +117,7 @@ const RoseGrid = memo(function RoseGrid() {
       <div className="animate-fade-in space-y-8">
         <p className="text-xl">У вас пока нету роз. Добавьте новую розу!</p>
         <button className="btn-red">
-          <Link to="/addrose/">Добавить</Link>
+          <Link to="/home/addrose">Добавить</Link>
         </button>
       </div>
     );

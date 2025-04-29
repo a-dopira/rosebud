@@ -1,6 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
 import RoseContext from '../../context/RoseContext';
-import DataContext from '../../context/DataContext';
 import { Link } from 'react-router-dom';
 import useAxios from '../../hooks/useAxios';
 import useRosebud from '../../hooks/useRosebud';
@@ -10,7 +9,6 @@ import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 function RoseHeader() {
   const { loadResources } = useRosebud();
   const { rose, setRose } = useContext(RoseContext);
-  const { setFilter } = useContext(DataContext);
   const { showNotification } = useNotification();
 
   const [deleteModal, setDeleteModal] = useState(false);
@@ -18,7 +16,7 @@ function RoseHeader() {
   const [editModal, setEditModal] = useState(false);
   const [breeders, setBreeders] = useState([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const api = useAxios();
+  const { api } = useAxios();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,8 +86,7 @@ function RoseHeader() {
           <div className="flex h-8 bg-umbra rounded-l-full">
             <Link
               className="flex bg-rose-500 px-2 py-1 text-white rounded-l-full justify-center text-center hover:text-white"
-              to={`/home/group/${rose.group_name}`}
-              onClick={() => setFilter(rose.group_name)}
+              to={`/home/group/${rose.group_name}/`}
             >
               {rose.group_name}
             </Link>
@@ -171,7 +168,7 @@ function RoseHeader() {
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* edit modal */}
       <GenericModal
         isOpen={editModal}
         onClose={() => setEditModal(false)}

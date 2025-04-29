@@ -6,7 +6,7 @@ import { useNotification } from '../../../context/NotificationContext';
 import { Helmet } from 'react-helmet';
 
 function RoseNote() {
-  const api = useAxios();
+  const { api } = useAxios();
 
   const { rose, setRose } = useContext(RoseContext);
   const { showNotification } = useNotification();

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { RoseLoader } from '../Loaders/RoseLoader';
 
-const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
+const EnhancedMedia = ({ type, src, alt }) => {
   const [isZoomed, setIsZoomed] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -27,6 +27,7 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
       }
     }
   };
+
   const togglePlay = (e) => {
     e.stopPropagation();
     if (type === 'video' && isZoomed) {
@@ -90,7 +91,7 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
 
   return (
     <>
-      {/* Миниатюра */}
+      {/* Thumbnail */}
       <div
         className="cursor-pointer transition-transform hover:scale-105 relative"
         onClick={toggleZoom}
@@ -140,11 +141,15 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
         )}
       </div>
 
+      {/* Zoomed view modal */}
       {isZoomed && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300 "
+          style={{ isolation: 'isolate' }}
+        >
           <div
             ref={containerRef}
-            className="relative max-w-4xl max-h-[90vh] flex items-center justify-center"
+            className="relative max-w-4xl max-h-[90vh] flex items-center justify-center my-8"
           >
             {!isLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -157,7 +162,7 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
                 src={src}
                 alt={alt || 'Увеличенное изображение'}
                 className={`max-w-full max-h-[90vh] object-contain ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-                onClick={toggleZoom}
+                onClick={(e) => e.stopPropagation()}
                 onLoad={handleLoad}
                 onError={handleError}
               />
@@ -169,7 +174,10 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
                   className={`max-w-full max-h-[90vh] object-contain ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
                   controls={false}
                   autoPlay={false}
-                  onClick={togglePlay}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlay(e);
+                  }}
                   onLoadedData={handleLoad}
                   onError={handleError}
                 >
@@ -179,7 +187,10 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
                 {!isPlaying && isLoaded && (
                   <button
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 rounded-full p-3 transition-opacity duration-200 hover:bg-opacity-70"
-                    onClick={togglePlay}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePlay(e);
+                    }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +211,10 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
                     <button
                       className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-colors"
-                      onClick={togglePlay}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePlay(e);
+                      }}
                     >
                       {isPlaying ? (
                         <svg
@@ -237,7 +251,10 @@ const EnhancedMedia = ({ type, src, alt, thumbnail = true }) => {
 
             <button
               className="absolute top-4 right-4 bg-black bg-opacity-50 rounded-full p-2 transition-opacity duration-200 hover:bg-opacity-70"
-              onClick={toggleZoom}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleZoom();
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

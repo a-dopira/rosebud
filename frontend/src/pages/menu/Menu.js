@@ -12,9 +12,9 @@ const Menu = memo(() => {
     <AdaptiveMenu className="bg-amber-500 dotted-back my-12" stickyPosition="top-5">
       <SearchPanel />
       <Logout />
-      <NavButton to="/home/collection">Коллекция</NavButton>
-      <NavButton to="/addrose/">Добавить розу</NavButton>
-      <NavButton to="/adjusting/">Настроить</NavButton>
+      <NavButton to="/home/collection/">Коллекция</NavButton>
+      <NavButton to="/home/addrose/">Добавить розу</NavButton>
+      <NavButton to="/home/adjusting/">Настроить</NavButton>
       <CategorySelect />
     </AdaptiveMenu>
   );

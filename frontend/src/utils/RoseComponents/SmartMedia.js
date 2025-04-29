@@ -29,7 +29,7 @@ const SmartMedia = ({
   }
 
   return (
-    <div className="relative">
+    <div className="relative w-full h-full flex items-center justify-center">
       {!isLoaded && (
         <div
           className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
@@ -43,7 +43,7 @@ const SmartMedia = ({
         <img
           src={src}
           alt={alt || 'Изображение'}
-          className={`${className || ''} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+          className={`${className || ''} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 max-h-full`}
           onError={handleError}
           onLoad={handleLoad}
           {...props}

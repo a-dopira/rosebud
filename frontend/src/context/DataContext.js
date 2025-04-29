@@ -5,6 +5,7 @@ export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
   const { loadResources } = useRosebud();
+
   const [data, setData] = useState({
     groups: [],
     breeders: [],
@@ -13,8 +14,6 @@ export const DataProvider = ({ children }) => {
   });
   const [filter, setFilter] = useState({});
   const [sortOrder, setSortOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const lastLoadTime = useRef(0);
   const CACHE_DURATION = 5 * 60 * 1000;
@@ -34,18 +33,13 @@ export const DataProvider = ({ children }) => {
       }
 
       try {
-        setLoading(true);
         const newData = await loadResources('adjustment/');
         setData(newData);
         lastLoadTime.current = now;
         initialLoadDone.current = true;
-        setError(null);
         return newData;
       } catch (err) {
-        setError(err.detail || 'Ошибка загрузки данных');
         return null;
-      } finally {
-        setLoading(false);
       }
     },
     [loadResources, data]
@@ -74,8 +68,6 @@ export const DataProvider = ({ children }) => {
 
   const value = {
     ...data,
-    loading,
-    error,
     filter,
     setFilter,
     sortOrder,

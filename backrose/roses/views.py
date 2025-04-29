@@ -34,6 +34,8 @@ from .serializers import (
     FoliageSerializer,
 )
 
+from userprofile.authenticate import CustomAuthentication
+
 
 class RoseViewSet(viewsets.ModelViewSet):
     queryset = (
@@ -51,6 +53,7 @@ class RoseViewSet(viewsets.ModelViewSet):
     )
     permission_classes = [IsAuthenticated]
     pagination_class = RosePagination
+    authentication_classes = [CustomAuthentication]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = RoseFilter
     ordering_fields = ["title", "id"]
@@ -138,6 +141,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.annotate(rose_count=Count("roses"))
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
     filter_fields = ["name"]
 
     def create(self, request, *args, **kwargs):
@@ -193,6 +197,7 @@ class SizeViewSet(viewsets.ModelViewSet):
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -204,7 +209,8 @@ class SizeViewSet(viewsets.ModelViewSet):
 class FeedingViewSet(viewsets.ModelViewSet):
     queryset = Feeding.objects.all()
     serializer_class = FeedingSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -217,6 +223,7 @@ class FoliageViewSet(viewsets.ModelViewSet):
     queryset = Foliage.objects.all()
     serializer_class = FoliageSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -229,6 +236,7 @@ class PesticideViewSet(viewsets.ModelViewSet):
     queryset = Pesticide.objects.all()
     serializer_class = PesticideSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -241,6 +249,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
     queryset = Fungicide.objects.all()
     serializer_class = FungicideSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -279,6 +288,7 @@ class AdjustmentViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    authentication_classes = [CustomAuthentication]
 
     def list(self, request):
         try:
