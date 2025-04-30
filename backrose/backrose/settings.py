@@ -35,11 +35,9 @@ SESSION_COOKIE_SAMESITE = "Lax"  # None for cross-domain
 
 CSRF_COOKIE_SAMESITE = "Lax"  # None for cross-domain
 
-# USE_X_FORWARDED_HOST = bool(os.getenv("USE_X_FORWARDED_HOST"))
+USE_X_FORWARDED_HOST = True
 
-# USE_X_FORWARDED_PORT = bool(os.getenv("USE_X_FORWARDED_PORT"))
-
-# SECURE_PROXY_SSL_HEADER = os.getenv("SECURE_PROXY_SSL_HEADER").split(",")
+USE_X_FORWARDED_PORT = True
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -131,13 +129,10 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_REFRESH": "refresh",
     "AUTH_COOKIE_DOMAIN": None,
     "AUTH_COOKIE_SECURE": False,  # true for https
-    "AUTH_COOKIE_HTTP_ONLY": True,  # False for js read cookie
+    "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",  # None for cross domain
 }
-
-print(type(SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE")))
-print(SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"))
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

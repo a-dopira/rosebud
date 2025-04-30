@@ -1,13 +1,22 @@
 #!/bin/sh
 
+# if smth goes wrong, exit
+set -e
+
 until [ -f /app/frontend/build/index.html ]
 do
-  echo "assembling frontend..."
   sleep 2
 done
+
+echo "Frontend is done"
 
 python manage.py migrate --no-input
 
 python manage.py collectstatic --clear --no-input
 
-python manage.py runserver 0.0.0.0:8000
+gunicorn backrose.wsgi:application \
+  --bind 0.0.0.0:8000 \
+  --workers 2 \
+  --timeout 120 \
+  --access-logfile - \
+  --error-logfile -
