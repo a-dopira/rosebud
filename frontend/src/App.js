@@ -8,15 +8,11 @@ import AuthContext from './context/AuthContext';
 import Loader from './utils/Loaders/Loader';
 
 function App() {
-  const { user, authLoading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const location = useLocation();
 
   const isAuthPage =
     location.pathname === '/login' || location.pathname === '/register';
-
-  if (authLoading) {
-    return null;
-  }
 
   return (
     <>

@@ -19,8 +19,6 @@ backrose/userprofile/management/*
 backrose/staticfiles/*
 backrose/media/images/
 backrose/userprofile/debug_middleware.py
-backrose/backrose/load_env.py
-backrose/userprofile/tests/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

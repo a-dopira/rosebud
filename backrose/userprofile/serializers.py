@@ -51,7 +51,7 @@ class TokenRefreshSerializer(serializers.Serializer):
 
         cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH", "refresh")
 
-        refresh_token = attrs.get("refresh") or request.COOKIES.get(cookie_name)
+        refresh_token = request.COOKIES.get(cookie_name)
 
         if refresh_token is None:
             raise serializers.ValidationError(
@@ -87,7 +87,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
+                {"password": "Пароли не совпадают"}
             )
 
         return attrs

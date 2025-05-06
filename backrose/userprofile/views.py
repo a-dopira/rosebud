@@ -20,13 +20,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        print(f"📝 Login attempt for: {request.data.get('email', 'unknown')}")
         serializer = self.get_serializer(data=request.data)
 
         try:
             serializer.is_valid(raise_exception=True)
         except Exception as e:
-            print(f"Ошибка валидации: {str(e)}")
             return Response(
                 {"detail": "Неверные учетные данные"},
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -65,7 +63,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         response.set_cookie(
             "csrftoken",
             request.COOKIES.get("csrftoken", get_token(request)),
-            max_age=60 * 60 * 24 * 7,  # 7 days
             secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
             samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
             path="/",
@@ -85,7 +82,6 @@ class CustomTokenRefreshView(APIView):
         try:
             serializer.is_valid(raise_exception=True)
         except Exception as e:
-            print(f"Ошибка при обновлении токена: {str(e)}")
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
         data = serializer.validated_data
@@ -108,13 +104,15 @@ class CustomTokenRefreshView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         response = Response({"detail": "Успешный выход из системы"})
 
-        response.delete_cookie("access", path="/")
-        response.delete_cookie("refresh", path="/")
+        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
+        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
+
+        response.delete_cookie(access_cookie_name, path="/")
+        response.delete_cookie(refresh_cookie_name, path="/")
 
         return response
 
@@ -122,7 +120,6 @@ class LogoutView(APIView):
 class UserView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomAuthentication]
-    print("🔥 Пользовательский профиль импортирован")
 
     def get(self, request):
         print(request.user)
