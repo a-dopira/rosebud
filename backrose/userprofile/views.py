@@ -104,7 +104,7 @@ class CustomTokenRefreshView(APIView):
 
 
 class LogoutView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         response = Response({"detail": "Успешный выход из системы"})
 
@@ -118,8 +118,6 @@ class LogoutView(APIView):
 
 
 class UserView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def get(self, request):
         print(request.user)
@@ -128,8 +126,6 @@ class UserView(APIView):
 
 
 class UpdateProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def patch(self, request):
         user = request.user

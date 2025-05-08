@@ -1,9 +1,9 @@
-from common import DynamicViewSet, dynamic_serializer
+from common import DynamicViewSet, MessageBuilder, dynamic_serializer
 from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 
@@ -34,9 +34,6 @@ from .serializers import (
     FoliageSerializer,
 )
 
-from userprofile.authenticate import CustomAuthentication
-
-
 class RoseViewSet(viewsets.ModelViewSet):
     queryset = (
         Rose.objects.all()
@@ -51,9 +48,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             "fungicides",
         )
     )
-    permission_classes = [IsAuthenticated]
     pagination_class = RosePagination
-    authentication_classes = [CustomAuthentication]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = RoseFilter
     ordering_fields = ["title", "id"]
@@ -67,7 +62,7 @@ class RoseViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
-        message = self._build_search_message(request, queryset)
+        message = MessageBuilder.build_search_message(request.query_params, queryset)
 
         if not queryset.exists():
             return Response(
@@ -88,38 +83,21 @@ class RoseViewSet(viewsets.ModelViewSet):
             {"message": message, "results": serializer.data}, status=status.HTTP_200_OK
         )
 
-    def _build_search_message(self, request, queryset):
-
-        group = request.query_params.get("group")
-        search = request.query_params.get("search")
-        ordering = request.query_params.get("ordering")
-
-        if not queryset.exists():
-            message = "По результату поиска"
-            if group:
-                message += f" по группе: {group}"
-            if search:
-                message += f" по запросу: {search}"
-            return message + " ничего не найдено, попробуйте что-то другое."
-
-        message_parts = []
-        if group:
-            message_parts.append(f"Результаты по группе: {group}")
-        if search:
-            message_parts.append(f"Результаты по запросу: {search}")
-        if ordering:
-            if ordering == "title":
-                message_parts.append("Отсортировано по алфавиту (А-Я)")
-            elif ordering == "-title":
-                message_parts.append("Отсортировано по алфавиту (Я-А)")
-
-        return ", ".join(message_parts)
-
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         data = {"id": instance.id, "title": instance.title}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['delete'])
+    def photo(self, request, pk=None):
+        rose = self.get_object()
+        if rose.photo and rose.photo.name != 'images/cap_rose.png':
+            rose.photo.delete()
+            rose.photo = 'images/cap_rose.png'
+            rose.save()
+            return Response({'message': 'Фото успешно удалено'})
+        return Response({'message': 'Фото не удалось удалить'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
         try:
@@ -140,8 +118,6 @@ class RoseViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.annotate(rose_count=Count("roses"))
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
     filter_fields = ["name"]
 
     def create(self, request, *args, **kwargs):
@@ -196,8 +172,6 @@ class GroupViewSet(viewsets.ModelViewSet):
 class SizeViewSet(viewsets.ModelViewSet):
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -209,8 +183,6 @@ class SizeViewSet(viewsets.ModelViewSet):
 class FeedingViewSet(viewsets.ModelViewSet):
     queryset = Feeding.objects.all()
     serializer_class = FeedingSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -222,8 +194,6 @@ class FeedingViewSet(viewsets.ModelViewSet):
 class FoliageViewSet(viewsets.ModelViewSet):
     queryset = Foliage.objects.all()
     serializer_class = FoliageSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -235,8 +205,6 @@ class FoliageViewSet(viewsets.ModelViewSet):
 class PesticideViewSet(viewsets.ModelViewSet):
     queryset = Pesticide.objects.all()
     serializer_class = PesticideSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -248,8 +216,6 @@ class PesticideViewSet(viewsets.ModelViewSet):
 class FungicideViewSet(viewsets.ModelViewSet):
     queryset = Fungicide.objects.all()
     serializer_class = FungicideSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -286,9 +252,6 @@ class AdjustmentViewSet(viewsets.ViewSet):
     """
     Get breeders, pests, fungi, groups all at once
     """
-
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
 
     def list(self, request):
         try:

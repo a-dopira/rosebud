@@ -76,7 +76,6 @@ export const RoseListProvider = ({ children }) => {
         const response = await api.get(`roses/?${params.toString()}`);
 
         const roses = response.data.results.roses || [];
-        console.log('roses', roses);
         const totalPagesCount = response.data.results.total_pages || 1;
         const message = response.data.message || null;
 

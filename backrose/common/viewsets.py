@@ -1,14 +1,11 @@
-from rest_framework import viewsets, permissions, status, serializers
+from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 from django.db.models import ProtectedError
 
-from userprofile.authenticate import CustomAuthentication
 from .utils import dynamic_serializer
 
 
 class DynamicViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [CustomAuthentication]
     model = None
     exclude = []
     entity_name = ""

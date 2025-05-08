@@ -20,7 +20,6 @@ const RoseList = memo(function RoseList() {
 
   useEffect(() => {
     if (groupName) {
-      console.log('Установка фильтра по группе из URL:', groupName);
       setFilter({ group: groupName });
     } else if (location.pathname.includes('/home/collection')) {
       setFilter({});

@@ -73,23 +73,10 @@ class TestCustomTokenObtainPairView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_missing_data(self, api_client, user_data, test_user):
+    @pytest.mark.parametrize("data", [{}, {"email": "test@example.com"}, {"password": "testfancypassword123"}])
+    def test_missing_data(self, api_client, data, test_user):
 
         url = reverse("token_obtain_pair")
-
-        data = {"password": user_data["password"]}
-
-        response = api_client.post(url, data, format="json")
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-        data = {"email": user_data["email"]}
-
-        response = api_client.post(url, data, format="json")
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-        data = {}
 
         response = api_client.post(url, data, format="json")
 
@@ -247,7 +234,7 @@ class TestUpdateProfileView:
         assert "profile" in response_data
 
 
-class TestEdgeCases:
+class TestLoginCases:
 
     def test_double_login(self, api_client, test_user, user_data):
         url = reverse("token_obtain_pair")
@@ -287,7 +274,6 @@ class TestSecurity:
         assert User.objects.count() == initial_user_count
 
     def test_password_exposure(self, authenticated_client):
-        """Тест отсутствия утечки паролей в ответах"""
         url = reverse("user")
         response = authenticated_client.get(url)
 

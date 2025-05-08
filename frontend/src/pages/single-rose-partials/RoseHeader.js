@@ -311,7 +311,7 @@ function RoseHeader() {
           <div className="flex space-x-4">
             <button
               onClick={async () => {
-                await api.delete(`roses/${rose.id}/delete_photo`);
+                await api.delete(`roses/${rose.id}/photo/`);
                 setDeletePhotoModal(false);
                 setRose((prevRose) => ({
                   ...prevRose,

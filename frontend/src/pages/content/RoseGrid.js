@@ -34,7 +34,6 @@ const RoseGrid = memo(function RoseGrid() {
     clearCache,
   } = useContext(RoseListContext);
 
-  console.log('filter, sortOrder: ', filter, sortOrder);
 
   const getScrollPosition = useCallback(() => window.scrollY, []);
 
