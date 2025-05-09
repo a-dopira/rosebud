@@ -3,12 +3,9 @@ from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.exceptions import TokenError
-
-User = get_user_model()
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -86,9 +83,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidationError(
-                {"password": "Пароли не совпадают"}
-            )
+            raise serializers.ValidationError({"password": "Пароли не совпадают"})
 
         return attrs
 

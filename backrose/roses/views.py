@@ -112,7 +112,10 @@ class GroupViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_409_CONFLICT,
             )
         except Exception as e:
-            return Response({"detail": "Не удалось создать группу. Попробуйте позже."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Не удалось создать группу. Попробуйте позже."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def destroy(self, request, *args, **kwargs):
         try:

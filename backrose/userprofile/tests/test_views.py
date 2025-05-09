@@ -73,7 +73,10 @@ class TestCustomTokenObtainPairView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    @pytest.mark.parametrize("data", [{}, {"email": "test@example.com"}, {"password": "testfancypassword123"}])
+    @pytest.mark.parametrize(
+        "data",
+        [{}, {"email": "test@example.com"}, {"password": "testfancypassword123"}],
+    )
     def test_missing_data(self, api_client, data, test_user):
 
         url = reverse("token_obtain_pair")

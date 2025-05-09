@@ -2,10 +2,9 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.middleware.csrf import get_token
-from .authenticate import CustomAuthentication
 from .serializers import (
     CustomTokenObtainPairSerializer,
     TokenRefreshSerializer,
@@ -105,6 +104,7 @@ class CustomTokenRefreshView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         response = Response({"detail": "Успешный выход из системы"})
 

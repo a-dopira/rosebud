@@ -7,7 +7,6 @@ class UserprofileConfig(AppConfig):
     name = "userprofile"
 
     def ready(self):
-        import userprofile.signals
 
         if os.environ.get("RUN_MAIN", None) != "true":
             from django.core import management

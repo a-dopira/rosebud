@@ -7,7 +7,7 @@ from .models import Rose
 class RoseFilter(filters.FilterSet):
     group = filters.CharFilter(field_name="group__name", lookup_expr="icontains")
     search = filters.CharFilter(method="search_filter")
-    ordering = filters.OrderingFilter(fields=('title', 'id'))
+    ordering = filters.OrderingFilter(fields=("title", "id"))
 
     def search_filter(self, queryset, name, value):
         return queryset.filter(

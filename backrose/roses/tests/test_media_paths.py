@@ -77,6 +77,7 @@ class TestRoseThumbnailPaths:
 
         assert not os.path.exists(filename)
 
+
 class TestRosePhotoPaths:
 
     def test_get_filename_for_rose_photo(self, rose, rose_photo, fancy_image):

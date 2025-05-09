@@ -30,31 +30,3 @@ def get_filename(instance, filename):
         return os.path.join("images", title_eng, "thumbnails", filename)
 
     return os.path.join("images", title_eng, filename)
-
-class MessageBuilder:
-    @staticmethod
-    def build_search_message(request_params, queryset):
-        group = request_params.get("group")
-        search = request_params.get("search")
-        ordering = request_params.get("ordering")
-
-        if not queryset.exists():
-            message = "По результату поиска"
-            if group:
-                message += f" по группе: {group}"
-            if search:
-                message += f" по запросу: {search}"
-            return message + " ничего не найдено, попробуйте что-то другое."
-
-        message_parts = []
-        if group:
-            message_parts.append(f"Результаты по группе: {group}")
-        if search:
-            message_parts.append(f"Результаты по запросу: {search}")
-        if ordering:
-            if ordering == "title":
-                message_parts.append("Отсортировано по алфавиту (А-Я)")
-            elif ordering == "-title":
-                message_parts.append("Отсортировано по алфавиту (Я-А)")
-
-        return ", ".join(message_parts)

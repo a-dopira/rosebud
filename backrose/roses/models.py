@@ -1,6 +1,4 @@
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 from django.urls import reverse
 from pytils.translit import slugify
 
