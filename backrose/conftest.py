@@ -1,9 +1,13 @@
 import pytest
 from django.conf import settings
+from django.http import HttpRequest
+from django.middleware.csrf import get_token
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 from userprofile.models import User, Profile
+
 
 @pytest.fixture
 def user_data():
@@ -50,5 +54,12 @@ def authenticated_client(api_client, test_user):
 
     cookie_header = f"{settings.SIMPLE_JWT['AUTH_COOKIE']}={access_token}; {settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH']}={refresh_token}"
     api_client.defaults["HTTP_COOKIE"] = cookie_header
+
+    # for multipart requests
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+    csrf_token = get_token(HttpRequest())
+    api_client.defaults["X-CSRFToken"] = csrf_token
+    api_client.cookies["csrftoken"] = csrf_token
 
     return api_client

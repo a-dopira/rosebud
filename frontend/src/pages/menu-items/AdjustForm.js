@@ -68,7 +68,7 @@ const AdjustForm = memo(({ label, value, setValue, list, endpoint, setList, type
     const itemId = value.id;
 
     try {
-      const response = await loadResources(`/${endpoint}${itemId}/`, {
+      const response = await loadResources(`${endpoint}/${itemId}/`, {
         method: 'DELETE',
         silent: true,
       });

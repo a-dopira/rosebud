@@ -1,11 +1,10 @@
-from common import DynamicViewSet, MessageBuilder, dynamic_serializer
+from common import DynamicViewSet, dynamic_serializer
 from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.filters import OrderingFilter
 
 from .filters import RoseFilter
 from .pagination import RosePagination
@@ -34,6 +33,7 @@ from .serializers import (
     FoliageSerializer,
 )
 
+
 class RoseViewSet(viewsets.ModelViewSet):
     queryset = (
         Rose.objects.all()
@@ -49,39 +49,13 @@ class RoseViewSet(viewsets.ModelViewSet):
         )
     )
     pagination_class = RosePagination
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend]
     filterset_class = RoseFilter
-    ordering_fields = ["title", "id"]
-    ordering = ["id"]
 
     def get_serializer_class(self):
         if self.action == "list":
             return RoseListSerializer
         return RoseSerializer
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        message = MessageBuilder.build_search_message(request.query_params, queryset)
-
-        if not queryset.exists():
-            return Response(
-                {"message": message, "results": []}, status=status.HTTP_200_OK
-            )
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            response_data = self.get_paginated_response(serializer.data)
-            return Response(
-                {"message": message, "results": response_data.data},
-                status=status.HTTP_200_OK,
-            )
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(
-            {"message": message, "results": serializer.data}, status=status.HTTP_200_OK
-        )
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -89,30 +63,26 @@ class RoseViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['delete'])
+    @action(detail=True, methods=["delete"])
     def photo(self, request, pk=None):
         rose = self.get_object()
-        if rose.photo and rose.photo.name != 'images/cap_rose.png':
+        if rose.photo and rose.photo.name != "images/cap_rose.png":
             rose.photo.delete()
-            rose.photo = 'images/cap_rose.png'
+            rose.photo = "images/cap_rose.png"
             rose.save()
-            return Response({'message': 'Фото успешно удалено'})
-        return Response({'message': 'Фото не удалось удалить'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Фото успешно удалено"})
+        return Response(
+            {"message": "Фото не удалось удалить"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def create(self, request, *args, **kwargs):
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED, headers=headers
-            )
-        except IntegrityError:
-            return Response(
-                {"detail": "Роза с таким title или title_eng уже существует."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -121,15 +91,8 @@ class GroupViewSet(viewsets.ModelViewSet):
     filter_fields = ["name"]
 
     def create(self, request, *args, **kwargs):
-        name = request.data.get("name")
-        if name and Group.objects.filter(name=name).exists():
-            return Response(
-                {"detail": "Группа с таким названием уже существует."},
-                status=status.HTTP_409_CONFLICT,
-            )
-
+        serializer = self.get_serializer(data=request.data)
         try:
-            serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
 
@@ -148,6 +111,8 @@ class GroupViewSet(viewsets.ModelViewSet):
                 {"detail": "Группа с таким названием уже существует."},
                 status=status.HTTP_409_CONFLICT,
             )
+        except Exception as e:
+            return Response({"detail": "Не удалось создать группу. Попробуйте позже."}, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         try:

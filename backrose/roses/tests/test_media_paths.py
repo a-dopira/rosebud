@@ -53,8 +53,6 @@ class TestRoseThumbnailPaths:
 
         rose_with_special_chars.delete()
 
-    
-
     def test_file_name_preservation(self):
 
         rose = Rose.objects.create(
@@ -79,7 +77,7 @@ class TestRoseThumbnailPaths:
 
         assert not os.path.exists(filename)
 
-class TestRosePhoto:
+class TestRosePhotoPaths:
 
     def test_get_filename_for_rose_photo(self, rose, rose_photo, fancy_image):
         filename = get_filename(rose_photo, "test_photo.jpg")
@@ -120,11 +118,11 @@ class TestRosePhoto:
     def test_rose_photo_related_file_paths(self, rose, create_image):
 
         photo1 = RosePhoto.objects.create(
-            rose=rose, photo=create_image("photo1.jpg"), descr="First photo"
+            rose=rose, photo=create_image("photo1.jpg"), descr="fancy photo1"
         )
 
         photo2 = RosePhoto.objects.create(
-            rose=rose, photo=create_image("photo2.jpg"), descr="Second photo"
+            rose=rose, photo=create_image("photo2.jpg"), descr="fancy photo2"
         )
 
         assert os.path.dirname(photo1.photo.path) == os.path.dirname(photo2.photo.path)

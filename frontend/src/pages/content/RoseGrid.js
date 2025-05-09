@@ -34,7 +34,6 @@ const RoseGrid = memo(function RoseGrid() {
     clearCache,
   } = useContext(RoseListContext);
 
-
   const getScrollPosition = useCallback(() => window.scrollY, []);
 
   useEffect(() => {

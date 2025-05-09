@@ -11,6 +11,7 @@ frontend/src/utils/Loaders/RoseLoader.js
 frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
+frontend/src/utils/MessageBuilder.js
 frontend/.prettierignore
 
 # Django

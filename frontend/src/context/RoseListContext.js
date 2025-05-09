@@ -11,6 +11,8 @@ import useAxios from '../hooks/useAxios';
 
 import DataContext from './DataContext';
 
+import { buildMessage } from '../utils/MessageBuilder';
+
 export const RoseListContext = createContext();
 
 export const RoseListProvider = ({ children }) => {
@@ -75,34 +77,16 @@ export const RoseListProvider = ({ children }) => {
 
         const response = await api.get(`roses/?${params.toString()}`);
 
-        const roses = response.data.results.roses || [];
-        const totalPagesCount = response.data.results.total_pages || 1;
-        const message = response.data.message || null;
+        const roses = response.data.results || [];
+        const totalItems = response.data.count || 0;
+        const totalPagesCount = Math.ceil(totalItems / 9);
+
+        const message = buildMessage(params, roses);
 
         setRosesList(roses);
-
-        if (roses.length === 0) {
-          setRosesMessage('Нет роз по заданному поиску. Попробуй что-то другое...');
-        } else {
-          setRosesMessage(message);
-        }
-
+        setRosesMessage(message);
         setTotalPages(totalPagesCount);
         setCurrentPage(page);
-
-        const responseData = {
-          totalPages: totalPagesCount,
-          roses: roses,
-        };
-
-        requestCache.current[cacheKey] = {
-          data: responseData,
-          roses: roses,
-          message: message,
-          timestamp: Date.now(),
-        };
-
-        return responseData;
       } catch (error) {
         console.error('Ошибка при загрузке роз:', error);
         setRosesMessage('Что-то пошло не так...');

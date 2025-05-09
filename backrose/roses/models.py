@@ -130,7 +130,7 @@ class Rose(models.Model):
         Breeder, on_delete=models.PROTECT, related_name="roses", blank=True, null=True
     )
     group = models.ForeignKey(
-        Group, on_delete=models.CASCADE, related_name="roses", blank=True, null=True
+        Group, on_delete=models.PROTECT, related_name="roses", blank=True, null=True
     )
 
     def __str__(self):

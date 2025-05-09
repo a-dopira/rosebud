@@ -165,3 +165,36 @@ def rose_with_relations(
     fixture with rose with relations
     """
     return rose
+
+@pytest.fixture
+def create_multiple_roses(breeder, group, create_image):
+    """Фикстура для создания нескольких роз с разными параметрами"""
+    roses = []
+    
+    # Создаем 5 "fancy" роз
+    for i in range(5):
+        image = create_image(f"fancy_rose_{i}.jpg")
+        rose = Rose.objects.create(
+            title=f'fancy_rose_{i}',
+            title_eng=f'fancy_rose_{i}_english',
+            description=f'fancy rose {i} description',
+            breeder=breeder,
+            group=group,
+            photo=image.name
+        )
+        roses.append(rose)
+    
+    # Создаем 5 "simple" роз
+    for i in range(5):
+        image = create_image(f"simple_rose_{i}.jpg")
+        rose = Rose.objects.create(
+            title=f'simple_rose_{i}',
+            title_eng=f'simple_rose_{i}_english',
+            description=f'simple rose {i} description',
+            breeder=breeder,
+            group=group,
+            photo=image.name
+        )
+        roses.append(rose)
+    
+    return roses
