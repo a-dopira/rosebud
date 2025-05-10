@@ -54,7 +54,6 @@ class TestRoseSerializer:
         assert data["videos"][0]["descr"] == "fancy video description"
 
     def test_create_rose(self, breeder, group, fancy_image):
-        """Тест создания розы через сериализатор"""
 
         data = {
             "title": "New fancy rose",

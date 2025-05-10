@@ -1,5 +1,4 @@
 from common import DynamicViewSet, dynamic_serializer
-from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -7,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .filters import RoseFilter
-from .pagination import RosePagination
+from .pagination import CustomPagination
 from .models import (
     Group,
     Breeder,
@@ -48,7 +47,7 @@ class RoseViewSet(viewsets.ModelViewSet):
             "fungicides",
         )
     )
-    pagination_class = RosePagination
+    pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoseFilter
 
@@ -88,7 +87,8 @@ class RoseViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.annotate(rose_count=Count("roses"))
     serializer_class = GroupSerializer
-    filter_fields = ["name"]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["name"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -105,11 +105,6 @@ class GroupViewSet(viewsets.ModelViewSet):
                     "items": groups_serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
-            )
-        except IntegrityError:
-            return Response(
-                {"detail": "Группа с таким названием уже существует."},
-                status=status.HTTP_409_CONFLICT,
             )
         except Exception as e:
             return Response(

@@ -97,9 +97,9 @@ class TestDynamicSerializer:
                 assert field_name in serializer_fields
 
 
+@pytest.mark.django_db
 class TestGroupSerializer:
 
-    @pytest.mark.django_db
     def test_serializer_check_expected_fields(self, group):
         serializer = GroupSerializer(instance=group)
         data = serializer.data
@@ -107,7 +107,6 @@ class TestGroupSerializer:
         assert list(data.keys()) == ["id", "name", "rose_count"]
         assert data["rose_count"] == 0
 
-    @pytest.mark.django_db
     def test_rose_count_calculation(self, group):
 
         Rose.objects.create(

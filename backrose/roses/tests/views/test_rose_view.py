@@ -75,7 +75,6 @@ class TestRoseViewSet:
     def test_create_rose_existing_title(
         self, authenticated_client, rose_with_relations, breeder, group, create_image
     ):
-        """Тестирование создания розы с дублирующимся title"""
         url = reverse("rose-list")
         image = create_image("dup_rose.jpg")
 
@@ -97,7 +96,6 @@ class TestRoseViewSet:
     def test_create_rose_existing_title_eng(
         self, authenticated_client, rose_with_relations, breeder, group, create_image
     ):
-        """Тестирование создания розы с дублирующимся title_eng"""
         url = reverse("rose-list")
         image = create_image("dup_eng_rose.jpg")
 
@@ -380,7 +378,6 @@ class TestRoseViewSet:
         assert response.data["results"] == []
 
     def test_unauthorized_access(self, api_client, rose_with_relations):
-        """Тестирование доступа неавторизованного пользователя"""
         url = reverse("rose-list")
 
         response = api_client.get(url)

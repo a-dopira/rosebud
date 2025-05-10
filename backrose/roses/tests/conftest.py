@@ -23,14 +23,73 @@ from roses.models import (
 
 
 @pytest.fixture
-def breeder():
-    return Breeder.objects.create(name="fancy breeder")
-
-
-@pytest.fixture
 def group():
     group = Group.objects.create(name="fancy group")
     return Group.objects.annotate(rose_count=Count("roses")).get(id=group.id)
+
+
+@pytest.fixture
+def rose(breeder, group, fancy_image):
+    return Rose.objects.create(
+        title="fancy rose",
+        title_eng="fancy rose in english",
+        photo=fancy_image,
+        description="fancy description",
+        landing_date=date(2023, 5, 15),
+        observation="fancy observation",
+        susceptibility="succeptible to beer",
+        const_width=Decimal("10.5"),
+        const_height=Decimal("15.2"),
+        breeder=breeder,
+        group=group,
+    )
+
+
+@pytest.fixture
+def rose_with_relations(
+    rose, pesticide, fungicide, feeding, foliage, rose_photo, size, video
+):
+    """
+    fixture with rose with relations
+    """
+    return rose
+
+
+@pytest.fixture
+def create_multiple_roses(breeder, group, create_image):
+
+    roses = []
+
+    for i in range(5):
+        image = create_image(f"fancy_rose_{i}.jpg")
+        rose = Rose.objects.create(
+            title=f"fancy_rose_{i}",
+            title_eng=f"fancy_rose_{i}_in_english",
+            description=f"fancy rose {i} description",
+            breeder=breeder,
+            group=group,
+            photo=image.name,
+        )
+        roses.append(rose)
+
+    for i in range(5):
+        image = create_image(f"simple_rose_{i}.jpg")
+        rose = Rose.objects.create(
+            title=f"simple_rose_{i}",
+            title_eng=f"simple_rose_{i}_in_english",
+            description=f"simple rose {i} description",
+            breeder=breeder,
+            group=group,
+            photo=image.name,
+        )
+        roses.append(rose)
+
+    return roses
+
+
+@pytest.fixture
+def breeder():
+    return Breeder.objects.create(name="fancy breeder")
 
 
 @pytest.fixture
@@ -62,23 +121,6 @@ def create_image():
         )
 
     return _create
-
-
-@pytest.fixture
-def rose(breeder, group, fancy_image):
-    return Rose.objects.create(
-        title="fancy rose",
-        title_eng="fancy rose in english",
-        photo=fancy_image,
-        description="fancy description",
-        landing_date=date(2023, 5, 15),
-        observation="fancy observation",
-        susceptibility="succeptible to beer",
-        const_width=Decimal("10.5"),
-        const_height=Decimal("15.2"),
-        breeder=breeder,
-        group=group,
-    )
 
 
 @pytest.fixture
@@ -132,13 +174,6 @@ def foliage(rose):
 
 
 @pytest.fixture
-def rose_photo(rose, fancy_image):
-    return RosePhoto.objects.create(
-        rose=rose, photo=fancy_image, descr="fancy photo description", year=2023
-    )
-
-
-@pytest.fixture
 def size(rose):
     return Size.objects.create(
         rose=rose,
@@ -149,51 +184,16 @@ def size(rose):
 
 
 @pytest.fixture
+def rose_photo(rose, fancy_image):
+    return RosePhoto.objects.create(
+        rose=rose, photo=fancy_image, descr="fancy photo description", year=2023
+    )
+
+
+@pytest.fixture
 def video(rose):
     return Video.objects.create(
         rose=rose,
         video="https://example.com/test-video",
         descr="fancy video description",
     )
-
-
-@pytest.fixture
-def rose_with_relations(
-    rose, pesticide, fungicide, feeding, foliage, rose_photo, size, video
-):
-    """
-    fixture with rose with relations
-    """
-    return rose
-
-
-@pytest.fixture
-def create_multiple_roses(breeder, group, create_image):
-
-    roses = []
-
-    for i in range(5):
-        image = create_image(f"fancy_rose_{i}.jpg")
-        rose = Rose.objects.create(
-            title=f"fancy_rose_{i}",
-            title_eng=f"fancy_rose_{i}_in_english",
-            description=f"fancy rose {i} description",
-            breeder=breeder,
-            group=group,
-            photo=image.name,
-        )
-        roses.append(rose)
-
-    for i in range(5):
-        image = create_image(f"simple_rose_{i}.jpg")
-        rose = Rose.objects.create(
-            title=f"simple_rose_{i}",
-            title_eng=f"simple_rose_{i}_in_english",
-            description=f"simple rose {i} description",
-            breeder=breeder,
-            group=group,
-            photo=image.name,
-        )
-        roses.append(rose)
-
-    return roses
