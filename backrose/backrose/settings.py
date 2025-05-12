@@ -31,9 +31,9 @@ CSRF_COOKIE_HTTPONLY = False
 
 CSRF_COOKIE_NAME = "csrftoken"
 
-SESSION_COOKIE_SAMESITE = "Lax"  # None for cross-domain
+SESSION_COOKIE_SAMESITE = "Strict"  # None for cross-domain
 
-CSRF_COOKIE_SAMESITE = "Lax"  # None for cross-domain
+CSRF_COOKIE_SAMESITE = "Strict"  # None for cross-domain
 
 USE_X_FORWARDED_HOST = True
 
@@ -128,10 +128,10 @@ SIMPLE_JWT = {
     "AUTH_COOKIE": "access",
     "AUTH_COOKIE_REFRESH": "refresh",
     "AUTH_COOKIE_DOMAIN": None,
-    "AUTH_COOKIE_SECURE": False,  # true for https
+    "AUTH_COOKIE_SECURE": False,  # true if https and samesite=none
     "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_SAMESITE": "Lax",  # None for cross domain
+    "AUTH_COOKIE_SAMESITE": "Strict",  # None for cross domain
 }
 
 REST_FRAMEWORK = {

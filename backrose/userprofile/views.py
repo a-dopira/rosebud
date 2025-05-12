@@ -36,16 +36,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             status=status.HTTP_200_OK,
         )
 
-        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH", "refresh")
-        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE", "access")
+        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
+        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
 
         response.set_cookie(
             refresh_cookie_name,
             str(data.get("refresh")),
             max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds(),
-            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE", False),
-            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY", True),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", "Lax"),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY"),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
             path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
         )
 
@@ -93,9 +93,9 @@ class CustomTokenRefreshView(APIView):
             settings.SIMPLE_JWT.get("AUTH_COOKIE"),
             str(data["access"]),
             max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
-            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE", False),
-            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY", True),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", "Lax"),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY"),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
             path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
         )
 
@@ -120,7 +120,6 @@ class LogoutView(APIView):
 class UserView(APIView):
 
     def get(self, request):
-        print(request.user)
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
