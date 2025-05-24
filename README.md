@@ -1,6 +1,6 @@
 # rosebud
 
-rose management thing i built because i was tired of losing track of my garden treatments in random notebooks
+rose management website
 
 ## functionality
 
