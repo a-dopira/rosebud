@@ -42,7 +42,7 @@ export const NotificationProvider = ({ children }) => {
         <div
           className={`
             fixed inset-0 flex items-center justify-center
-            overflow-auto z-20 p-16
+            overflow-auto z-[9999] p-16
             bg-black bg-opacity-40
             ${isFadingOut ? 'animate-fade-out' : 'animate-fade-in'}
           `}

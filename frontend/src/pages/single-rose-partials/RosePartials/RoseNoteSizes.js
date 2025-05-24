@@ -34,7 +34,6 @@ const RoseNoteSizes = () => {
     <GenericModule
       title="Размеры"
       apiEndpoint="sizes"
-      dataKey="sizes"
       fields={fields}
       validationSchema={validationSchema}
       productType="размер"

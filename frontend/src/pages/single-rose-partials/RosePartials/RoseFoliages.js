@@ -16,7 +16,6 @@ const Foliage = () => {
     <GenericModule
       title="Обрезки"
       apiEndpoint="foliages"
-      dataKey="foliages"
       fields={fields}
       validationSchema={validationSchema}
       productType="обрезка"

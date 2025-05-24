@@ -23,7 +23,6 @@ const RosePhoto = () => {
       <GenericModule
         title="Фотографии"
         apiEndpoint="rosephotos"
-        dataKey="rosephotos"
         fields={fields}
         validationSchema={validationSchema}
         productType="фото"

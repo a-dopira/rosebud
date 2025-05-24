@@ -3,7 +3,7 @@ import { memo, useContext, useEffect } from 'react';
 
 import Menu from './menu/Menu';
 import Profile from './profile/Profile';
-import Adjusting from './menu-items/Adjusting';
+import Adjusting from './menu-items/Adjusting/Adjusting';
 import AddRose from './content/AddRose';
 import RoseGrid from './content/RoseGrid';
 import RoseLayout from './content/RoseLayout';

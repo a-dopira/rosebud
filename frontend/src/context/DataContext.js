@@ -11,6 +11,8 @@ export const DataProvider = ({ children }) => {
     breeders: [],
     pests: [],
     fungi: [],
+    pesticides: [],
+    fungicides: [],
   });
   const [filter, setFilter] = useState({});
   const [sortOrder, setSortOrder] = useState(null);

@@ -21,7 +21,6 @@ const RoseVideo = () => {
       <GenericModule
         title="Видео"
         apiEndpoint="videos"
-        dataKey="videos"
         fields={fields}
         validationSchema={validationSchema}
         productType="видео"

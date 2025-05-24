@@ -20,7 +20,6 @@ const RoseFeedings = () => {
     <GenericModule
       title="Подкормки"
       apiEndpoint="feedings"
-      dataKey="feedings"
       fields={fields}
       validationSchema={validationSchema}
       productType="подкормка"

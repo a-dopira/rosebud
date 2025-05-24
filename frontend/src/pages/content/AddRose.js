@@ -42,12 +42,17 @@ function AddRose() {
     </div>
   );
 
-  const renderSelect = ({ label, name, options }) => (
+  const renderSelect = ({ label, name, options, isRequired = false }) => (
     <div className="w-full text-sm rounded-md p-2">
       <label className="form-label inline-block min-w-[245px]" htmlFor={name}>
         {label}:
       </label>
-      <select name={name} className="form-input inline-block">
+      <select
+        name={name}
+        isRequired={isRequired}
+        defaultValue={options.length > 0 ? options[0].id : ''}
+        className="form-input inline-block"
+      >
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.name}
@@ -85,11 +90,17 @@ function AddRose() {
             {fields.map((field) => (
               <Fragment key={field.name}>{renderField(field)}</Fragment>
             ))}
-            {renderSelect({ label: 'Группы', name: 'group', options: groups })}
+            {renderSelect({
+              label: 'Группы',
+              name: 'group',
+              options: groups,
+              isRequired: true,
+            })}
             {renderSelect({
               label: 'Селекционеры',
               name: 'breeder',
               options: breeders,
+              isRequired: true,
             })}
             {textAreas.map(({ label, name }) => (
               <p className="w-full text-sm rounded-md p-2 mr-2" key={name}>

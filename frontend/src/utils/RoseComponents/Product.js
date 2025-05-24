@@ -12,6 +12,7 @@ export const GenericProduct = ({
   apiEndpoint,
   fields,
   validationSchema,
+  customProductDisplay,
 }) => {
   const { api } = useAxios();
   const { setRose } = useContext(RoseContext);
@@ -30,6 +31,7 @@ export const GenericProduct = ({
         updatedProduct
       );
       toggleEditModal();
+
       setRose((prevRose) => {
         const updatedProducts = prevRose[apiEndpoint].map((p) =>
           p.id === response.data.id ? response.data : p
@@ -46,6 +48,7 @@ export const GenericProduct = ({
     try {
       await api.delete(`/${apiEndpoint}/${product.id}/`);
       toggleDeleteModal();
+
       setRose((prevRose) => ({
         ...prevRose,
         [apiEndpoint]: prevRose[apiEndpoint].filter((item) => item.id !== product.id),
@@ -106,9 +109,13 @@ export const GenericProduct = ({
 
   return (
     <div className="space-y-2 mb-6 p-4 border border-gray-200 rounded shadow-sm bg-white">
-      <div className="animate-fade-in form-partials">
-        {fields.map((field) => renderField(field))}
-      </div>
+      {customProductDisplay ? (
+        customProductDisplay(product)
+      ) : (
+        <div className="animate-fade-in form-partials">
+          {fields.map((field) => renderField(field))}
+        </div>
+      )}
 
       <div className="flex space-x-2 mt-3">
         <button className="btn-red" onClick={toggleEditModal}>

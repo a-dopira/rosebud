@@ -5,6 +5,7 @@ import useAxios from '../../hooks/useAxios';
 import useRosebud from '../../hooks/useRosebud';
 import { useNotification } from '../../context/NotificationContext';
 import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
+import Loader from '../../utils/Loaders/Loader';
 
 function RoseHeader() {
   const { loadResources } = useRosebud();
@@ -61,6 +62,10 @@ function RoseHeader() {
 
   const isStackedLayout = windowWidth < 768;
 
+  if (!rose) {
+    return <Loader />;
+  }
+
   return (
     <div className={`flex flex-col ${!isStackedLayout ? 'md:flex-row' : ''}`}>
       <div
@@ -86,9 +91,9 @@ function RoseHeader() {
           <div className="flex h-8 bg-umbra rounded-l-full">
             <Link
               className="flex bg-rose-500 px-2 py-1 text-white rounded-l-full justify-center text-center hover:text-white"
-              to={`/home/group/${rose.group_name}/`}
+              to={`/home/group/${rose.group.name}/`}
             >
-              {rose.group_name}
+              {rose.group.name}
             </Link>
             <div
               className="
@@ -136,7 +141,7 @@ function RoseHeader() {
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Селекционер:</td>
-                      <td className="text-xl">{rose.breeder_name || 'Не указан'}</td>
+                      <td className="text-xl">{rose.breeder.name || 'Не указан'}</td>
                     </tr>
                     <tr>
                       <td className="text-xl font-medium">Дата посадки:</td>

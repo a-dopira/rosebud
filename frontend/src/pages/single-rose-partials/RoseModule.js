@@ -8,11 +8,11 @@ import { Helmet } from 'react-helmet';
 export const GenericModule = ({
   title,
   apiEndpoint,
-  dataKey,
   fields,
   validationSchema,
   productType,
   useFormData = false,
+  customProductDisplay,
 }) => {
   const { rose, setRose } = useContext(RoseContext);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -33,8 +33,8 @@ export const GenericModule = ({
           Добавить
         </button>
 
-        {rose[dataKey] &&
-          rose[dataKey].map((item) => (
+        {rose[apiEndpoint] &&
+          rose[apiEndpoint].map((item) => (
             <GenericProduct
               key={item.id}
               productType={productType}
@@ -43,6 +43,7 @@ export const GenericModule = ({
               fields={fields}
               validationSchema={validationSchema}
               useFormData={useFormData}
+              customProductDisplay={customProductDisplay}
             />
           ))}
       </div>

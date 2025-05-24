@@ -6,62 +6,58 @@ import { GenericModule } from '../RoseModule';
 const RelationshipModule = ({
   title,
   apiEndpoint,
-  dataKey,
-  relationType,
+  fieldName,
+  fieldLabel,
   productType,
-  relationTypeLabel,
   relationOptions,
 }) => {
   const fields = [
     {
-      name: 'name',
-      label: `Название ${productType}а`,
-      type: 'text',
+      name: fieldName,
+      label: fieldLabel,
+      type: 'select',
+      options: relationOptions,
     },
     {
       name: 'date_added',
-      label: `Дата обработки ${productType}а`,
+      label: 'Дата обработки',
       type: 'date',
-    },
-    {
-      name: `${relationType}_id`,
-      label: `${relationTypeLabel} для ${productType}а`,
-      type: 'select',
-      options: relationOptions,
-      renderDisplay: (product) => (
-        <div className="mt-2">
-          <span className="text-xl font-bold">
-            {relationType === 'fungicide' ? 'Гриб' : 'Вредитель'}:
-          </span>{' '}
-          {product[relationType]?.name}
-        </div>
-      ),
     },
   ];
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Обязательное поле'),
+    [fieldName]: Yup.number().required('Обязательное поле'),
     date_added: Yup.date().required('Обязательное поле'),
-    [`${relationType}_id`]: Yup.string().required('Обязательное поле'),
   });
 
   const customProductDisplay = (product) => {
+    const selectedProduct = relationOptions.find(
+      (option) => option.value === product[fieldName]
+    );
+
     return (
       <div className="animate-fade-in my-2 p-5 space-y-2 border-solid border-gray-300 border-[1px] rounded-lg">
         <div>
-          <span className="label-partials">
-            {relationType === 'fungicide' ? 'Гриб' : 'Вредитель'}:
-          </span>{' '}
-          {product[relationType]?.name}
+          <span className="label-partials">{fieldLabel}:</span>{' '}
+          {selectedProduct ? selectedProduct.label : `ID: ${product[fieldName]}`}
         </div>
+
+        {product.pests && product.pests.length > 0 && (
+          <div>
+            <span className="label-partials">Вредители:</span>{' '}
+            {product.pests.map((pest) => pest.name).join(', ')}
+          </div>
+        )}
+
+        {product.fungi && product.fungi.length > 0 && (
+          <div>
+            <span className="label-partials">Грибки:</span>{' '}
+            {product.fungi.map((fungus) => fungus.name).join(', ')}
+          </div>
+        )}
+
         <div>
-          <span className="label-partials">
-            {relationType === 'fungicide' ? 'Фунгицид' : 'Пестицид'}:
-          </span>{' '}
-          {product.name}
-        </div>
-        <div>
-          <span className="label-partials">Добавлено: </span> {product.date_added}
+          <span className="label-partials">Дата обработки:</span> {product.date_added}
         </div>
       </div>
     );
@@ -72,7 +68,6 @@ const RelationshipModule = ({
       <GenericModule
         title={title}
         apiEndpoint={apiEndpoint}
-        dataKey={dataKey}
         fields={fields}
         validationSchema={validationSchema}
         productType={productType}
@@ -83,38 +78,36 @@ const RelationshipModule = ({
 };
 
 const Pesticides = () => {
-  const { pests } = useContext(DataContext);
+  const { pesticides } = useContext(DataContext);
 
   return (
     <RelationshipModule
-      title="Инсектициды"
-      apiEndpoint="pesticides"
-      dataKey="pesticides"
-      relationType="pest"
+      title="Пестициды"
+      apiEndpoint="rosepesticides"
+      fieldName="pesticide"
+      fieldLabel="Пестицид"
       productType="пестицид"
-      relationTypeLabel="Вредитель"
-      relationOptions={pests.map((pest) => ({
-        value: pest.id,
-        label: pest.name,
+      relationOptions={pesticides.map((pesticide) => ({
+        value: pesticide.id,
+        label: pesticide.name,
       }))}
     />
   );
 };
 
 const Fungicides = () => {
-  const { fungi } = useContext(DataContext);
+  const { fungicides } = useContext(DataContext);
 
   return (
     <RelationshipModule
-      title="Вредители"
-      apiEndpoint="fungicides"
-      dataKey="fungicides"
-      relationType="fungicide"
+      title="Фунгициды"
+      apiEndpoint="rosefungicides"
+      fieldName="fungicide"
+      fieldLabel="Фунгицид"
       productType="фунгицид"
-      relationTypeLabel="Гриб"
-      relationOptions={fungi.map((fungus) => ({
-        value: fungus.id,
-        label: fungus.name,
+      relationOptions={fungicides.map((fungicide) => ({
+        value: fungicide.id,
+        label: fungicide.name,
       }))}
     />
   );

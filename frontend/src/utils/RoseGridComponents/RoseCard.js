@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { memo, useState } from 'react';
-import { RoseLoader }from '../Loaders/RoseLoader';
+import { RoseLoader } from '../Loaders/RoseLoader';
 
 const RoseCard = memo(({ rose, onDelete }) => {
   const [imageError, setImageError] = useState(false);

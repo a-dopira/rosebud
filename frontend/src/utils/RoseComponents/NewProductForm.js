@@ -50,10 +50,12 @@ export const GenericNewProductForm = ({
         }
 
         const response = await api.post(`/${apiEndpoint}/`, data, config);
+
         setRose((prevState) => ({
           ...prevState,
           [apiEndpoint]: [...prevState[apiEndpoint], response.data],
         }));
+
         showNotification('Добавление прошло успешно');
         setShowForm(false);
       } catch (err) {

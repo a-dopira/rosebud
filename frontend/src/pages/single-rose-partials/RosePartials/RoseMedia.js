@@ -10,9 +10,8 @@ import '@splidejs/react-splide/css';
 
 const RoseMedia = () => {
   const { rose } = useContext(RoseContext);
-  const [currentViewIndex, setCurrentViewIndex] = useState(null);
+  const [currentMedia, setCurrentViewIndex] = useState(null);
 
-  // Создаем массив медиа элементов
   const mediaItems = [];
 
   if (rose.photo) {
@@ -56,7 +55,6 @@ const RoseMedia = () => {
   const hasMedia = mediaItems.length > 0;
   const showArrows = mediaItems.length > 1;
 
-  // Функции для навигации
   const handleNext = () => {
     setCurrentViewIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
   };
@@ -65,10 +63,9 @@ const RoseMedia = () => {
     setCurrentViewIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
   };
 
-  // Обработка навигации с клавиатуры
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (currentViewIndex === null) return;
+      if (currentMedia === null) return;
 
       if (e.key === 'ArrowRight' && mediaItems.length > 1) {
         handleNext();
@@ -84,18 +81,17 @@ const RoseMedia = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentViewIndex, mediaItems.length]);
+  }, [currentMedia, mediaItems.length]);
 
-  // Отключение прокрутки при открытом модальном окне
   useEffect(() => {
-    if (currentViewIndex !== null) {
+    if (currentMedia !== null) {
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [currentViewIndex]);
+  }, [currentMedia]);
 
   return (
     <>
@@ -163,14 +159,12 @@ const RoseMedia = () => {
             ))}
           </div>
 
-          {/* Модальное окно для просмотра */}
-          {currentViewIndex !== null &&
+          {currentMedia !== null &&
             createPortal(
               <div
                 className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300"
                 style={{ isolation: 'isolate' }}
               >
-                {/* Кнопка предыдущего изображения */}
                 {mediaItems.length > 1 && (
                   <button
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full p-3 transition-all hover:bg-opacity-70 hover:scale-110 z-[10000]"
@@ -193,39 +187,35 @@ const RoseMedia = () => {
                   </button>
                 )}
 
-                {/* Контент */}
                 <div className="relative max-w-4xl max-h-[90vh] flex items-center justify-center my-8">
-                  {mediaItems[currentViewIndex].type === 'image' ? (
+                  {mediaItems[currentMedia].type === 'image' ? (
                     <img
-                      src={mediaItems[currentViewIndex].src}
-                      alt={
-                        mediaItems[currentViewIndex].alt || 'Увеличенное изображение'
-                      }
+                      src={mediaItems[currentMedia].src}
+                      alt={mediaItems[currentMedia].alt || 'Увеличенное изображение'}
                       className="max-w-full max-h-[90vh] object-contain"
                     />
                   ) : (
                     <video
-                      src={mediaItems[currentViewIndex].src}
+                      src={mediaItems[currentMedia].src}
                       className="max-w-full max-h-[90vh] object-contain"
                       controls
                       autoPlay
                     >
-                      <source src={mediaItems[currentViewIndex].src} type="video/mp4" />
+                      <source src={mediaItems[currentMedia].src} type="video/mp4" />
                     </video>
                   )}
 
-                  {/* Описание и год */}
-                  {(mediaItems[currentViewIndex].description ||
-                    mediaItems[currentViewIndex].year) && (
+                  {(mediaItems[currentMedia].description ||
+                    mediaItems[currentMedia].year) && (
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 p-2 rounded text-white text-center">
-                      {mediaItems[currentViewIndex].description && (
+                      {mediaItems[currentMedia].description && (
                         <p className="text-sm">
-                          {mediaItems[currentViewIndex].description}
+                          {mediaItems[currentMedia].description}
                         </p>
                       )}
-                      {mediaItems[currentViewIndex].year && (
+                      {mediaItems[currentMedia].year && (
                         <p className="text-xs text-gray-300">
-                          Год: {mediaItems[currentViewIndex].year}
+                          Год: {mediaItems[currentMedia].year}
                         </p>
                       )}
                     </div>
@@ -253,7 +243,6 @@ const RoseMedia = () => {
                   </button>
                 </div>
 
-                {/* Кнопка следующего изображения */}
                 {mediaItems.length > 1 && (
                   <button
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full p-3 transition-all hover:bg-opacity-70 hover:scale-110 z-[10000]"
@@ -275,15 +264,13 @@ const RoseMedia = () => {
                     </svg>
                   </button>
                 )}
-
-                {/* Индикаторы позиции */}
                 {mediaItems.length > 1 && (
                   <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
                     {mediaItems.map((_, index) => (
                       <button
                         key={`indicator-${index}`}
                         className={`w-3 h-3 rounded-full transition-colors ${
-                          index === currentViewIndex
+                          index === currentMedia
                             ? 'bg-white'
                             : 'bg-gray-500 hover:bg-gray-300'
                         }`}
@@ -301,12 +288,12 @@ const RoseMedia = () => {
         <div className="text-center py-8 text-gray-500">Медиа контент отсутствует</div>
       )}
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Управление медиа</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="mt-8 space-y-4">
+        <h2 className="text-xl font-semibold">Управление медиа</h2>
+        <div className="bg-gray-50 rounded-lg">
           <RosePhoto />
         </div>
-        <div className="bg-gray-50 p-4 rounded-lg mt-4">
+        <div className="bg-gray-50 rounded-lg mt-4">
           <RoseVideo />
         </div>
       </div>
