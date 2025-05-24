@@ -107,17 +107,21 @@ class TestGroupSerializer:
         assert list(data.keys()) == ["id", "name", "rose_count"]
         assert data["rose_count"] == 0
 
-    def test_rose_count_calculation(self, group):
-
+    def test_rose_count_calculation(self, group, breeder):
         Rose.objects.create(
-            title="fancy rose 1", title_eng="fancy rose 1 in eng", group=group
+            title="fancy rose 1",
+            title_eng="fancy rose 1 in eng",
+            group=group,
+            breeder=breeder,
         )
         Rose.objects.create(
-            title="fancy rose 2", title_eng="fancy rose 2 in eng", group=group
+            title="fancy rose 2",
+            title_eng="fancy rose 2 in eng",
+            group=group,
+            breeder=breeder,
         )
 
         group = Group.objects.annotate(rose_count=Count("roses")).get(id=group.id)
-
         serializer = GroupSerializer(instance=group)
 
         assert serializer.data["rose_count"] == 2
@@ -130,39 +134,36 @@ class TestPesticideSerializer:
         serializer = PesticideSerializer(instance=pesticide)
         data = serializer.data
 
-        assert set(data.keys()) == set(["id", "name", "date_added", "rose", "pest"])
+        expected_fields = {"id", "name", "pests"}
+        assert set(data.keys()) == expected_fields
 
     def test_serializer_pest_data(self, pesticide):
         serializer = PesticideSerializer(instance=pesticide)
         data = serializer.data
 
-        assert data["pest"]["id"] == pesticide.pest.id
-        assert data["pest"]["name"] == "fancy pest"
+        assert "pests" in data
+        assert isinstance(data["pests"], list)
+        assert len(data["pests"]) == 1
+        assert data["pests"][0]["name"] == "fancy pest"
 
     def test_create_pesticide(self, rose, pest):
 
         data = {
-            "rose": rose.id,
-            "pest_id": pest.id,
             "name": "new pesticide treatment",
-            "date_added": "2023-08-10",
+            "pest_ids": [pest.id],
         }
 
         serializer = PesticideSerializer(data=data)
         assert serializer.is_valid(), f"Errors: {serializer.errors}"
 
         instance = serializer.save()
-        assert instance.rose.id == rose.id
-        assert instance.pest.id == pest.id
         assert instance.name == "new pesticide treatment"
-        assert instance.date_added == date(2023, 8, 10)
+        assert pest in instance.pests.all()
 
     def test_update_pesticide(self, pesticide, pest):
         data = {
-            "rose": pesticide.rose.id,
-            "pest_id": pesticide.pest.id,
             "name": "updated pesticide name",
-            "date_added": "2023-09-15",
+            "pest_ids": [pest.id],
         }
 
         serializer = PesticideSerializer(instance=pesticide, data=data)
@@ -170,8 +171,7 @@ class TestPesticideSerializer:
 
         updated_instance = serializer.save()
         assert updated_instance.name == "updated pesticide name"
-        assert updated_instance.date_added == date(2023, 9, 15)
-        assert hasattr(updated_instance, "pest")
+        assert pest in updated_instance.pests.all()
 
 
 @pytest.mark.django_db
@@ -180,41 +180,35 @@ class TestFungicideSerializer:
     def test_serializer_contains_expected_fields(self, fungicide):
         serializer = FungicideSerializer(instance=fungicide)
         data = serializer.data
-
-        assert set(data.keys()) == set(
-            ["id", "name", "date_added", "rose", "fungicide"]
-        )
+        expected_fields = {"id", "name", "fungi"}
+        assert set(data.keys()) == expected_fields
 
     def test_serializer_fungus_data(self, fungicide):
         serializer = FungicideSerializer(instance=fungicide)
         data = serializer.data
 
-        assert data["fungicide"]["id"] == fungicide.fungicide.id
-        assert data["fungicide"]["name"] == "fancy fungus"
+        assert "fungi" in data
+        assert isinstance(data["fungi"], list)
+        assert len(data["fungi"]) == 1
+        assert data["fungi"][0]["name"] == "fancy fungus"
 
-    def test_create_fungicide(self, rose, fungus):
+    def test_create_fungicide(self, fungus):
         data = {
-            "rose": rose.id,
-            "fungicide_id": fungus.id,
             "name": "new fungicide treatment",
-            "date_added": "2023-08-15",
+            "fungi_ids": [fungus.id],
         }
 
         serializer = FungicideSerializer(data=data)
-        assert serializer.is_valid()
+        assert serializer.is_valid(), f"Errors: {serializer.errors}"
 
         instance = serializer.save()
-        assert instance.rose.id == rose.id
-        assert instance.fungicide.id == fungus.id
         assert instance.name == "new fungicide treatment"
-        assert instance.date_added == date(2023, 8, 15)
+        assert fungus in instance.fungi.all()
 
     def test_update_fungicide(self, fungicide, fungus):
         data = {
-            "rose": fungicide.rose.id,
-            "fungicide_id": fungicide.fungicide.id,
             "name": "updated fungicide name",
-            "date_added": "2023-09-20",
+            "fungi_ids": [fungus.id],
         }
 
         serializer = FungicideSerializer(instance=fungicide, data=data)
@@ -222,7 +216,7 @@ class TestFungicideSerializer:
 
         updated_instance = serializer.save()
         assert updated_instance.name == "updated fungicide name"
-        assert updated_instance.date_added == date(2023, 9, 20)
+        assert fungus in updated_instance.fungi.all()
 
 
 @pytest.mark.django_db

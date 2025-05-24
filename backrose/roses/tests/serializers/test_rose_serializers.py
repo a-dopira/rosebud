@@ -1,6 +1,6 @@
 import pytest
-from roses.models import Rose
-from roses.serializers import RoseSerializer, RoseListSerializer
+from roses.models import Rose, Breeder
+from roses.serializers import RoseSerializer, RoseListSerializer, RoseCreateSerializer
 
 pytestmark = pytest.mark.django_db
 
@@ -11,28 +11,19 @@ class TestRoseSerializer:
         serializer = RoseSerializer(instance=rose_with_relations)
         data = serializer.data
 
-        expected_fields = set(field for field in RoseSerializer.Meta.fields)
+        expected_fields = set(RoseSerializer.Meta.fields)
 
         for field in expected_fields:
             assert field in data
 
     def test_related_fields_data(self, rose_with_relations):
-
         serializer = RoseSerializer(instance=rose_with_relations)
         data = serializer.data
 
         assert data["title"] == "fancy rose"
         assert data["title_eng"] == "fancy rose in english"
-        assert data["breeder_name"] == "fancy breeder"
-        assert data["group_name"] == "fancy group"
-
-        assert len(data["pesticides"]) == 1
-        assert data["pesticides"][0]["name"] == "fancy pesticide treatment"
-        assert data["pesticides"][0]["pest"]["name"] == "fancy pest"
-
-        assert len(data["fungicides"]) == 1
-        assert data["fungicides"][0]["name"] == "fancy fungicide treatment"
-        assert data["fungicides"][0]["fungicide"]["name"] == "fancy fungus"
+        assert data["breeder"]["name"] == "fancy breeder"
+        assert data["group"]["name"] == "fancy group"
 
         assert len(data["feedings"]) == 1
         assert data["feedings"][0]["basal"] == "fancy basal fertilizer"
@@ -53,8 +44,29 @@ class TestRoseSerializer:
         assert data["videos"][0]["video"] == "https://example.com/test-video"
         assert data["videos"][0]["descr"] == "fancy video description"
 
-    def test_create_rose(self, breeder, group, fancy_image):
+        if len(data["rosepesticides"]) > 0:
+            assert (
+                data["rosepesticides"][0]["pesticide"]["name"]
+                == "fancy pesticide treatment"
+            )
+            assert len(data["rosepesticides"][0]["pesticide"]["pests"]) == 1
+            assert (
+                data["rosepesticides"][0]["pesticide"]["pests"][0]["name"]
+                == "fancy pest"
+            )
 
+        if len(data["rosefungicides"]) > 0:
+            assert (
+                data["rosefungicides"][0]["fungicide"]["name"]
+                == "fancy fungicide treatment"
+            )
+            assert len(data["rosefungicides"][0]["fungicide"]["fungi"]) == 1
+            assert (
+                data["rosefungicides"][0]["fungicide"]["fungi"][0]["name"]
+                == "fancy fungus"
+            )
+
+    def test_create_rose(self, breeder, group, fancy_image):
         data = {
             "title": "New fancy rose",
             "title_eng": "New fancy rose in english",
@@ -69,7 +81,7 @@ class TestRoseSerializer:
             "const_height": "18.2",
         }
 
-        serializer = RoseSerializer(data=data)
+        serializer = RoseCreateSerializer(data=data)
         assert serializer.is_valid(), f"Ошибки валидации: {serializer.errors}"
 
         rose = serializer.save()
@@ -80,7 +92,6 @@ class TestRoseSerializer:
         assert rose.description == "New Description"
 
     def test_update_rose(self, rose):
-
         data = {
             "title": "Updated Rose",
             "title_eng": "Updated Rose English",
@@ -89,7 +100,7 @@ class TestRoseSerializer:
             "description": "Updated Description",
         }
 
-        serializer = RoseSerializer(instance=rose, data=data, partial=True)
+        serializer = RoseCreateSerializer(instance=rose, data=data, partial=True)
         assert serializer.is_valid(), f"Ошибки валидации: {serializer.errors}"
 
         updated_rose = serializer.save()
@@ -98,11 +109,12 @@ class TestRoseSerializer:
         assert updated_rose.description == "Updated Description"
         assert updated_rose.slug == "updated-rose"
 
-    def test_default_photo_value(self):
-
+    def test_default_photo_value(self, breeder, group):
         rose_without_photo = Rose.objects.create(
             title="rose without photo",
             title_eng="rose without photo in english",
+            breeder=breeder,
+            group=group,
         )
 
         serializer = RoseListSerializer(instance=rose_without_photo)
@@ -114,12 +126,14 @@ class TestRoseSerializer:
 class TestRoseListSerializer:
 
     def test_serializer_list_of_roses(self, rose, group):
+        breeder2 = Breeder.objects.create(name="second breeder")
 
         rose2 = Rose.objects.create(
             title="second rose",
             title_eng="second rose in english",
             photo="images/cap_rose.png",
             group=group,
+            breeder=breeder2,
         )
 
         roses = Rose.objects.all()

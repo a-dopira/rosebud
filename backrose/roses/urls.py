@@ -6,8 +6,10 @@ from .views import (
     BreederViewSet,
     PestViewSet,
     PesticideViewSet,
+    RosePesticideViewSet,
     FungusViewSet,
     FungicideViewSet,
+    RoseFungicideViewSet,
     SizeViewSet,
     FeedingViewSet,
     RosePhotoViewSet,
@@ -21,9 +23,11 @@ router.register(r"roses", RoseViewSet, basename="rose")
 router.register(r"groups", GroupViewSet, basename="group")
 router.register(r"breeders", BreederViewSet, basename="breeder")
 router.register(r"pests", PestViewSet, basename="pest")
-router.register(r"pesticides", PesticideViewSet, basename="pesticide")
 router.register(r"fungi", FungusViewSet, basename="fungus")
-router.register(r"fungicides", FungicideViewSet, basename="fungicide")
+router.register(r"pesticides", PesticideViewSet)
+router.register(r"fungicides", FungicideViewSet)
+router.register(r"rosepesticides", RosePesticideViewSet)
+router.register(r"rosefungicides", RoseFungicideViewSet)
 router.register(r"sizes", SizeViewSet, basename="size")
 router.register(r"feedings", FeedingViewSet, basename="feeding")
 router.register(r"rosephotos", RosePhotoViewSet, basename="rosephoto")

@@ -19,6 +19,8 @@ from roses.models import (
     Pesticide,
     Fungus,
     Fungicide,
+    RosePesticide,
+    RoseFungicide,
 )
 
 
@@ -129,13 +131,10 @@ def pest():
 
 
 @pytest.fixture
-def pesticide(rose, pest):
-    return Pesticide.objects.create(
-        rose=rose,
-        pest=pest,
-        name="fancy pesticide treatment",
-        date_added=date(2023, 6, 15),
-    )
+def pesticide(pest):
+    pesticide = Pesticide.objects.create(name="fancy pesticide treatment")
+    pesticide.pests.add(pest)
+    return pesticide
 
 
 @pytest.fixture
@@ -144,13 +143,10 @@ def fungus():
 
 
 @pytest.fixture
-def fungicide(rose, fungus):
-    return Fungicide.objects.create(
-        rose=rose,
-        fungicide=fungus,
-        name="fancy fungicide treatment",
-        date_added=date(2023, 7, 12),
-    )
+def fungicide(fungus):
+    fungicide = Fungicide.objects.create(name="fancy fungicide treatment")
+    fungicide.fungi.add(fungus)
+    return fungicide
 
 
 @pytest.fixture
@@ -161,6 +157,20 @@ def feeding(rose):
         basal_time=date(2023, 6, 10),
         leaf="fancy leaf fertilizer",
         leaf_time=date(2023, 6, 20),
+    )
+
+
+@pytest.fixture
+def rose_pesticide(rose, pesticide):
+    return RosePesticide.objects.create(
+        rose=rose, pesticide=pesticide, date_added=date(2023, 6, 15)
+    )
+
+
+@pytest.fixture
+def rose_fungicide(rose, fungicide):
+    return RoseFungicide.objects.create(
+        rose=rose, fungicide=fungicide, date_added=date(2023, 7, 12)
     )
 
 

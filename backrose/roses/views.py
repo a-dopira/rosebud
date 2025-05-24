@@ -1,4 +1,5 @@
 from common import DynamicViewSet, dynamic_serializer
+from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -13,8 +14,10 @@ from .models import (
     Rose,
     Pest,
     Pesticide,
+    RosePesticide,
     Fungus,
     Fungicide,
+    RoseFungicide,
     Size,
     Feeding,
     RosePhoto,
@@ -26,7 +29,10 @@ from .serializers import (
     RoseSerializer,
     RoseListSerializer,
     PesticideSerializer,
+    RosePesticideSerializer,
+    RoseCreateSerializer,
     FungicideSerializer,
+    RoseFungicideSerializer,
     SizeSerializer,
     FeedingSerializer,
     FoliageSerializer,
@@ -43,9 +49,10 @@ class RoseViewSet(viewsets.ModelViewSet):
             "rosephotos",
             "sizes",
             "videos",
-            "pesticides",
-            "fungicides",
+            "rosepesticides",
+            "rosefungicides",
         )
+        .select_related("breeder", "group")
     )
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
@@ -54,6 +61,8 @@ class RoseViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return RoseListSerializer
+        elif self.action in ["create", "update", "partial_update"]:
+            return RoseCreateSerializer
         return RoseSerializer
 
     def destroy(self, request, *args, **kwargs):
@@ -72,15 +81,6 @@ class RoseViewSet(viewsets.ModelViewSet):
             return Response({"message": "Фото успешно удалено"})
         return Response(
             {"message": "Фото не удалось удалить"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
 
@@ -175,6 +175,36 @@ class PesticideViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["post"])
+    def add_pests(self, request, pk=None):
+        pesticide = self.get_object()
+        pests_ids = request.data.get("pests_ids", [])
+
+        pests = Pest.objects.filter(id__in=pests_ids)
+        if not pests.exists():
+            return Response(
+                {"detail": "Указанные вредители не найдены"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for pest in pests:
+            pesticide.pests.add(pest)
+
+        serializer = self.get_serializer(pesticide)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["post"])
+    def remove_pests(self, request, pk=None):
+        pesticide = self.get_object()
+        pests_ids = request.data.get("pests_ids", [])
+
+        pests = Pest.objects.filter(id__in=pests_ids)
+        for pest in pests:
+            pesticide.pests.remove(pest)
+
+        serializer = self.get_serializer(pesticide)
+        return Response(serializer.data)
+
 
 class FungicideViewSet(viewsets.ModelViewSet):
     queryset = Fungicide.objects.all()
@@ -185,6 +215,56 @@ class FungicideViewSet(viewsets.ModelViewSet):
         data = {"id": instance.id, "name": instance.name}
         self.perform_destroy(instance)
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"])
+    def add_fungi(self, request, pk=None):
+        fungicide = self.get_object()
+        fungi_ids = request.data.get("fungi_ids", [])
+
+        fungi = Fungus.objects.filter(id__in=fungi_ids)
+        if not fungi.exists():
+            return Response(
+                {"detail": "Указанные грибки не найдены"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for fungus in fungi:
+            fungicide.fungi.add(fungus)
+
+        serializer = self.get_serializer(fungicide)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["post"])
+    def remove_fungi(self, request, pk=None):
+        fungicide = self.get_object()
+        fungi_ids = request.data.get("fungi_ids", [])
+
+        fungi = Fungus.objects.filter(id__in=fungi_ids)
+        for fungus in fungi:
+            fungicide.fungi.remove(fungus)
+
+        serializer = self.get_serializer(fungicide)
+        return Response(serializer.data)
+
+
+class RosePesticideViewSet(viewsets.ModelViewSet):
+    queryset = RosePesticide.objects.all()
+    serializer_class = RosePesticideSerializer
+
+
+class RoseFungicideViewSet(viewsets.ModelViewSet):
+    queryset = RoseFungicide.objects.all()
+    serializer_class = RoseFungicideSerializer
+
+
+class FungusViewSet(DynamicViewSet):
+    model = Fungus
+    entity_name = "Гриб"
+
+
+class PestViewSet(DynamicViewSet):
+    model = Pest
+    entity_name = "Вредитель"
 
 
 class RosePhotoViewSet(DynamicViewSet):
@@ -201,28 +281,19 @@ class BreederViewSet(DynamicViewSet):
     entity_name = "Селекционер"
 
 
-class FungusViewSet(DynamicViewSet):
-    model = Fungus
-    entity_name = "Гриб"
-
-
-class PestViewSet(DynamicViewSet):
-    model = Pest
-    entity_name = "Вредитель"
-
-
 class AdjustmentViewSet(viewsets.ViewSet):
     """
-    Get breeders, pests, fungi, groups all at once
+    Get breeders, pests, fungi, pesticides, fungicides, groups all at once
     """
 
     def list(self, request):
         try:
-
             groups = Group.objects.annotate(rose_count=Count("roses"))
             breeders = Breeder.objects.all()
             pests = Pest.objects.all()
             fungi = Fungus.objects.all()
+            pesticides = Pesticide.objects.all().prefetch_related("pests")
+            fungicides = Fungicide.objects.all().prefetch_related("fungi")
 
             group_serializer = GroupSerializer(groups, many=True)
             breeder_serializer = dynamic_serializer(Breeder, exclude=["slug"])(
@@ -230,6 +301,8 @@ class AdjustmentViewSet(viewsets.ViewSet):
             )
             pest_serializer = dynamic_serializer(Pest)(pests, many=True)
             fungi_serializer = dynamic_serializer(Fungus)(fungi, many=True)
+            pesticide_serializer = PesticideSerializer(pesticides, many=True)
+            fungicide_serializer = FungicideSerializer(fungicides, many=True)
 
             return Response(
                 {
@@ -237,6 +310,8 @@ class AdjustmentViewSet(viewsets.ViewSet):
                     "breeders": breeder_serializer.data,
                     "pests": pest_serializer.data,
                     "fungi": fungi_serializer.data,
+                    "pesticides": pesticide_serializer.data,
+                    "fungicides": fungicide_serializer.data,
                 }
             )
         except Exception as e:

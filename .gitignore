@@ -12,10 +12,12 @@ frontend/src/utils/Magnifier.js
 frontend/src/utils/Arrow.js
 frontend/public/icons8-rose-96.svg
 frontend/src/utils/MessageBuilder.js
+frontend/src/pages/menu-items/Adjusting/RelatedButtons.js
+frontend/src/pages/menu-items/Adjusting/RelatedModal.js
 frontend/.prettierignore
 
 # Django
-backrose/db.sqlite3
+backrose/*.sqlite3
 backrose/userprofile/management/*
 backrose/staticfiles/*
 backrose/media/images/

@@ -37,14 +37,18 @@ class TestRoseThumbnailPaths:
         assert rose_media_dir == expected_rose_dir
         assert photo_media_dir == expected_photo_dir
 
-    def test_get_filename_with_special_characters(self, create_image):
+    def test_get_filename_with_special_characters(self, create_image, breeder, group):
 
         special_image = create_image("fancy_special_image.jpg")
 
         special_title = "fancy rose with awkwardness & symbols!"
 
         rose_with_special_chars = Rose.objects.create(
-            title=special_title, title_eng=special_title, photo=special_image
+            title=special_title,
+            title_eng=special_title,
+            breeder=breeder,
+            group=group,
+            photo=special_image,
         )
 
         filename = get_filename(rose_with_special_chars, "test_file.jpg")
@@ -53,11 +57,13 @@ class TestRoseThumbnailPaths:
 
         rose_with_special_chars.delete()
 
-    def test_file_name_preservation(self):
+    def test_file_name_preservation(self, breeder, group):
 
         rose = Rose.objects.create(
             title="fancy_rose",
             title_eng="fancy_rose_in_eng",
+            breeder=breeder,
+            group=group,
         )
 
         original_file_name = "fancy file with spaces & symbols?.jpg"

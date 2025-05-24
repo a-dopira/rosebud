@@ -5,8 +5,10 @@ from .models import (
     Breeder,
     Pest,
     Pesticide,
+    RosePesticide,
     Fungus,
     Fungicide,
+    RoseFungicide,
     Size,
     Feeding,
     RosePhoto,
@@ -16,28 +18,98 @@ from .models import (
 )
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["id", "name"]
+
+
+class BreederSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Breeder
+        fields = ["id", "name"]
+
+
 class PesticideSerializer(serializers.ModelSerializer):
-
     PestSerializer = dynamic_serializer(Pest)
-
-    pest = PestSerializer(read_only=True)
-    pest_id = serializers.IntegerField(write_only=True)
+    pests = PestSerializer(many=True, read_only=True)
+    pest_ids = serializers.PrimaryKeyRelatedField(
+        source="pests",
+        queryset=Pest.objects.all(),
+        many=True,
+        required=False,
+        write_only=True,
+    )
 
     class Meta:
         model = Pesticide
-        fields = "__all__"
+        fields = ["id", "name", "pests", "pest_ids"]
+
+    def create(self, validated_data):
+        pests_data = validated_data.pop("pests", [])
+        pesticide = Pesticide.objects.create(**validated_data)
+        if pests_data:
+            pesticide.pests.set(pests_data)
+        return pesticide
+
+    def update(self, instance, validated_data):
+        pests_data = validated_data.pop("pests", None)
+        instance.name = validated_data.get("name", instance.name)
+
+        if pests_data is not None:
+            instance.pests.set(pests_data)
+
+        instance.save()
+        return instance
 
 
 class FungicideSerializer(serializers.ModelSerializer):
-
     FungusSerializer = dynamic_serializer(Fungus)
-
-    fungicide = FungusSerializer(read_only=True)
-    fungicide_id = serializers.IntegerField(write_only=True)
+    fungi = FungusSerializer(many=True, read_only=True)
+    fungi_ids = serializers.PrimaryKeyRelatedField(
+        source="fungi",
+        queryset=Fungus.objects.all(),
+        many=True,
+        required=False,
+        write_only=True,
+    )
 
     class Meta:
         model = Fungicide
-        fields = "__all__"
+        fields = ["id", "name", "fungi", "fungi_ids"]
+
+    def create(self, validated_data):
+        fungi_data = validated_data.pop("fungi", [])
+        fungicide = Fungicide.objects.create(**validated_data)
+        if fungi_data:
+            fungicide.fungi.set(fungi_data)
+        return fungicide
+
+    def update(self, instance, validated_data):
+        fungi_data = validated_data.pop("fungi", None)
+        instance.name = validated_data.get("name", instance.name)
+
+        if fungi_data is not None:
+            instance.fungi.set(fungi_data)
+
+        instance.save()
+        return instance
+
+
+class RosePesticideSerializer(serializers.ModelSerializer):
+    pesticide = PesticideSerializer(read_only=True)
+
+    class Meta:
+        model = RosePesticide
+        fields = ["id", "rose", "pesticide", "date_added"]
+
+
+class RoseFungicideSerializer(serializers.ModelSerializer):
+    fungicide = FungicideSerializer(read_only=True)
+
+    class Meta:
+        model = RoseFungicide
+        fields = ["id", "rose", "fungicide", "date_added"]
 
 
 class FeedingSerializer(serializers.ModelSerializer):
@@ -62,14 +134,33 @@ class SizeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
-class RoseSerializer(serializers.ModelSerializer):
-    breeder = serializers.PrimaryKeyRelatedField(queryset=Breeder.objects.all())
-    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all())
-    breeder_name = serializers.CharField(source="breeder.name", read_only=True)
-    group_name = serializers.CharField(source="group.name", read_only=True)
+class RoseCreateSerializer(serializers.ModelSerializer):
 
-    pesticides = PesticideSerializer(many=True, read_only=True)
-    fungicides = FungicideSerializer(many=True, read_only=True)
+    class Meta:
+        model = Rose
+        fields = [
+            "id",
+            "title",
+            "title_eng",
+            "group",
+            "breeder",
+            "photo",
+            "description",
+            "landing_date",
+            "observation",
+            "susceptibility",
+            "const_width",
+            "const_height",
+        ]
+
+
+class RoseSerializer(serializers.ModelSerializer):
+
+    breeder = dynamic_serializer(Breeder, exclude=["slug"])(read_only=True)
+    group = dynamic_serializer(Group, exclude=["slug"])(read_only=True)
+
+    rosepesticides = RosePesticideSerializer(many=True, read_only=True)
+    rosefungicides = RoseFungicideSerializer(many=True, read_only=True)
     feedings = dynamic_serializer(Feeding)(many=True, read_only=True)
     foliages = dynamic_serializer(Foliage)(many=True, read_only=True)
     rosephotos = dynamic_serializer(RosePhoto)(many=True, read_only=True)
@@ -83,9 +174,7 @@ class RoseSerializer(serializers.ModelSerializer):
             "title",
             "title_eng",
             "group",
-            "group_name",
             "breeder",
-            "breeder_name",
             "photo",
             "description",
             "landing_date",
@@ -96,8 +185,8 @@ class RoseSerializer(serializers.ModelSerializer):
             "feedings",
             "foliages",
             "sizes",
-            "pesticides",
-            "fungicides",
+            "rosepesticides",
+            "rosefungicides",
             "rosephotos",
             "videos",
         ]

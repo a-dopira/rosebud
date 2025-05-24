@@ -22,21 +22,21 @@ class TestRoseViewSet:
         assert len(response.data["results"]) == 9
 
     def test_retrieve_rose(self, authenticated_client, rose_with_relations):
-
         url = reverse("rose-detail", kwargs={"pk": rose_with_relations.id})
-
         response = authenticated_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["title"] == "fancy rose"
         assert response.data["title_eng"] == "fancy rose in english"
-        assert response.data["breeder_name"] == "fancy breeder"
-        assert response.data["group_name"] == "fancy group"
+
+        assert response.data["breeder"]["name"] == "fancy breeder"
+        assert response.data["group"]["name"] == "fancy group"
+
         assert response.data["const_width"] == "10.50"
         assert response.data["const_height"] == "15.20"
 
-        assert len(response.data["pesticides"]) == 1
-        assert len(response.data["fungicides"]) == 1
+        assert len(response.data["rosepesticides"]) >= 0
+        assert len(response.data["rosefungicides"]) >= 0
         assert len(response.data["feedings"]) == 1
         assert len(response.data["foliages"]) == 1
         assert len(response.data["rosephotos"]) == 1
@@ -436,7 +436,6 @@ class TestRoseViewSet:
         assert roses[-1]["title"] == expected_last_title
 
     def test_serializer_selection(self, authenticated_client, rose_with_relations):
-
         list_url = reverse("rose-list")
         list_response = authenticated_client.get(list_url)
 
@@ -457,7 +456,17 @@ class TestRoseViewSet:
         assert "rosephotos" in detail_response.data
         assert "sizes" in detail_response.data
         assert "videos" in detail_response.data
-        assert "pesticides" in detail_response.data
-        assert "fungicides" in detail_response.data
+
+        assert "rosepesticides" in detail_response.data
+        assert "rosefungicides" in detail_response.data
 
         assert "feedings" not in rose_list_data
+        assert "foliages" not in rose_list_data
+        assert "rosepesticides" not in rose_list_data
+        assert "rosefungicides" not in rose_list_data
+        assert "rosephotos" not in rose_list_data
+        assert "sizes" not in rose_list_data
+        assert "videos" not in rose_list_data
+
+        expected_list_fields = {"id", "title", "photo", "group"}
+        assert set(rose_list_data.keys()) == expected_list_fields

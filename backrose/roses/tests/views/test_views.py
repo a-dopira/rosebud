@@ -200,36 +200,40 @@ class TestPesticideViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["id"] == pesticide.id
         assert response.data["name"] == pesticide.name
-        assert "pest" in response.data
 
-    def test_create_pesticide(self, authenticated_client, rose, pest):
+        assert "pests" in response.data
+        assert isinstance(response.data["pests"], list)
+        assert len(response.data["pests"]) > 0
+        assert response.data["pests"][0]["name"] == "fancy pest"
+
+    def test_create_pesticide(self, authenticated_client, pest):
         url = reverse("pesticide-list")
         data = {
-            "rose": rose.id,
-            "pest_id": pest.id,
             "name": "new pesticide treatment",
-            "date_added": "2023-09-15",
+            "pest_ids": [pest.id],
         }
 
         response = authenticated_client.post(url, data)
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["name"] == "new pesticide treatment"
-        assert response.data["pest"]["id"] == pest.id
 
-    def test_update_pesticide(self, authenticated_client, pesticide):
+        assert len(response.data["pests"]) == 1
+        assert response.data["pests"][0]["id"] == pest.id
+
+    def test_update_pesticide(self, authenticated_client, pesticide, pest):
         url = reverse("pesticide-detail", kwargs={"pk": pesticide.id})
         data = {
-            "rose": pesticide.rose.id,
-            "pest_id": pesticide.pest.id,
             "name": "updated pesticide treatment",
-            "date_added": "2023-10-15",
+            "pest_ids": [pest.id],
         }
 
         response = authenticated_client.put(url, data)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["name"] == "updated pesticide treatment"
+        assert len(response.data["pests"]) == 1
+        assert response.data["pests"][0]["id"] == pest.id
 
     def test_destroy_pesticide(self, authenticated_client, pesticide):
         url = reverse("pesticide-detail", kwargs={"pk": pesticide.id})
@@ -260,36 +264,40 @@ class TestFungicideViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["id"] == fungicide.id
         assert response.data["name"] == fungicide.name
-        assert "fungicide" in response.data
 
-    def test_create_fungicide(self, authenticated_client, rose, fungus):
+        assert "fungi" in response.data
+        assert isinstance(response.data["fungi"], list)
+        assert len(response.data["fungi"]) > 0
+        assert response.data["fungi"][0]["name"] == "fancy fungus"
+
+    def test_create_fungicide(self, authenticated_client, fungus):
         url = reverse("fungicide-list")
         data = {
-            "rose": rose.id,
-            "fungicide_id": fungus.id,
             "name": "new fungicide treatment",
-            "date_added": "2023-09-15",
+            "fungi_ids": [fungus.id],
         }
 
         response = authenticated_client.post(url, data)
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["name"] == "new fungicide treatment"
-        assert response.data["fungicide"]["id"] == fungus.id
 
-    def test_update_fungicide(self, authenticated_client, fungicide):
+        assert len(response.data["fungi"]) == 1
+        assert response.data["fungi"][0]["id"] == fungus.id
+
+    def test_update_fungicide(self, authenticated_client, fungicide, fungus):
         url = reverse("fungicide-detail", kwargs={"pk": fungicide.id})
         data = {
-            "rose": fungicide.rose.id,
-            "fungicide_id": fungicide.fungicide.id,
             "name": "updated fungicide treatment",
-            "date_added": "2023-10-15",
+            "fungi_ids": [fungus.id],
         }
 
         response = authenticated_client.put(url, data)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["name"] == "updated fungicide treatment"
+        assert len(response.data["fungi"]) == 1
+        assert response.data["fungi"][0]["id"] == fungus.id
 
     def test_destroy_fungicide(self, authenticated_client, fungicide):
         url = reverse("fungicide-detail", kwargs={"pk": fungicide.id})

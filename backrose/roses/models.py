@@ -39,18 +39,6 @@ class Pest(models.Model):
         return self.name
 
 
-class Pesticide(models.Model):
-    rose = models.ForeignKey(
-        "Rose", on_delete=models.CASCADE, related_name="pesticides"
-    )
-    pest = models.ForeignKey("Pest", on_delete=models.CASCADE, related_name="pests")
-    name = models.CharField(max_length=255)
-    date_added = models.DateField(blank=True, null=True)
-
-    def __str__(self):
-        return self.pest
-
-
 class Fungus(models.Model):
     name = models.TextField(unique=True)
 
@@ -58,18 +46,48 @@ class Fungus(models.Model):
         return self.name
 
 
-class Fungicide(models.Model):
-    rose = models.ForeignKey(
-        "Rose", on_delete=models.CASCADE, related_name="fungicides"
-    )
-    fungicide = models.ForeignKey(
-        "Fungus", on_delete=models.CASCADE, related_name="fungi"
-    )
+class Pesticide(models.Model):
     name = models.CharField(max_length=255)
-    date_added = models.DateField(blank=True, null=True)
+    pests = models.ManyToManyField("Pest", related_name="pesticides")
+    roses = models.ManyToManyField(
+        "Rose", through="RosePesticide", related_name="pesticides"
+    )
 
     def __str__(self):
         return self.name
+
+
+class Fungicide(models.Model):
+    name = models.CharField(max_length=255)
+    fungi = models.ManyToManyField("Fungus", related_name="fungicides")
+    roses = models.ManyToManyField(
+        "Rose", through="RoseFungicide", related_name="fungicides"
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class RosePesticide(models.Model):
+    rose = models.ForeignKey(
+        "Rose", on_delete=models.CASCADE, related_name="rosepesticides"
+    )
+    pesticide = models.ForeignKey(Pesticide, on_delete=models.PROTECT)
+    date_added = models.DateField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ["rose", "pesticide"]
+
+
+class RoseFungicide(models.Model):
+    rose = models.ForeignKey(
+        "Rose", on_delete=models.CASCADE, related_name="rosefungicides"
+    )
+    fungicide = models.ForeignKey(Fungicide, on_delete=models.PROTECT)
+    date_added = models.DateField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ["rose", "fungicide"]
 
 
 class Size(models.Model):
@@ -124,12 +142,8 @@ class Rose(models.Model):
         max_digits=6, decimal_places=2, blank=True, null=True
     )
 
-    breeder = models.ForeignKey(
-        Breeder, on_delete=models.PROTECT, related_name="roses", blank=True, null=True
-    )
-    group = models.ForeignKey(
-        Group, on_delete=models.PROTECT, related_name="roses", blank=True, null=True
-    )
+    breeder = models.ForeignKey(Breeder, on_delete=models.PROTECT, related_name="roses")
+    group = models.ForeignKey(Group, on_delete=models.PROTECT, related_name="roses")
 
     def __str__(self):
         return self.title
