@@ -132,6 +132,10 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Strict",  # None for cross domain
+
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ROTATE_REFRESH_TOKENS": True,
 }
 
 REST_FRAMEWORK = {

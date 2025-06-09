@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.middleware.csrf import get_token
 from .serializers import (
     CustomTokenObtainPairSerializer,
@@ -104,17 +106,47 @@ class CustomTokenRefreshView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
-        response = Response({"detail": "Успешный выход из системы"})
-
-        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
-        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
-
-        response.delete_cookie(access_cookie_name, path="/")
-        response.delete_cookie(refresh_cookie_name, path="/")
-
-        return response
+        try:
+            refresh_token = request.COOKIES.get(
+                settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
+            )
+            
+            if refresh_token:
+                try:
+                    token = RefreshToken(refresh_token)
+                    token.blacklist()
+                except TokenError as e:
+                    raise Exception(f"Invalid refresh token: {e}")
+                except Exception as e:
+                    raise Exception(f"Error revoking token: {e}")
+            
+            response = Response({
+                "detail": "Успешный выход из системы",
+            })
+            
+            access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
+            refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
+            
+            response.delete_cookie(access_cookie_name, path="/")
+            response.delete_cookie(refresh_cookie_name, path="/")
+            response.delete_cookie("csrftoken", path="/")
+            
+            return response
+            
+        except Exception as e:
+            response = Response({
+                "detail": "Выход выполнен с ошибками",
+                "error": str(e)
+            })
+            
+            response.delete_cookie(settings.SIMPLE_JWT.get("AUTH_COOKIE"), path="/")
+            response.delete_cookie(settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH"), path="/")
+            response.delete_cookie("csrftoken", path="/")
+            
+            return response
 
 
 class UserView(APIView):
