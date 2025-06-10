@@ -4,15 +4,20 @@ rose management website
 
 ## functionality
 
-- jwt httponly authorization
-- add/remove roses 
-- track when you sprayed what pesticide/fungicide
+- jwt httponly authorization with csrf cookie
+- add/remove roses and related stuff (fungi, pests, groups etc.)
+- add a specific info for each rose (fungicides/pesticides, photos, videos etc.)
 - basic search/filter
-- doesn't lose your data
 
 ## tech stuff
 
-django api + react frontend. jwt auth with httponly cookies. sqlite by default but you can swap it.
+- django rest framework
+- react
+- tailwind css
+- docker + nginx + gunicorn
+- pytest
+
+django api + react frontend. jwt auth with httponly cookies. sqlite3 by default.
 
 tests managed with pytest
 
@@ -28,9 +33,10 @@ cd rosebud
 ```
 
 make a `.env` in `backrose/`:
+
 ```bash
 SECRET_KEY=your-fancy-secret-key
-DEBUG=False  
+DEBUG=False
 CORS_ALLOWED_ORIGINS=http://localhost:8000
 CSRF_TRUSTED_ORIGINS=http://localhost:8000
 ```
@@ -44,25 +50,32 @@ browse to localhost:8000
 ### manual install
 
 backend:
+
 ```bash
-cd backrose
-python -m venv venv
-source venv/bin/activate  # windows: venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+python -m venv .venv
+source venv/bin/activate
+pip install -r backrose/requirements.txt
 ```
 
+env file is the same
+
 frontend:
+
 ```bash
 cd frontend
 npm install && npm start
 ```
 
+env_file:
+
+```bash
+BUILD_PATH=../backrose/frontend/build
+```
+
 ## api
 
 ```bash
-POST /api/auth/login/     # login
+POST /api/auth/token/     # login
 POST /api/auth/logout/    # logout
 GET  /api/roses/          # list roses
 POST /api/roses/          # add rose
@@ -79,7 +92,7 @@ standard rest api. auth tokens in httponly cookies with csrf protection.
 cd backrose && pytest
 ```
 
-covers auth + api endpoints + basic validation. not 100% coverage but the important stuff works.
+covers auth + api endpoints + basic validation
 
 ## docker details
 
