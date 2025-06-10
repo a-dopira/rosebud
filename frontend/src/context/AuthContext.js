@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   const updateUserProfile = async (formData) => {
     try {
       setLoading(true);
-      const response = await api.patch('auth/profile/update/', formData, {
+      const response = await api.patch('auth/user/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

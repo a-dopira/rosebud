@@ -79,11 +79,11 @@ const Profile = memo(() => {
     handleCloseModal();
   };
 
-  const { username: profileUsername, profile } = user || {};
+  const profileUsername = user?.username || '';
 
-  const profileImage = profile?.image || '';
+  const profileImage = user?.image || '';
 
-  const profileHeader = profile?.app_header || '';
+  const profileHeader = user?.app_header || '';
 
   return (
     <>
