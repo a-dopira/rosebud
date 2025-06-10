@@ -5,21 +5,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 from userprofile.serializers import (
-    ProfileSerializer,
     UserSerializer,
     CustomTokenObtainPairSerializer,
     TokenRefreshSerializer,
     RegisterSerializer,
 )
-
-
-class TestProfileSerializer:
-    def test_profile_serializer_fields(self, test_user):
-        """test that profile serializer contains expected fields"""
-        profile = test_user.profile
-        serializer = ProfileSerializer(profile)
-
-        assert set(serializer.data.keys()) == {"app_header", "image"}
 
 
 class TestUserSerializer:

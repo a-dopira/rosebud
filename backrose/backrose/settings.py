@@ -13,7 +13,7 @@ load_dotenv(env_path)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "django_filters",
+    "drf_spectacular",
     "roses.apps.RosesConfig",
     "userprofile.apps.UserprofileConfig",
 ]
@@ -132,7 +133,6 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Strict",  # None for cross domain
-
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "ROTATE_REFRESH_TOKENS": True,
@@ -144,6 +144,14 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Rosebud API",
+    "DESCRIPTION": "API for managing roses and users",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 AUTH_USER_MODEL = "userprofile.User"

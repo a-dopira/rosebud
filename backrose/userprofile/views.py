@@ -1,21 +1,34 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.middleware.csrf import get_token
+from drf_spectacular.utils import extend_schema_view
+from .schemes import (
+    LOGIN_SCHEMA,
+    REFRESH_SCHEMA,
+    LOGOUT_SCHEMA,
+    REGISTER_SCHEMA,
+    USER_GET_SCHEMA,
+    USER_PATCH_SCHEMA,
+)
 from .serializers import (
     CustomTokenObtainPairSerializer,
     TokenRefreshSerializer,
     UserSerializer,
-    ProfileSerializer,
     RegisterSerializer,
 )
 
+User = get_user_model()
 
+
+@LOGIN_SCHEMA
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = CustomTokenObtainPairSerializer
@@ -72,8 +85,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return response
 
 
+@REFRESH_SCHEMA
 class CustomTokenRefreshView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = TokenRefreshSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = TokenRefreshSerializer(
@@ -104,16 +119,18 @@ class CustomTokenRefreshView(APIView):
         return response
 
 
+@LOGOUT_SCHEMA
 class LogoutView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+    serializer_class = None
 
     def post(self, request):
         try:
             refresh_token = request.COOKIES.get(
                 settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
             )
-            
+
             if refresh_token:
                 try:
                     token = RefreshToken(refresh_token)
@@ -122,63 +139,46 @@ class LogoutView(APIView):
                     raise Exception(f"Invalid refresh token: {e}")
                 except Exception as e:
                     raise Exception(f"Error revoking token: {e}")
-            
-            response = Response({
-                "detail": "Успешный выход из системы",
-            })
-            
+
+            response = Response(
+                {
+                    "detail": "Успешный выход из системы",
+                }
+            )
+
             access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
             refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
-            
+
             response.delete_cookie(access_cookie_name, path="/")
             response.delete_cookie(refresh_cookie_name, path="/")
             response.delete_cookie("csrftoken", path="/")
-            
+
             return response
-            
+
         except Exception as e:
-            response = Response({
-                "detail": "Выход выполнен с ошибками",
-                "error": str(e)
-            })
-            
+            response = Response(
+                {"detail": "Выход выполнен с ошибками", "error": str(e)}
+            )
+
             response.delete_cookie(settings.SIMPLE_JWT.get("AUTH_COOKIE"), path="/")
-            response.delete_cookie(settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH"), path="/")
+            response.delete_cookie(
+                settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH"), path="/"
+            )
             response.delete_cookie("csrftoken", path="/")
-            
+
             return response
 
 
-class UserView(APIView):
+@extend_schema_view(get=USER_GET_SCHEMA, patch=USER_PATCH_SCHEMA)
+class UserView(RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    http_method_names = ["get", "patch"]
 
-    def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
-
-
-class UpdateProfileView(APIView):
-
-    def patch(self, request):
-        user = request.user
-        profile = user.profile
-
-        profile_serializer = ProfileSerializer(profile, data=request.data, partial=True)
-        if profile_serializer.is_valid():
-            profile_serializer.save()
-            user_serializer = UserSerializer(user)
-            return Response(user_serializer.data)
-        return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_object(self):
+        return User.objects.select_related("profile").get(pk=self.request.user.pk)
 
 
-class RegisterView(APIView):
+@REGISTER_SCHEMA
+class RegisterView(CreateAPIView):
     permission_classes = [AllowAny]
-
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "User registered successfully. Please log in."},
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer_class = RegisterSerializer

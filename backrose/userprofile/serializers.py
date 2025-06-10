@@ -8,19 +8,36 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.exceptions import TokenError
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ["app_header", "image"]
-
-
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(read_only=True)
+
+    app_header = serializers.CharField(
+        required=False,
+        source="profile.app_header",
+        help_text="Заголовок приложения из профиля",
+    )
+    image = serializers.ImageField(
+        required=False,
+        source="profile.image",
+        help_text="Изображение профиля пользователя",
+    )
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "profile"]
-        read_only_fields = ["id"]
+        fields = ["id", "username", "email", "app_header", "image"]
+        read_only_fields = ["id", "email"]
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop("profile", {})
+
+        instance = super().update(instance, validated_data)
+
+        if profile_data:
+            profile = instance.profile
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+
+        return instance
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -88,13 +105,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        with transaction.atomic():
-            user = User.objects.create(
-                username=validated_data["username"], email=validated_data["email"]
-            )
-            user.set_password(validated_data["password"])
-            user.save()
+        validated_data.pop("password2")
 
-            Profile.objects.create(user=user)
+        user = User.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+        )
 
         return user

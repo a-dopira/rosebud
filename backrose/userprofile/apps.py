@@ -12,3 +12,5 @@ class UserprofileConfig(AppConfig):
             from django.core import management
 
             management.call_command("cleartokens")
+
+        from . import spectacular_extensions
