@@ -51,7 +51,7 @@ const DeleteNotificationModal = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 p-16 z-[100]">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 p-16 z-[9999]">
       <div className="relative w-1/2 bg-white p-8 rounded-lg space-2">
         <span
           className="absolute top-4 right-4 cursor-pointer text-red-500 text-3xl font-semibold hover:text-umbra"

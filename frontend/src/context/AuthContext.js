@@ -94,7 +94,6 @@ export const AuthProvider = ({ children }) => {
       }
       return false;
     } catch (error) {
-      console.error('Profile update error:', error);
       if (error.response && error.response.data) {
         setAuthError(error.response.data);
         showNotification('Ошибка обновления профиля. Проверьте введенные данные.');
@@ -111,11 +110,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      await api.post('auth/logout/');
+      await api.post('auth/logout/').then(() => {
+        showNotification('Вы успешно вышли из системы!');
+      });
       setUser(null);
       navigate('/login');
     } catch (error) {
-      console.error('Ошибка при запросе на logout:', error);
+      showNotification('Ошибка при запросе на logout:', error);
       setUser(null);
       navigate('/login');
     } finally {
@@ -155,7 +156,6 @@ export const AuthProvider = ({ children }) => {
       if (userData) {
         return true;
       }
-
       const refreshResult = await refreshToken();
       return refreshResult;
     } catch (error) {

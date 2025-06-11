@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -24,6 +25,7 @@ from .serializers import (
     UserSerializer,
     RegisterSerializer,
 )
+from .models import Profile
 
 User = get_user_model()
 
@@ -76,7 +78,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         response.set_cookie(
             "csrftoken",
-            request.COOKIES.get("csrftoken", get_token(request)),
+            request.META.get("CSRF_COOKIE", get_token(request)),
             secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
             samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
             path="/",
@@ -182,3 +184,13 @@ class UserView(RetrieveUpdateAPIView):
 class RegisterView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+
+    def perform_create(self, serializer):
+
+        with transaction.atomic():
+            user = serializer.save()
+
+            app_header = self.request.data.get("app_header", "Изменить название")
+            image = self.request.FILES.get("image")
+
+            Profile.objects.create(user=user, app_header=app_header, image=image)
