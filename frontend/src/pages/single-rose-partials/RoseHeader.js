@@ -229,7 +229,11 @@ function RoseHeader() {
             <label className="block w-full mb-1" htmlFor="breeder">
               Изменить селекционера
             </label>
-            <select className="form-input" name="breeder" defaultValue={rose.breeder}>
+            <select
+              className="form-input"
+              name="breeder"
+              defaultValue={rose.breeder.id}
+            >
               {breeders.map((breeder) => (
                 <option key={breeder.id} value={breeder.id}>
                   {breeder.name}

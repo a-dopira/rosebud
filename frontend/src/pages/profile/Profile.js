@@ -43,10 +43,10 @@ const Profile = memo(() => {
 
   const toggleCollapse = useCallback(() => {
     if (isAnimating) return;
-    
+
     setIsAnimating(true);
     setIsCollapsed(!isCollapsed);
-    
+
     setTimeout(() => setIsAnimating(false), 500);
   }, [isCollapsed, isAnimating]);
 
@@ -74,17 +74,20 @@ const Profile = memo(() => {
     }
   }, []);
 
-  const onSubmit = useCallback((data) => {
-    const formData = new FormData();
-    formData.append('username', data.username);
-    formData.append('app_header', data.app_header);
-    if (data.image && data.image.length > 0) {
-      formData.append('image', data.image[0]);
-    }
+  const onSubmit = useCallback(
+    (data) => {
+      const formData = new FormData();
+      formData.append('username', data.username);
+      formData.append('app_header', data.app_header);
+      if (data.image && data.image.length > 0) {
+        formData.append('image', data.image[0]);
+      }
 
-    updateUserProfile(formData);
-    handleCloseModal();
-  }, [updateUserProfile, handleCloseModal]);
+      updateUserProfile(formData);
+      handleCloseModal();
+    },
+    [updateUserProfile, handleCloseModal]
+  );
 
   const profileUsername = useMemo(() => user?.username || '', [user?.username]);
   const profileImage = useMemo(() => user?.image || '', [user?.image]);
@@ -152,122 +155,122 @@ const Profile = memo(() => {
                 ${isCollapsed ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}
               `}
             >
-            <div className="flex flex-wrap justify-center items-center sm:gap-20 gap-10 p-4 md:px-10 lg:px-20">
-              {/* userphoto */}
-              <div className="w-[300px] h-[300px] flex-shrink-0 rounded-full shadow-1xl overflow-hidden">
-                <img
-                  src={profileImage}
-                  alt={profileUsername}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+              <div className="flex flex-wrap justify-center items-center sm:gap-20 gap-10 p-4 md:px-10 lg:px-20">
+                {/* userphoto */}
+                <div className="w-[300px] h-[300px] flex-shrink-0 rounded-full shadow-1xl overflow-hidden">
+                  <img
+                    src={profileImage}
+                    alt={profileUsername}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
 
-              {/* profile */}
-              <div className="flex flex-col items-center min-w-[250px]">
-                <div className="w-[290px] min-h-[250px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4">
-                  <div className="text-center p-4 space-y-6">
-                    <div className="font-bold text-white text-xl md:text-3xl break-words">
-                      {profileUsername}
-                    </div>
-                    <div className="font-lemon-tuesday text-black text-base md:text-xl break-words">
-                      {user?.email}
+                {/* profile */}
+                <div className="flex flex-col items-center min-w-[250px]">
+                  <div className="w-[290px] min-h-[250px] shadow-1xl flex flex-col items-center justify-center rounded-large bg-amber-500 dotted-back p-4">
+                    <div className="text-center p-4 space-y-6">
+                      <div className="font-bold text-white text-xl md:text-3xl break-words">
+                        {profileUsername}
+                      </div>
+                      <div className="font-lemon-tuesday text-black text-base md:text-xl break-words">
+                        {user?.email}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <button
-                  onClick={handleEditClick}
-                  className="w-full max-w-[290px] btn-amber transition-transform transform px-4 py-2 
+                  <button
+                    onClick={handleEditClick}
+                    className="w-full max-w-[290px] btn-amber transition-transform transform px-4 py-2 
                           text-base md:text-xl h-10 mt-4 flex items-center justify-center
                           hover:scale-105 active:scale-95"
-                >
-                  Редактировать профиль
-                </button>
+                  >
+                    Редактировать профиль
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* modal window */}
-        {isEditing && (
-          <div
-            ref={modalRef}
-            onClick={handleCloseModal}
-            className="fixed inset-0 flex items-center justify-center bg-black/50 z-[60] animate-fade-in"
-          >
+          {/* modal window */}
+          {isEditing && (
             <div
-              ref={modalContentRef}
-              onClick={(e) => e.stopPropagation()}
-              className="relative bg-white rounded-lg p-6 max-w-[90%] md:max-w-[400px] shadow-3xl-rounded animate-fade-in
-                        will-change-transform"
+              ref={modalRef}
+              onClick={handleCloseModal}
+              className="fixed inset-0 flex items-center justify-center bg-black/50 z-[60] animate-fade-in"
             >
-              <button
-                onClick={handleCloseModal}
-                className="absolute top-3 right-3 w-8 h-8 p-1 rounded-full bg-white/20 hover:bg-white/30
-                          transition-colors duration-200 flex items-center justify-center"
-                aria-label="close-modal"
+              <div
+                ref={modalContentRef}
+                onClick={(e) => e.stopPropagation()}
+                className="relative bg-white rounded-lg p-6 max-w-[90%] md:max-w-[400px] shadow-3xl-rounded animate-fade-in
+                        will-change-transform"
               >
-                <div className="relative w-8 h-8 rounded-full bg-white hover:bg-white/70 transition-colors duration-200 flex items-center justify-center group">
-                  <span className="absolute w-4 h-0.5 bg-black transform rotate-45 transition-colors duration-200 group-hover:bg-red-600" />
-                  <span className="absolute w-4 h-0.5 bg-black transform -rotate-45 transition-colors duration-200 group-hover:bg-red-600" />
-                </div>
-              </button>
-
-              {/* form for editing */}
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="flex flex-col space-y-4"
-              >
-                <label htmlFor="username" className="form-label">
-                  ИЗМЕНИТЬ ИМЯ
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  defaultValue={profileUsername}
-                  {...register('username')}
-                  className="w-full text-sm rounded-md p-2 border border-gray-300"
-                />
-                <p className="text-red-600 text-sm">{errors.username?.message}</p>
-
-                <label htmlFor="app_header" className="form-label">
-                  ИЗМЕНИТЬ НАЗВАНИЕ
-                </label>
-                <input
-                  type="text"
-                  id="app_header"
-                  defaultValue={profileHeader}
-                  {...register('app_header')}
-                  className="w-full text-sm rounded-md p-2 border border-gray-300"
-                />
-                <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
-
-                <label htmlFor="image" className="form-label">
-                  ЗАГРУЗИТЬ ФОТО
-                </label>
-                <input
-                  type="file"
-                  id="image"
-                  {...register('image')}
-                  className="w-full bg-rose-500 text-white border border-gray-300 
-                            rounded-md p-2 cursor-pointer"
-                />
-                <p className="text-red-600 text-sm">{errors.image?.message}</p>
-
                 <button
-                  type="submit"
-                  name="change_user_profile"
-                  className="w-full btn-red text-sm h-8"
+                  onClick={handleCloseModal}
+                  className="absolute top-3 right-3 w-8 h-8 p-1 rounded-full bg-white/20 hover:bg-white/30
+                          transition-colors duration-200 flex items-center justify-center"
+                  aria-label="close-modal"
                 >
-                  Применить изменения
+                  <div className="relative w-8 h-8 rounded-full bg-white hover:bg-white/70 transition-colors duration-200 flex items-center justify-center group">
+                    <span className="absolute w-4 h-0.5 bg-black transform rotate-45 transition-colors duration-200 group-hover:bg-red-600" />
+                    <span className="absolute w-4 h-0.5 bg-black transform -rotate-45 transition-colors duration-200 group-hover:bg-red-600" />
+                  </div>
                 </button>
-              </form>
+
+                {/* form for editing */}
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="flex flex-col space-y-4"
+                >
+                  <label htmlFor="username" className="form-label">
+                    ИЗМЕНИТЬ ИМЯ
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    defaultValue={profileUsername}
+                    {...register('username')}
+                    className="w-full text-sm rounded-md p-2 border border-gray-300"
+                  />
+                  <p className="text-red-600 text-sm">{errors.username?.message}</p>
+
+                  <label htmlFor="app_header" className="form-label">
+                    ИЗМЕНИТЬ НАЗВАНИЕ
+                  </label>
+                  <input
+                    type="text"
+                    id="app_header"
+                    defaultValue={profileHeader}
+                    {...register('app_header')}
+                    className="w-full text-sm rounded-md p-2 border border-gray-300"
+                  />
+                  <p className="text-red-600 text-sm">{errors.app_header?.message}</p>
+
+                  <label htmlFor="image" className="form-label">
+                    ЗАГРУЗИТЬ ФОТО
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    {...register('image')}
+                    className="w-full bg-rose-500 text-white border border-gray-300 
+                            rounded-md p-2 cursor-pointer"
+                  />
+                  <p className="text-red-600 text-sm">{errors.image?.message}</p>
+
+                  <button
+                    type="submit"
+                    name="change_user_profile"
+                    className="w-full btn-red text-sm h-8"
+                  >
+                    Применить изменения
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 });

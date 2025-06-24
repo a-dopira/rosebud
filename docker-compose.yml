@@ -1,18 +1,16 @@
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - REACT_APP_API_URL=/api/
+    build: ./frontend
+    environment:
+      - REACT_APP_API_URL=/api/
     volumes:
       - build_volume:/app/build
     restart: "no"
 
   backend:
     build:
-      context: ./backrose
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./backrose/Dockerfile
     restart: always
     volumes:
       - ./backrose/media:/app/media
@@ -25,9 +23,7 @@ services:
       - frontend
 
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    build: ./nginx
     ports:
       - "8000:80"
     volumes:

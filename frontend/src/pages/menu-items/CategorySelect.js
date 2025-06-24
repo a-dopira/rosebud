@@ -23,15 +23,16 @@ function CategorySelect() {
 
     const buttonRect = buttonRef.current.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
-    
-    const dropdownHeight = Math.min(groups.length, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT + BORDER_AND_PADDING;
-    
+
+    const dropdownHeight =
+      Math.min(groups.length, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT + BORDER_AND_PADDING;
+
     const spaceBelow = viewportHeight - buttonRect.bottom - DROPDOWN_OFFSET;
     const spaceAbove = buttonRect.top - DROPDOWN_OFFSET;
-    
+
     let direction = 'down';
     let top = buttonRect.bottom + DROPDOWN_OFFSET;
-    
+
     if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
       direction = 'up';
       top = buttonRect.top - DROPDOWN_OFFSET - dropdownHeight;
@@ -42,9 +43,10 @@ function CategorySelect() {
       left: buttonRect.left,
       width: buttonRect.width,
       direction,
-      maxHeight: direction === 'up' ? 
-        Math.min(dropdownHeight, spaceAbove) : 
-        Math.min(dropdownHeight, spaceBelow)
+      maxHeight:
+        direction === 'up'
+          ? Math.min(dropdownHeight, spaceAbove)
+          : Math.min(dropdownHeight, spaceBelow),
     };
   }, [groups.length]);
 
@@ -55,7 +57,7 @@ function CategorySelect() {
 
       const translateY = newPosition.top - initialPosition.top;
       const translateX = newPosition.left - initialPosition.left;
-      
+
       dropdownRef.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
     }
   }, [isOpen, initialPosition, calculateDropdownPosition]);
@@ -64,30 +66,36 @@ function CategorySelect() {
     if (animationFrameRef.current) {
       return;
     }
-    
+
     animationFrameRef.current = requestAnimationFrame(() => {
       updateDropdownPosition();
       animationFrameRef.current = null;
     });
   }, [updateDropdownPosition]);
 
-  const handleClickOutside = useCallback((event) => {
-    if (
-      isOpen &&
-      buttonRef.current &&
-      dropdownRef.current &&
-      !buttonRef.current.contains(event.target) &&
-      !dropdownRef.current.contains(event.target)
-    ) {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
+  const handleClickOutside = useCallback(
+    (event) => {
+      if (
+        isOpen &&
+        buttonRef.current &&
+        dropdownRef.current &&
+        !buttonRef.current.contains(event.target) &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    },
+    [isOpen]
+  );
 
-  const handleEscape = useCallback((event) => {
-    if (isOpen && event.key === 'Escape') {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
+  const handleEscape = useCallback(
+    (event) => {
+      if (isOpen && event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    },
+    [isOpen]
+  );
 
   const handleOpen = () => {
     if (!isOpen && buttonRef.current) {
@@ -96,7 +104,7 @@ function CategorySelect() {
         setInitialPosition({
           top: position.top,
           left: position.left,
-          width: position.width
+          width: position.width,
         });
         setDropdownDirection(position.direction);
       }
@@ -107,7 +115,7 @@ function CategorySelect() {
   useEffect(() => {
     if (isOpen) {
       updateDropdownPosition();
-      
+
       window.addEventListener('scroll', handlePositionUpdate, { passive: true });
       window.addEventListener('resize', handlePositionUpdate, { passive: true });
       document.addEventListener('mousedown', handleClickOutside);
@@ -125,7 +133,8 @@ function CategorySelect() {
     };
   }, [isOpen, handlePositionUpdate, handleClickOutside, handleEscape]);
 
-  const maxHeight = Math.min(groups.length, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT + BORDER_AND_PADDING;
+  const maxHeight =
+    Math.min(groups.length, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT + BORDER_AND_PADDING;
   const needsScroll = groups.length > MAX_VISIBLE_ITEMS;
 
   const dropdownStyle = {
@@ -149,11 +158,12 @@ function CategorySelect() {
                         bg-white shadow-sm gap-2.5"
           >
             Категории
-            <Arrow 
-              direction={isOpen && dropdownDirection === 'up' ? 
-                "15 10 9 16 15 22" :
-                "8 14 14 22 20 14"  
-              } 
+            <Arrow
+              direction={
+                isOpen && dropdownDirection === 'up'
+                  ? '15 10 9 16 15 22'
+                  : '8 14 14 22 20 14'
+              }
             />
           </div>
         </div>
@@ -161,8 +171,8 @@ function CategorySelect() {
 
       {isOpen &&
         createPortal(
-          <div 
-            ref={dropdownRef} 
+          <div
+            ref={dropdownRef}
             style={dropdownStyle}
             className="z-[60] will-change-transform transition-transform duration-0"
           >
@@ -183,26 +193,31 @@ function CategorySelect() {
                     to={`/home/group/${group.name}/`}
                     onClick={() => setIsOpen(false)}
                   >
-                    <div 
+                    <div
                       className="cursor-pointer hover:bg-gray-300 p-3 h-full flex items-center
                                  transition-colors duration-150 text-sm"
                     >
                       <span className="truncate">
-                        {group.name} <span className="text-gray-500">({group.rose_count})</span>
+                        {group.name}{' '}
+                        <span className="text-gray-500">({group.rose_count})</span>
                       </span>
                     </div>
                   </Link>
                 </li>
               ))}
             </ul>
-            
+
             {/* scroll indicators */}
             {needsScroll && (
               <>
-                <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b 
-                               from-white to-transparent pointer-events-none rounded-t" />
-                <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t 
-                               from-white to-transparent pointer-events-none rounded-b" />
+                <div
+                  className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b 
+                               from-white to-transparent pointer-events-none rounded-t"
+                />
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t 
+                               from-white to-transparent pointer-events-none rounded-b"
+                />
               </>
             )}
           </div>,
