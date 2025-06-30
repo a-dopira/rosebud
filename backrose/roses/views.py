@@ -1,5 +1,4 @@
 from common import DynamicViewSet, dynamic_serializer
-from django.db import IntegrityError
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets

@@ -185,12 +185,3 @@ class RegisterView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
-    def perform_create(self, serializer):
-
-        with transaction.atomic():
-            user = serializer.save()
-
-            app_header = self.request.data.get("app_header", "Изменить название")
-            image = self.request.FILES.get("image")
-
-            Profile.objects.create(user=user, app_header=app_header, image=image)

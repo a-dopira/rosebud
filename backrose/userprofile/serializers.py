@@ -1,5 +1,4 @@
-from userprofile.models import User, Profile
-from django.db import transaction
+from userprofile.models import User
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -107,10 +106,4 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password2")
 
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-        )
-
-        return user
+        return User.objects.create_with_profile(**validated_data)
