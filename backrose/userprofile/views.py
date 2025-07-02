@@ -184,4 +184,3 @@ class UserView(RetrieveUpdateAPIView):
 class RegisterView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
-

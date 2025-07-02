@@ -11,19 +11,17 @@ class User(AbstractUser):
 
     @classmethod
     @transaction.atomic
-    def create_with_profile(cls, email, username, password, app_header=None, image=None):
+    def create_with_profile(
+        cls, email, username, password, app_header=None, image=None, **kwargs
+    ):
         user = cls.objects.create_user(
-            email=email,
-            username=username,
-            password=password
+            email=email, username=username, password=password
         )
-        
+
         Profile.objects.create(
-            user=user,
-            app_header=app_header or "Изменить название",
-            image=image
+            user=user, app_header=app_header or "Изменить название", image=image
         )
-        
+
         return user
 
     def __str__(self):

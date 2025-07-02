@@ -100,10 +100,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password": "Пароли не совпадают"})
-
         return attrs
 
     def create(self, validated_data):
         validated_data.pop("password2")
 
-        return User.objects.create_with_profile(**validated_data)
+        email = validated_data.get("email")
+        username = validated_data.get("username")
+        password = validated_data.get("password")
+
+        return User.create_with_profile(
+            email=email, username=username, password=password
+        )
