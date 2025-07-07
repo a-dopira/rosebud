@@ -274,5 +274,4 @@ const Profile = memo(() => {
     </>
   );
 });
-
 export default Profile;
