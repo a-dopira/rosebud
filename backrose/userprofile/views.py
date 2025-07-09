@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import transaction
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +8,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from django.middleware.csrf import get_token
 from drf_spectacular.utils import extend_schema_view
 from .schemes import (
     LOGIN_SCHEMA,
@@ -25,7 +23,6 @@ from .serializers import (
     UserSerializer,
     RegisterSerializer,
 )
-from .models import Profile
 
 User = get_user_model()
 
@@ -74,14 +71,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY"),
             samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
             path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH"),
-        )
-
-        response.set_cookie(
-            "csrftoken",
-            request.META.get("CSRF_COOKIE", get_token(request)),
-            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
-            path="/",
         )
 
         return response
@@ -153,7 +142,6 @@ class LogoutView(APIView):
 
             response.delete_cookie(access_cookie_name, path="/")
             response.delete_cookie(refresh_cookie_name, path="/")
-            response.delete_cookie("csrftoken", path="/")
 
             return response
 
@@ -166,7 +154,6 @@ class LogoutView(APIView):
             response.delete_cookie(
                 settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH"), path="/"
             )
-            response.delete_cookie("csrftoken", path="/")
 
             return response
 
