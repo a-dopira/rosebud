@@ -1,8 +1,24 @@
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
+from django.apps import apps
 from django.db.models import ProtectedError
+from django.shortcuts import get_object_or_404
 
 from .utils import dynamic_serializer
+
+
+class NestedViewSet(viewsets.ModelViewSet):
+    def get_rose(self):
+        Rose = apps.get_model("roses", "Rose")
+        return get_object_or_404(Rose, pk=self.kwargs["rose_pk"])
+
+    def get_queryset(self):
+        rose = self.get_rose()
+        return self.queryset.filter(rose=rose)
+
+    def perform_create(self, serializer):
+        rose = self.get_rose()
+        serializer.save(rose=rose)
 
 
 class DynamicViewSet(viewsets.ModelViewSet):

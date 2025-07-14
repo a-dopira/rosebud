@@ -22,7 +22,7 @@ const RosePhoto = () => {
       </Helmet>
       <GenericModule
         title="Фотографии"
-        apiEndpoint="rosephotos"
+        apiEndpoint="photos"
         fields={fields}
         validationSchema={validationSchema}
         productType="фото"

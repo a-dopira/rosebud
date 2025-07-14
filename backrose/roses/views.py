@@ -1,4 +1,4 @@
-from common import DynamicViewSet, dynamic_serializer
+from common import DynamicViewSet, NestedViewSet, dynamic_serializer
 from django.db.models import Count, ProtectedError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -143,39 +143,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             )
 
 
-class SizeViewSet(viewsets.ModelViewSet):
-    queryset = Size.objects.all()
-    serializer_class = SizeSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = {"id": instance.id, "name": "размеры"}
-        self.perform_destroy(instance)
-        return Response(data, status=status.HTTP_200_OK)
-
-
-class FeedingViewSet(viewsets.ModelViewSet):
-    queryset = Feeding.objects.all()
-    serializer_class = FeedingSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = {"id": instance.id, "name": instance.basal}
-        self.perform_destroy(instance)
-        return Response(data, status=status.HTTP_200_OK)
-
-
-class FoliageViewSet(viewsets.ModelViewSet):
-    queryset = Foliage.objects.all()
-    serializer_class = FoliageSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = {"id": instance.id, "name": instance.foliage}
-        self.perform_destroy(instance)
-        return Response(data, status=status.HTTP_200_OK)
-
-
 class PesticideViewSet(viewsets.ModelViewSet):
     queryset = Pesticide.objects.all()
     serializer_class = PesticideSerializer
@@ -258,14 +225,61 @@ class FungicideViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class RosePesticideViewSet(viewsets.ModelViewSet):
+class SizeViewSet(NestedViewSet):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {"id": instance.id, "name": "размеры"}
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class FeedingViewSet(NestedViewSet):
+    queryset = Feeding.objects.all()
+    serializer_class = FeedingSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {"id": instance.id, "name": instance.basal}
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class FoliageViewSet(NestedViewSet):
+    queryset = Foliage.objects.all()
+    serializer_class = FoliageSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {"id": instance.id, "name": instance.foliage}
+        self.perform_destroy(instance)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class RosePesticideViewSet(NestedViewSet):
     queryset = RosePesticide.objects.all()
     serializer_class = RosePesticideSerializer
 
 
-class RoseFungicideViewSet(viewsets.ModelViewSet):
+class RoseFungicideViewSet(NestedViewSet):
     queryset = RoseFungicide.objects.all()
     serializer_class = RoseFungicideSerializer
+
+
+class RosePhotoViewSet(NestedViewSet):
+    queryset = RosePhoto.objects.all()
+
+    def get_serializer_class(self):
+        return dynamic_serializer(RosePhoto)
+
+
+class VideoViewSet(NestedViewSet):
+    queryset = Video.objects.all()
+
+    def get_serializer_class(self):
+        return dynamic_serializer(Video)
 
 
 class FungusViewSet(DynamicViewSet):
@@ -276,14 +290,6 @@ class FungusViewSet(DynamicViewSet):
 class PestViewSet(DynamicViewSet):
     model = Pest
     entity_name = "Вредитель"
-
-
-class RosePhotoViewSet(DynamicViewSet):
-    model = RosePhoto
-
-
-class VideoViewSet(DynamicViewSet):
-    model = Video
 
 
 class BreederViewSet(DynamicViewSet):

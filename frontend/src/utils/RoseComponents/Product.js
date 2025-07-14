@@ -15,7 +15,7 @@ export const GenericProduct = ({
   customProductDisplay,
 }) => {
   const { api } = useAxios();
-  const { setRose } = useContext(RoseContext);
+  const { rose, setRose } = useContext(RoseContext);
   const { showNotification } = useNotification();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -26,10 +26,10 @@ export const GenericProduct = ({
 
   const handleSubmit = async (updatedProduct) => {
     try {
-      const response = await api.patch(
-        `/${apiEndpoint}/${product.id}/`,
-        updatedProduct
-      );
+      // Используем nested URL
+      const url = `/roses/${rose.id}/${apiEndpoint}/${product.id}/`;
+
+      const response = await api.patch(url, updatedProduct);
       toggleEditModal();
 
       setRose((prevRose) => {
@@ -46,7 +46,10 @@ export const GenericProduct = ({
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/${apiEndpoint}/${product.id}/`);
+      // Используем nested URL
+      const url = `/roses/${rose.id}/${apiEndpoint}/${product.id}/`;
+
+      await api.delete(url);
       toggleDeleteModal();
 
       setRose((prevRose) => ({

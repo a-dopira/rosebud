@@ -98,39 +98,45 @@ class FungicideSerializer(serializers.ModelSerializer):
 
 class RosePesticideSerializer(serializers.ModelSerializer):
     pesticide = PesticideSerializer(read_only=True)
+    pesticide_id = serializers.PrimaryKeyRelatedField(
+        source="pesticide", queryset=Pesticide.objects.all(), write_only=True
+    )
 
     class Meta:
         model = RosePesticide
-        fields = ["id", "rose", "pesticide", "date_added"]
+        fields = ["id", "pesticide", "pesticide_id", "date_added"]
 
 
 class RoseFungicideSerializer(serializers.ModelSerializer):
     fungicide = FungicideSerializer(read_only=True)
+    fungicide_id = serializers.PrimaryKeyRelatedField(
+        source="fungicide", queryset=Fungicide.objects.all(), write_only=True
+    )
 
     class Meta:
         model = RoseFungicide
-        fields = ["id", "rose", "fungicide", "date_added"]
+        fields = ["id", "fungicide", "fungicide_id", "date_added"]
 
 
 class FeedingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feeding
-        fields = "__all__"
+        fields = ["id", "basal", "basal_time", "leaf", "leaf_time"]
 
 
 class FoliageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Foliage
-        fields = "__all__"
+        fields = ["id", "foliage", "foliage_time"]
 
 
 class SizeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Size
-        fields = ["id", "rose", "height", "width", "date_added"]
+        fields = ["id", "height", "width", "date_added"]
         read_only_fields = ["id"]
 
 
@@ -159,11 +165,12 @@ class RoseSerializer(serializers.ModelSerializer):
     breeder = dynamic_serializer(Breeder, exclude=["slug"])(read_only=True)
     group = dynamic_serializer(Group, exclude=["slug"])(read_only=True)
 
-    rosepesticides = RosePesticideSerializer(many=True, read_only=True)
-    rosefungicides = RoseFungicideSerializer(many=True, read_only=True)
+    pesticides = RosePesticideSerializer(many=True, read_only=True, source='rosepesticides')
+    fungicides = RoseFungicideSerializer(many=True, read_only=True, source='rosefungicides') 
+    photos = dynamic_serializer(RosePhoto)(many=True, read_only=True, source='rosephotos')
+    
     feedings = dynamic_serializer(Feeding)(many=True, read_only=True)
     foliages = dynamic_serializer(Foliage)(many=True, read_only=True)
-    rosephotos = dynamic_serializer(RosePhoto)(many=True, read_only=True)
     sizes = dynamic_serializer(Size)(many=True, read_only=True)
     videos = dynamic_serializer(Video)(many=True, read_only=True)
 
@@ -173,7 +180,7 @@ class RoseSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "title_eng",
-            "group",
+            "group", 
             "breeder",
             "photo",
             "description",
@@ -183,11 +190,11 @@ class RoseSerializer(serializers.ModelSerializer):
             "const_width",
             "const_height",
             "feedings",
-            "foliages",
+            "foliages", 
             "sizes",
-            "rosepesticides",
-            "rosefungicides",
-            "rosephotos",
+            "pesticides",
+            "fungicides",
+            "photos",
             "videos",
         ]
 

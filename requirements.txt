@@ -5,8 +5,9 @@ click==8.1.8
 Django==5.0.1
 django-cors-headers==4.3.1
 django-filter==25.1
-djangorestframework==3.14.0
+djangorestframework==3.16.0
 djangorestframework-simplejwt==5.3.1
+drf-nested-routers==0.94.2
 drf-spectacular==0.28.0
 exceptiongroup==1.2.2
 flake8==7.1.2

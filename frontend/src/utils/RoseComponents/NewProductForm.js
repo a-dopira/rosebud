@@ -1,4 +1,5 @@
-import { useParams } from 'react-router-dom';
+import { useContext } from 'react';
+import RoseContext from '../../context/RoseContext';
 import { useFormik } from 'formik';
 import useAxios from '../../hooks/useAxios';
 import { useNotification } from '../../context/NotificationContext';
@@ -12,7 +13,7 @@ export const GenericNewProductForm = ({
   useFormData = false,
 }) => {
   const { api } = useAxios();
-  const { roseId } = useParams();
+  const { rose } = useContext(RoseContext);
   const { showNotification } = useNotification();
 
   const initialValues = {};
@@ -25,17 +26,16 @@ export const GenericNewProductForm = ({
     validationSchema,
     onSubmit: async (values) => {
       try {
+        const url = `/roses/${rose.id}/${apiEndpoint}/`;
+        
         let data;
         let config = {};
 
         if (useFormData) {
           const formData = new FormData();
-          formData.append('rose', roseId);
-
           Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
           });
-
           data = formData;
           config = {
             headers: {
@@ -43,13 +43,10 @@ export const GenericNewProductForm = ({
             },
           };
         } else {
-          data = {
-            rose: roseId,
-            ...values,
-          };
+          data = values;
         }
 
-        const response = await api.post(`/${apiEndpoint}/`, data, config);
+        const response = await api.post(url, data, config);
 
         setRose((prevState) => ({
           ...prevState,

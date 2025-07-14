@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from .views import (
     GroupViewSet,
     RoseViewSet,
@@ -26,13 +27,18 @@ router.register(r"pests", PestViewSet, basename="pest")
 router.register(r"fungi", FungusViewSet, basename="fungus")
 router.register(r"pesticides", PesticideViewSet)
 router.register(r"fungicides", FungicideViewSet)
-router.register(r"rosepesticides", RosePesticideViewSet)
-router.register(r"rosefungicides", RoseFungicideViewSet)
-router.register(r"sizes", SizeViewSet, basename="size")
-router.register(r"feedings", FeedingViewSet, basename="feeding")
-router.register(r"rosephotos", RosePhotoViewSet, basename="rosephoto")
-router.register(r"videos", VideoViewSet, basename="video")
-router.register(r"foliages", FoliageViewSet, basename="foliage")
 router.register(r"adjustment", AdjustmentViewSet, basename="adjustment")
 
-urlpatterns = router.urls
+roses_router = routers.NestedDefaultRouter(router, r"roses", lookup="rose")
+roses_router.register(r"sizes", SizeViewSet, basename="rose-sizes")
+roses_router.register(r"feedings", FeedingViewSet, basename="rose-feedings")
+roses_router.register(r"foliages", FoliageViewSet, basename="rose-foliages")
+roses_router.register(r"photos", RosePhotoViewSet, basename="rose-photos")
+roses_router.register(r"videos", VideoViewSet, basename="rose-videos")
+roses_router.register(r"pesticides", RosePesticideViewSet, basename="rose-pesticides")
+roses_router.register(r"fungicides", RoseFungicideViewSet, basename="rose-fungicides")
+
+urlpatterns = [
+    path("", include(router.urls)),
+    path("", include(roses_router.urls)),
+]
