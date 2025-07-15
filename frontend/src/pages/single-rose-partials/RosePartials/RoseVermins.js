@@ -41,7 +41,7 @@ const Pesticides = () => {
       {product.pesticide?.pests && product.pesticide.pests.length > 0 && (
         <div>
           <span className="label-partials">От вредителей: </span>
-          {product.pesticide.pests.map(pest => pest.name).join(', ')}
+          {product.pesticide.pests.map((pest) => pest.name).join(', ')}
         </div>
       )}
     </div>
@@ -97,7 +97,7 @@ const Fungicides = () => {
       {product.fungicide?.fungi && product.fungicide.fungi.length > 0 && (
         <div>
           <span className="label-partials">От грибков: </span>
-          {product.fungicide.fungi.map(fungus => fungus.name).join(', ')}
+          {product.fungicide.fungi.map((fungus) => fungus.name).join(', ')}
         </div>
       )}
     </div>

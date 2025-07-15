@@ -10,7 +10,7 @@ import {
   RoseCard,
   SortDropdown,
 } from '../../utils/RoseGridComponents/RoseGridComponents';
-import DeleteNotificationModal from '../../utils/DeleteNotificationModal';
+import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 
 const RoseGrid = memo(function RoseGrid() {
   const [deleteModal, setDeleteModal] = useState({
@@ -150,13 +150,40 @@ const RoseGrid = memo(function RoseGrid() {
       )}
 
       {deleteModal.isOpen && (
-        <DeleteNotificationModal
-          itemId={deleteModal.selectedRose.id}
-          itemType={deleteModal.selectedRose.name}
-          apiEndpoint="roses"
-          setShowModal={(isOpen) => setDeleteModal((prev) => ({ ...prev, isOpen }))}
-          onDelete={handleRoseDeletion}
-        />
+        <GenericModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
+          title="Подтверждение удаления"
+          roseName={deleteModal.selectedRose?.name || 'Роза'}
+        >
+          <div className="text-center">
+            <p className="mb-6 text-gray-700">
+              Вы уверены, что хотите удалить{' '}
+              {deleteModal.selectedRose?.name || 'эту розу'}?
+            </p>
+
+            {deleteModal.error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {deleteModal.error}
+              </div>
+            )}
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleRoseDeletion}
+                className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Да, удалить
+              </button>
+              <button
+                onClick={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
+                className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+              >
+                Нет, отмена
+              </button>
+            </div>
+          </div>
+        </GenericModal>
       )}
     </div>
   );

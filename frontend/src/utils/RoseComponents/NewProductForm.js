@@ -27,7 +27,7 @@ export const GenericNewProductForm = ({
     onSubmit: async (values) => {
       try {
         const url = `/roses/${rose.id}/${apiEndpoint}/`;
-        
+
         let data;
         let config = {};
 
