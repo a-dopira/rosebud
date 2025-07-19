@@ -26,7 +26,6 @@ export const GenericProduct = ({
 
   const handleSubmit = async (updatedProduct) => {
     try {
-      // Используем nested URL
       const url = `/roses/${rose.id}/${apiEndpoint}/${product.id}/`;
 
       const response = await api.patch(url, updatedProduct);
@@ -46,7 +45,6 @@ export const GenericProduct = ({
 
   const handleDelete = async () => {
     try {
-      // Используем nested URL
       const url = `/roses/${rose.id}/${apiEndpoint}/${product.id}/`;
 
       await api.delete(url);

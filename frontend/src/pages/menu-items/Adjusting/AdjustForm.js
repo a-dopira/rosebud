@@ -1,5 +1,5 @@
 import { memo, useState, useCallback } from 'react';
-import useCollection from '../../../hooks/useCollections';
+import useCollection from '../../../hooks/useCollection';
 import { useNotification } from '../../../context/NotificationContext';
 import Dropdown from '../../../utils/DropdownField';
 import RelatedItemsModal from './RelatedModal';
@@ -20,6 +20,7 @@ const AdjustForm = memo(
 
       await collection.create({ name: value.name.trim() });
       setValue({ id: '', name: '' });
+
     }, [value, collection, setValue]);
 
     const handleDelete = useCallback(async () => {
@@ -46,8 +47,8 @@ const AdjustForm = memo(
     const handleRemoveRelated = useCallback(
       async (relatedItemId) => {
         if (!value?.id) return;
-
         await collection.removeRelationship(value.id, [relatedItemId], relationType);
+
       },
       [value, collection, relationType]
     );

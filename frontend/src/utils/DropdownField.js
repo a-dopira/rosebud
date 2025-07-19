@@ -2,7 +2,6 @@ import {
   useState,
   useRef,
   useEffect,
-  useLayoutEffect,
   useCallback,
   useMemo,
   memo,
@@ -14,15 +13,10 @@ const Dropdown = memo(
     onChange,
     options,
     placeholder = '',
-    maxVisibleItems = 5,
     className = '',
-    inputClassName = '',
-    dropdownClassName = '',
-    itemClassName = '',
   }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [inputValue, setInputValue] = useState(value?.name || '');
-    const [dropdownPosition, setDropdownPosition] = useState('bottom');
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -36,19 +30,6 @@ const Dropdown = memo(
           item.name.toLowerCase().includes((inputValue || '').toLowerCase())
       );
     }, [options, inputValue]);
-
-    const calculateDropdownPosition = useCallback(() => {
-      if (isOpen && inputRef.current && dropdownRef.current) {
-        const inputRect = inputRef.current.getBoundingClientRect();
-        const dropdownHeight = Math.min(
-          filteredOptions.length * 41,
-          maxVisibleItems * 41
-        );
-
-        const bottomSpace = window.innerHeight - inputRect.bottom - 30;
-        setDropdownPosition(bottomSpace < dropdownHeight ? 'top' : 'bottom');
-      }
-    }, [isOpen, filteredOptions.length, maxVisibleItems]);
 
     useEffect(() => {
       if (!isOpen) return;
@@ -70,17 +51,6 @@ const Dropdown = memo(
         setInputValue(value?.name || '');
       }
     }, [value?.name, inputValue]);
-
-    useLayoutEffect(() => {
-      if (isOpen) {
-        calculateDropdownPosition();
-
-        window.addEventListener('resize', calculateDropdownPosition);
-        return () => {
-          window.removeEventListener('resize', calculateDropdownPosition);
-        };
-      }
-    }, [isOpen, calculateDropdownPosition]);
 
     const handleInputChange = useCallback(
       (e) => {
@@ -112,59 +82,33 @@ const Dropdown = memo(
       [onChange]
     );
 
-    const renderDropdownItems = useMemo(() => {
-      if (!isOpen || filteredOptions.length === 0) return null;
-
-      return (
-        <div
-          className={`absolute z-[60] w-full ${
-            dropdownPosition === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
-          } ${dropdownClassName}`}
-        >
-          <ul
-            className="rounded border-[1px] border-gray-300 bg-white shadow-md w-full"
-            style={{
-              maxHeight:
-                filteredOptions.length > maxVisibleItems
-                  ? `${maxVisibleItems * 41}px`
-                  : 'auto',
-              overflowY: filteredOptions.length > maxVisibleItems ? 'auto' : 'visible',
-            }}
-          >
-            {filteredOptions.map((item) => (
-              <li
-                key={item.id}
-                className={`drop-menu-item w-full hover:bg-gray-100 touch-auto ${itemClassName}`}
-                onClick={() => handleItemSelect(item)}
-              >
-                <div className="cursor-pointer hover:bg-gray-300 p-3">{item.name}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }, [
-      isOpen,
-      filteredOptions,
-      dropdownPosition,
-      maxVisibleItems,
-      dropdownClassName,
-      itemClassName,
-      handleItemSelect,
-    ]);
-
     return (
       <div className={`relative ${className}`} ref={dropdownRef}>
         <input
           ref={inputRef}
-          className={`form-input ${inputClassName}`}
+          className="form-input"
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           onClick={handleInputClick}
           placeholder={placeholder}
         />
-        {renderDropdownItems}
+        
+        {isOpen && filteredOptions.length > 0 && (
+          <div className="absolute z-[60] w-full top-full mt-1">
+            <ul className="rounded border-[1px] border-gray-300 bg-white shadow-md w-full max-h-[205px] overflow-y-auto">
+              {filteredOptions.map((item) => (
+                <li
+                  key={item.id}
+                  className="drop-menu-item w-full hover:bg-gray-100 touch-auto"
+                  onClick={() => handleItemSelect(item)}
+                >
+                  <div className="cursor-pointer hover:bg-gray-300 p-3">{item.name}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }

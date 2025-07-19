@@ -1,21 +1,41 @@
-import { useContext, Fragment } from 'react';
+import { useState, useContext, Fragment } from 'react';
 import useAxios from '../../hooks/useAxios';
 import DataContext from '../../context/DataContext';
+import Dropdown from '../../utils/DropdownField';
 import { useNotification } from '../../context/NotificationContext';
 
 function AddRose() {
   const { api } = useAxios();
   const { showNotification } = useNotification();
-
   const { groups, breeders } = useContext(DataContext);
+
+  const [selectedGroup, setSelectedGroup] = useState({ id: '', name: '' });
+  const [selectedBreeder, setSelectedBreeder] = useState({ id: '', name: '' });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+    
+    if (!selectedGroup.id) {
+      showNotification('Пожалуйста, выберите группу');
+      return;
+    }
+    
+    if (!selectedBreeder.id) {
+      showNotification('Пожалуйста, выберите селекционера');
+      return;
+    }
+    
+    formData.set('group', selectedGroup.id);
+    formData.set('breeder', selectedBreeder.id);
 
     try {
       await api.post('roses/', formData);
       showNotification('Роза успешно создана');
+      
+      event.target.reset();
+      setSelectedGroup({ id: '', name: '' });
+      setSelectedBreeder({ id: '', name: '' });
     } catch (error) {
       if (error.response?.status === 400) {
         showNotification(`Роза с таким названием уже существует`);
@@ -38,23 +58,17 @@ function AddRose() {
     </div>
   );
 
-  const renderSelect = ({ label, name, options, isRequired = false }) => (
-    <div className="w-full text-sm rounded-md p-2">
-      <label className="form-label inline-block min-w-[245px]" htmlFor={name}>
+  const renderDropdown = ({ label, value, onChange, options, isRequired = false }) => (
+    <div className="w-full text-sm rounded-md p-2 mr-2">
+      <label className="form-label font-bold inline-block min-w-[245px]">
         {label}:
       </label>
-      <select
-        name={name}
-        isRequired={isRequired}
-        defaultValue={options.length > 0 ? options[0].id : ''}
-        className="form-input inline-block"
-      >
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name}
-          </option>
-        ))}
-      </select>
+      <Dropdown 
+        value={value}
+        onChange={onChange}
+        options={options}
+        className="w-full"
+      />
     </div>
   );
 
@@ -86,18 +100,23 @@ function AddRose() {
             {fields.map((field) => (
               <Fragment key={field.name}>{renderField(field)}</Fragment>
             ))}
-            {renderSelect({
+            
+            {renderDropdown({
               label: 'Группы',
-              name: 'group',
+              value: selectedGroup,
+              onChange: setSelectedGroup,
               options: groups,
               isRequired: true,
             })}
-            {renderSelect({
+            
+            {renderDropdown({
               label: 'Селекционеры',
-              name: 'breeder',
+              value: selectedBreeder,
+              onChange: setSelectedBreeder,
               options: breeders,
               isRequired: true,
             })}
+            
             {textAreas.map(({ label, name }) => (
               <p className="w-full text-sm rounded-md p-2 mr-2" key={name}>
                 <label className="form-label min-w-[245px]" htmlFor={name}>
