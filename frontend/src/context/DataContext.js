@@ -1,10 +1,9 @@
 import { createContext, useState, useCallback, useEffect, useRef } from 'react';
-import useRosebud from '../hooks/useRosebud';
+import useAxios from '../hooks/useAxios';
 
 export const DataContext = createContext();
-
 export const DataProvider = ({ children }) => {
-  const { loadResources } = useRosebud();
+  const { api } = useAxios();
 
   const [data, setData] = useState({
     groups: [],
@@ -14,69 +13,58 @@ export const DataProvider = ({ children }) => {
     pesticides: [],
     fungicides: [],
   });
+
   const [filter, setFilter] = useState({});
   const [sortOrder, setSortOrder] = useState(null);
 
+  const [loading, setLoading] = useState(false);
   const lastLoadTime = useRef(0);
   const CACHE_DURATION = 5 * 60 * 1000;
-  const initialLoadDone = useRef(false);
 
-  const loadData = useCallback(
+  const loadAllData = useCallback(
     async (forceRefresh = false) => {
       const now = Date.now();
 
       if (
         !forceRefresh &&
-        initialLoadDone.current &&
-        data.groups.length > 0 &&
-        now - lastLoadTime.current < CACHE_DURATION
+        now - lastLoadTime.current < CACHE_DURATION &&
+        data.groups.length > 0
       ) {
         return data;
       }
 
+      setLoading(true);
       try {
-        const newData = await loadResources('adjustment/');
-        setData(newData);
+        const response = await api.get('/adjustments/');
+        setData(response.data);
         lastLoadTime.current = now;
-        initialLoadDone.current = true;
-        return newData;
-      } catch (err) {
+        return response.data;
+      } catch (error) {
         return null;
+      } finally {
+        setLoading(false);
       }
     },
-    [loadResources, data]
+    [api, data]
   );
-
-  const loadGroups = useCallback(async () => {
-    try {
-      const groupsData = await loadResources('groups/');
-      setData((prev) => ({
-        ...prev,
-        groups: groupsData,
-      }));
-      return groupsData;
-    } catch (err) {
-      return null;
-    }
-  }, [loadResources]);
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const updateData = useCallback((type, newData) => {
     setData((prev) => ({ ...prev, [type]: newData }));
   }, []);
 
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
   const value = {
     ...data,
+    loading,
+    updateData,
+    loadAllData,
     filter,
     setFilter,
     sortOrder,
     setSortOrder,
-    updateData,
-    loadData,
-    loadGroups,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

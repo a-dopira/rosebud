@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useState } from 'react';
 import { RoseLoader } from '../Loaders/RoseLoader';
 
 const EnhancedMedia = ({ type, src, alt }) => {

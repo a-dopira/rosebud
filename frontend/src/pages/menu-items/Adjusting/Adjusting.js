@@ -5,7 +5,7 @@ import AdjustForm from './AdjustForm';
 import DataContext from '../../../context/DataContext';
 
 function Adjusting() {
-  const { groups, breeders, pests, fungi, pesticides, fungicides, updateData } =
+  const { groups, breeders, pests, fungi, pesticides, fungicides } =
     useContext(DataContext);
 
   const [values, setValues] = useState({
@@ -18,10 +18,7 @@ function Adjusting() {
   });
 
   const setValue = useCallback((type, newValue) => {
-    setValues((prev) => ({
-      ...prev,
-      [type]: newValue,
-    }));
+    setValues((prev) => ({ ...prev, [type]: newValue }));
   }, []);
 
   const configData = [
@@ -56,8 +53,6 @@ function Adjusting() {
       endpoint: '/pesticides',
       relatedEntities: pests,
       relationType: 'pests',
-      relatedEndpoint: '/pesticides/{id}/add_pests/',
-      relatedRemoveEndpoint: '/pesticides/{id}/remove_pests/',
     },
     {
       type: 'fungicides',
@@ -66,41 +61,27 @@ function Adjusting() {
       endpoint: '/fungicides',
       relatedEntities: fungi,
       relationType: 'fungi',
-      relatedEndpoint: '/fungicides/{id}/add_fungi/',
-      relatedRemoveEndpoint: '/fungicides/{id}/remove_fungi/',
     },
   ];
 
   return (
     <>
       <Helmet>
-        <title>{'Настроить'}</title>
+        <title>Настроить</title>
       </Helmet>
       <div className="animate-fade-in">
         {configData.map(
-          ({
-            type,
-            label,
-            list,
-            endpoint,
-            relatedEntities,
-            relationType,
-            relatedEndpoint,
-            relatedRemoveEndpoint,
-          }) => (
+          ({ type, label, list, endpoint, relatedEntities, relationType }) => (
             <AdjustForm
               key={type}
               label={label}
               value={values[type]}
               setValue={(newValue) => setValue(type, newValue)}
-              list={list}
-              endpoint={endpoint}
-              setList={(newList) => updateData(type, newList)}
               type={type}
+              endpoint={endpoint}
+              list={list}
               relatedEntities={relatedEntities}
               relationType={relationType}
-              relatedEndpoint={relatedEndpoint}
-              relatedRemoveEndpoint={relatedRemoveEndpoint}
             />
           )
         )}

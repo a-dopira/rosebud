@@ -16,7 +16,7 @@ from .views import (
     RosePhotoViewSet,
     VideoViewSet,
     FoliageViewSet,
-    AdjustmentViewSet,
+    AdjustmentsViewSet,
 )
 
 router = DefaultRouter()
@@ -25,9 +25,9 @@ router.register(r"groups", GroupViewSet, basename="group")
 router.register(r"breeders", BreederViewSet, basename="breeder")
 router.register(r"pests", PestViewSet, basename="pest")
 router.register(r"fungi", FungusViewSet, basename="fungus")
-router.register(r"pesticides", PesticideViewSet)
-router.register(r"fungicides", FungicideViewSet)
-router.register(r"adjustment", AdjustmentViewSet, basename="adjustment")
+router.register(r"pesticides", PesticideViewSet, basename="pesticide")
+router.register(r"fungicides", FungicideViewSet, basename="fungicide")
+router.register(r"adjustments", AdjustmentsViewSet, basename="adjustments")
 
 roses_router = routers.NestedDefaultRouter(router, r"roses", lookup="rose")
 roses_router.register(r"sizes", SizeViewSet, basename="rose-sizes")

@@ -7,7 +7,7 @@ function AddRose() {
   const { api } = useAxios();
   const { showNotification } = useNotification();
 
-  const { groups, breeders, loadGroups } = useContext(DataContext);
+  const { groups, breeders } = useContext(DataContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -16,10 +16,6 @@ function AddRose() {
     try {
       await api.post('roses/', formData);
       showNotification('Роза успешно создана');
-
-      if (loadGroups) {
-        await loadGroups();
-      }
     } catch (error) {
       if (error.response?.status === 400) {
         showNotification(`Роза с таким названием уже существует`);

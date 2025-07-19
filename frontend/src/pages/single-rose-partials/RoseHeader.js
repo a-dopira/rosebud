@@ -1,30 +1,21 @@
 import { useContext, useState, useEffect } from 'react';
 import RoseContext from '../../context/RoseContext';
+import DataContext from '../../context/DataContext';
 import { Link } from 'react-router-dom';
 import useAxios from '../../hooks/useAxios';
-import useRosebud from '../../hooks/useRosebud';
 import { useNotification } from '../../context/NotificationContext';
 import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 import Loader from '../../utils/Loaders/Loader';
 
 function RoseHeader() {
-  const { loadResources } = useRosebud();
   const { rose, setRose } = useContext(RoseContext);
+  const { breeders } = useContext(DataContext);
   const { showNotification } = useNotification();
 
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [deletePhotoModal, setDeletePhotoModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-  const [breeders, setBreeders] = useState([]);
+  const [modal, setModal] = useState(false);
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const { api } = useAxios();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await loadResources('breeders/').then(setBreeders);
-    };
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,7 +35,7 @@ function RoseHeader() {
       .patch(`roses/${rose.id}/`, updatedRose)
       .then((response) => {
         setRose(response.data);
-        setEditModal(false);
+        setModal(null);
         showNotification(`Роза ${response.data.title} успешно обновлена.`);
       })
       .catch((error) => {
@@ -59,6 +50,24 @@ function RoseHeader() {
         }
       });
   };
+
+  const handleDeleteRose = async () => {
+    await api.delete(`roses/${rose.id}/`);
+    setModal(null);
+    showNotification('Роза успешно удалена.');
+  };
+
+  const handleDeletePhoto = async () => {
+    await api.delete(`roses/${rose.id}/photo/`);
+    setModal(null);
+    setRose((prevRose) => ({
+      ...prevRose,
+      photo: null,
+    }));
+    showNotification('Фотография успешно удалена.');
+  };
+
+  const closeModal = () => setModal(false);
 
   const isStackedLayout = windowWidth < 768;
 
@@ -79,7 +88,7 @@ function RoseHeader() {
           />
           <button
             className="absolute top-1/2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 btn-red"
-            onClick={() => setDeletePhotoModal(true)}
+            onClick={() => setModal(true)}
           >
             Удалить
           </button>
@@ -158,13 +167,13 @@ function RoseHeader() {
             <div className="flex items-center justify-center space-x-10">
               <button
                 className="inline-block btn-red text-xl h-11"
-                onClick={() => setEditModal(true)}
+                onClick={() => setModal(true)}
               >
                 Изменить
               </button>
               <button
                 className="inline-block btn-red text-xl h-11"
-                onClick={() => setDeleteModal(true)}
+                onClick={() => setModal(true)}
               >
                 Удалить
               </button>
@@ -175,8 +184,8 @@ function RoseHeader() {
 
       {/* edit modal */}
       <GenericModal
-        isOpen={editModal}
-        onClose={() => setEditModal(false)}
+        isOpen={modal}
+        onClose={closeModal}
         title="Редактирование"
         roseName={rose.title}
       >
@@ -271,7 +280,7 @@ function RoseHeader() {
               <button
                 className="flex-1 btn-gray text-lg py-2"
                 type="button"
-                onClick={() => setEditModal(false)}
+                onClick={closeModal}
               >
                 Отмена
               </button>
@@ -281,28 +290,18 @@ function RoseHeader() {
       </GenericModal>
 
       <GenericModal
-        isOpen={deleteModal}
-        onClose={() => setDeleteModal(false)}
+        isOpen={modal}
+        onClose={closeModal}
         title="Удаление розы"
         roseName={rose.title}
       >
         <div className="text-center mb-4">
           <p className="mb-4">Вы уверены, что хотите удалить эту розу?</p>
           <div className="flex space-x-4">
-            <button
-              onClick={async () => {
-                await api.delete(`roses/${rose.id}/`);
-                setDeleteModal(false);
-                showNotification('Роза успешно удалена.');
-              }}
-              className="flex-1 btn-red py-2"
-            >
+            <button onClick={handleDeleteRose} className="flex-1 btn-red py-2">
               Да, удалить
             </button>
-            <button
-              onClick={() => setDeleteModal(false)}
-              className="flex-1 btn-gray py-2"
-            >
+            <button onClick={closeModal} className="flex-1 btn-gray py-2">
               Отмена
             </button>
           </div>
@@ -310,32 +309,18 @@ function RoseHeader() {
       </GenericModal>
 
       <GenericModal
-        isOpen={deletePhotoModal}
-        onClose={() => setDeletePhotoModal(false)}
+        isOpen={modal}
+        onClose={closeModal}
         title="Удаление фотографии"
         roseName={rose.title}
       >
         <div className="text-center space-y-4">
           <p className="mb-4">Вы уверены, что хотите удалить фотографию розы?</p>
           <div className="flex space-x-4">
-            <button
-              onClick={async () => {
-                await api.delete(`roses/${rose.id}/photo/`);
-                setDeletePhotoModal(false);
-                setRose((prevRose) => ({
-                  ...prevRose,
-                  photo: null,
-                }));
-                showNotification('Фотография успешно удалена.');
-              }}
-              className="flex-1 btn-red py-2"
-            >
+            <button onClick={handleDeletePhoto} className="flex-1 btn-red py-2">
               Да, удалить
             </button>
-            <button
-              onClick={() => setDeletePhotoModal(false)}
-              className="flex-1 btn-gray py-2"
-            >
+            <button onClick={closeModal} className="flex-1 btn-gray py-2">
               Отмена
             </button>
           </div>

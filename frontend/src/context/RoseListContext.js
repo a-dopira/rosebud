@@ -88,7 +88,6 @@ export const RoseListProvider = ({ children }) => {
         setTotalPages(totalPagesCount);
         setCurrentPage(page);
       } catch (error) {
-        console.error('Ошибка при загрузке роз:', error);
         setRosesMessage('Что-то пошло не так...');
         return { totalPages: 1, roses: [] };
       }
@@ -110,10 +109,6 @@ export const RoseListProvider = ({ children }) => {
           await loadRoses(currentPage - 1, filter, true);
         } else {
           await loadRoses(currentPage, filter, true);
-        }
-
-        if (loadGroups) {
-          await loadGroups();
         }
 
         return {
