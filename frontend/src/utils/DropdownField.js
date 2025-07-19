@@ -1,20 +1,7 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  useMemo,
-  memo,
-} from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 
 const Dropdown = memo(
-  ({
-    value,
-    onChange,
-    options,
-    placeholder = '',
-    className = '',
-  }) => {
+  ({ value, onChange, options, placeholder = '', className = '' }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [inputValue, setInputValue] = useState(value?.name || '');
     const dropdownRef = useRef(null);
@@ -93,7 +80,7 @@ const Dropdown = memo(
           onClick={handleInputClick}
           placeholder={placeholder}
         />
-        
+
         {isOpen && filteredOptions.length > 0 && (
           <div className="absolute z-[60] w-full top-full mt-1">
             <ul className="rounded border-[1px] border-gray-300 bg-white shadow-md w-full max-h-[205px] overflow-y-auto">
@@ -103,7 +90,9 @@ const Dropdown = memo(
                   className="drop-menu-item w-full hover:bg-gray-100 touch-auto"
                   onClick={() => handleItemSelect(item)}
                 >
-                  <div className="cursor-pointer hover:bg-gray-300 p-3">{item.name}</div>
+                  <div className="cursor-pointer hover:bg-gray-300 p-3">
+                    {item.name}
+                  </div>
                 </li>
               ))}
             </ul>

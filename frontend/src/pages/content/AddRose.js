@@ -15,24 +15,24 @@ function AddRose() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    
+
     if (!selectedGroup.id) {
       showNotification('Пожалуйста, выберите группу');
       return;
     }
-    
+
     if (!selectedBreeder.id) {
       showNotification('Пожалуйста, выберите селекционера');
       return;
     }
-    
+
     formData.set('group', selectedGroup.id);
     formData.set('breeder', selectedBreeder.id);
 
     try {
       await api.post('roses/', formData);
       showNotification('Роза успешно создана');
-      
+
       event.target.reset();
       setSelectedGroup({ id: '', name: '' });
       setSelectedBreeder({ id: '', name: '' });
@@ -63,7 +63,7 @@ function AddRose() {
       <label className="form-label font-bold inline-block min-w-[245px]">
         {label}:
       </label>
-      <Dropdown 
+      <Dropdown
         value={value}
         onChange={onChange}
         options={options}
@@ -100,7 +100,7 @@ function AddRose() {
             {fields.map((field) => (
               <Fragment key={field.name}>{renderField(field)}</Fragment>
             ))}
-            
+
             {renderDropdown({
               label: 'Группы',
               value: selectedGroup,
@@ -108,7 +108,7 @@ function AddRose() {
               options: groups,
               isRequired: true,
             })}
-            
+
             {renderDropdown({
               label: 'Селекционеры',
               value: selectedBreeder,
@@ -116,7 +116,7 @@ function AddRose() {
               options: breeders,
               isRequired: true,
             })}
-            
+
             {textAreas.map(({ label, name }) => (
               <p className="w-full text-sm rounded-md p-2 mr-2" key={name}>
                 <label className="form-label min-w-[245px]" htmlFor={name}>

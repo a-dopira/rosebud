@@ -20,7 +20,6 @@ const AdjustForm = memo(
 
       await collection.create({ name: value.name.trim() });
       setValue({ id: '', name: '' });
-
     }, [value, collection, setValue]);
 
     const handleDelete = useCallback(async () => {
@@ -48,7 +47,6 @@ const AdjustForm = memo(
       async (relatedItemId) => {
         if (!value?.id) return;
         await collection.removeRelationship(value.id, [relatedItemId], relationType);
-
       },
       [value, collection, relationType]
     );

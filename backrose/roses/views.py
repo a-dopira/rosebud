@@ -1,4 +1,4 @@
-from common import NestedViewSet, dynamic_serializer
+from common import NestedViewSet
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -25,16 +25,21 @@ from .models import (
 )
 from .serializers import (
     GroupSerializer,
+    BreederSerializer,
     RoseSerializer,
-    RoseListSerializer,
+    PestSerializer,
     PesticideSerializer,
     RosePesticideSerializer,
-    RoseCreateSerializer,
+    FungusSerializer,
     FungicideSerializer,
     RoseFungicideSerializer,
     SizeSerializer,
     FeedingSerializer,
+    RosePhotoSerializer,
+    VideoSerializer,
     FoliageSerializer,
+    RoseListSerializer,
+    RoseCreateSerializer,
 )
 
 
@@ -98,17 +103,17 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 class BreederViewSet(viewsets.ModelViewSet):
     queryset = Breeder.objects.all()
-    serializer_class = dynamic_serializer(Breeder, exclude=["slug"])
+    serializer_class = BreederSerializer
 
 
 class PestViewSet(viewsets.ModelViewSet):
     queryset = Pest.objects.all()
-    serializer_class = dynamic_serializer(Pest)
+    serializer_class = PestSerializer
 
 
 class FungusViewSet(viewsets.ModelViewSet):
     queryset = Fungus.objects.all()
-    serializer_class = dynamic_serializer(Fungus)
+    serializer_class = FungusSerializer
 
 
 class PesticideViewSet(viewsets.ModelViewSet):
@@ -117,7 +122,7 @@ class PesticideViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="pests")
     def add_pests(self, request, pk=None):
-        """POST /pesticides/{id}/pests/"""
+
         pesticide = self.get_object()
         pest_ids = request.data.get("data", [])
 
@@ -139,7 +144,7 @@ class PesticideViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["delete"], url_path="pests")
     def remove_pests(self, request, pk=None):
-        """DELETE /pesticides/{id}/pests/"""
+
         pesticide = self.get_object()
         pest_ids = request.data.get("data", [])
 
@@ -154,7 +159,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="fungi")
     def add_fungi(self, request, pk=None):
-        """POST /fungicides/{id}/fungi/"""
+
         fungicide = self.get_object()
         fungus_ids = request.data.get("data", [])
 
@@ -176,7 +181,7 @@ class FungicideViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["delete"], url_path="fungi")
     def remove_fungi(self, request, pk=None):
-        """DELETE /fungicides/{id}/fungi/"""
+
         fungicide = self.get_object()
         fungus_ids = request.data.get("data", [])
 
@@ -212,12 +217,12 @@ class RoseFungicideViewSet(NestedViewSet):
 
 class RosePhotoViewSet(NestedViewSet):
     queryset = RosePhoto.objects.all()
-    serializer_class = dynamic_serializer(RosePhoto)
+    serializer_class = RosePhotoSerializer
 
 
 class VideoViewSet(NestedViewSet):
     queryset = Video.objects.all()
-    serializer_class = dynamic_serializer(Video)
+    serializer_class = VideoSerializer
 
 
 class AdjustmentsViewSet(viewsets.ViewSet):
@@ -229,13 +234,9 @@ class AdjustmentsViewSet(viewsets.ViewSet):
                 "groups": GroupSerializer(
                     Group.objects.annotate(rose_count=Count("roses")), many=True
                 ).data,
-                "breeders": dynamic_serializer(Breeder, exclude=["slug"])(
-                    Breeder.objects.all(), many=True
-                ).data,
-                "pests": dynamic_serializer(Pest)(Pest.objects.all(), many=True).data,
-                "fungi": dynamic_serializer(Fungus)(
-                    Fungus.objects.all(), many=True
-                ).data,
+                "breeders": BreederSerializer(Breeder.objects.all(), many=True).data,
+                "pests": PestSerializer(Pest.objects.all(), many=True).data,
+                "fungi": FungusSerializer(Fungus.objects.all(), many=True).data,
                 "pesticides": PesticideSerializer(
                     Pesticide.objects.prefetch_related("pests"), many=True
                 ).data,

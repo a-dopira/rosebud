@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from common.utils import dynamic_serializer
 from .models import (
     Group,
     Breeder,
@@ -19,19 +18,32 @@ from .models import (
 
 
 class GroupSerializer(serializers.ModelSerializer):
+    rose_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Group
-        fields = ["id", "name"]
+        fields = ["id", "name", "rose_count"]
 
 
 class BreederSerializer(serializers.ModelSerializer):
     class Meta:
         model = Breeder
-        fields = ["id", "name"]
+        fields = ["id", "name"]  # исключаем slug как в оригинале
+
+
+class PestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pest
+        fields = "__all__"
+
+
+class FungusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fungus
+        fields = "__all__"
 
 
 class PesticideSerializer(serializers.ModelSerializer):
-    PestSerializer = dynamic_serializer(Pest)
     pests = PestSerializer(many=True, read_only=True)
     pest_ids = serializers.PrimaryKeyRelatedField(
         source="pests",
@@ -55,16 +67,13 @@ class PesticideSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         pests_data = validated_data.pop("pests", None)
         instance.name = validated_data.get("name", instance.name)
-
         if pests_data is not None:
             instance.pests.set(pests_data)
-
         instance.save()
         return instance
 
 
 class FungicideSerializer(serializers.ModelSerializer):
-    FungusSerializer = dynamic_serializer(Fungus)
     fungi = FungusSerializer(many=True, read_only=True)
     fungi_ids = serializers.PrimaryKeyRelatedField(
         source="fungi",
@@ -88,10 +97,8 @@ class FungicideSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         fungi_data = validated_data.pop("fungi", None)
         instance.name = validated_data.get("name", instance.name)
-
         if fungi_data is not None:
             instance.fungi.set(fungi_data)
-
         instance.save()
         return instance
 
@@ -119,25 +126,34 @@ class RoseFungicideSerializer(serializers.ModelSerializer):
 
 
 class FeedingSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Feeding
         fields = ["id", "basal", "basal_time", "leaf", "leaf_time"]
 
 
 class FoliageSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Foliage
         fields = ["id", "foliage", "foliage_time"]
 
 
 class SizeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Size
         fields = ["id", "height", "width", "date_added"]
         read_only_fields = ["id"]
+
+
+class RosePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RosePhoto
+        fields = "__all__"
+
+
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = "__all__"
 
 
 class RoseCreateSerializer(serializers.ModelSerializer):
@@ -161,24 +177,19 @@ class RoseCreateSerializer(serializers.ModelSerializer):
 
 
 class RoseSerializer(serializers.ModelSerializer):
-
-    breeder = dynamic_serializer(Breeder, exclude=["slug"])(read_only=True)
-    group = dynamic_serializer(Group, exclude=["slug"])(read_only=True)
-
+    breeder = BreederSerializer(read_only=True)
+    group = GroupSerializer(read_only=True)
     pesticides = RosePesticideSerializer(
         many=True, read_only=True, source="rosepesticides"
     )
     fungicides = RoseFungicideSerializer(
         many=True, read_only=True, source="rosefungicides"
     )
-    photos = dynamic_serializer(RosePhoto)(
-        many=True, read_only=True, source="rosephotos"
-    )
-
-    feedings = dynamic_serializer(Feeding)(many=True, read_only=True)
-    foliages = dynamic_serializer(Foliage)(many=True, read_only=True)
-    sizes = dynamic_serializer(Size)(many=True, read_only=True)
-    videos = dynamic_serializer(Video)(many=True, read_only=True)
+    photos = RosePhotoSerializer(many=True, read_only=True, source="rosephotos")
+    feedings = FeedingSerializer(many=True, read_only=True)
+    foliages = FoliageSerializer(many=True, read_only=True)
+    sizes = SizeSerializer(many=True, read_only=True)
+    videos = VideoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Rose
@@ -209,11 +220,3 @@ class RoseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rose
         fields = ["id", "title", "photo", "group"]
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    rose_count = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Group
-        fields = ["id", "name", "rose_count"]

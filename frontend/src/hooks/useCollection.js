@@ -15,7 +15,7 @@ const useCollection = (endpoint, type) => {
   const create = useCallback(
     async (item) => {
       try {
-        await api.post(endpoint, item);
+        await api.post(`${endpoint}/`, item);
         showNotification(`${item.name} успешно добавлен`);
         await refresh();
       } catch (error) {
@@ -93,7 +93,6 @@ const useCollection = (endpoint, type) => {
     remove,
     addRelationship,
     removeRelationship,
-    refresh,
   };
 };
 
