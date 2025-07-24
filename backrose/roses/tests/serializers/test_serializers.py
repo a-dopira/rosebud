@@ -4,13 +4,14 @@ from datetime import date
 from django.db.models import Count
 from roses.serializers import (
     GroupSerializer,
+    BreederSerializer,
     PesticideSerializer,
     FungicideSerializer,
     FeedingSerializer,
     FoliageSerializer,
     SizeSerializer,
 )
-from roses.models import Rose, Group, Feeding, Foliage, Pest, Fungus
+from roses.models import Rose, Group
 
 
 @pytest.mark.django_db
@@ -41,6 +42,33 @@ class TestGroupSerializer:
         serializer = GroupSerializer(instance=group)
 
         assert serializer.data["rose_count"] == 2
+
+
+@pytest.mark.django_db
+class TestBreederSerializer:
+
+    def test_serializer_check_expected_fields(self, breeder):
+        serializer = BreederSerializer(instance=breeder)
+        data = serializer.data
+
+        assert set(data.keys()) == {"id", "name"}
+        assert data["name"] == "fancy breeder"
+
+    def test_create_breeder(self):
+        data = {"name": "new breeder"}
+        serializer = BreederSerializer(data=data)
+        assert serializer.is_valid()
+
+        instance = serializer.save()
+        assert instance.name == "new breeder"
+
+    def test_update_breeder(self, breeder):
+        data = {"name": "updated breeder"}
+        serializer = BreederSerializer(instance=breeder, data=data)
+        assert serializer.is_valid()
+
+        updated_instance = serializer.save()
+        assert updated_instance.name == "updated breeder"
 
 
 @pytest.mark.django_db
@@ -143,7 +171,7 @@ class TestFeedingSerializer:
         data = serializer.data
 
         assert set(data.keys()) == set(
-            ["id", "rose", "basal", "basal_time", "leaf", "leaf_time"]
+            ["id", "basal", "basal_time", "leaf", "leaf_time"]
         )
 
     def test_serializer_values(self, feeding):
@@ -157,17 +185,16 @@ class TestFeedingSerializer:
 
     def test_create_feeding(self, rose):
         data = {
-            "rose": rose.id,
             "basal": "new basal fertilizer",
             "basal_time": "2023-08-05",
             "leaf": "new leaf fertilizer",
             "leaf_time": "2023-08-15",
         }
 
-        serializer = FeedingSerializer(data=data)
+        serializer = FeedingSerializer(data=data, context={"rose": rose})
         assert serializer.is_valid()
 
-        instance = serializer.save()
+        instance = serializer.save(rose=rose)
         assert instance.rose.id == rose.id
         assert instance.basal == "new basal fertilizer"
         assert instance.basal_time == date(2023, 8, 5)
@@ -176,14 +203,15 @@ class TestFeedingSerializer:
 
     def test_update_feeding(self, feeding):
         data = {
-            "rose": feeding.rose.id,
             "basal": "updated basal fertilizer",
             "basal_time": "2023-09-05",
             "leaf": "updated leaf fertilizer",
             "leaf_time": "2023-09-15",
         }
 
-        serializer = FeedingSerializer(instance=feeding, data=data)
+        serializer = FeedingSerializer(
+            instance=feeding, data=data, context={"rose": feeding.rose}
+        )
         assert serializer.is_valid()
 
         updated_instance = serializer.save()
@@ -200,7 +228,7 @@ class TestFoliageSerializer:
         serializer = FoliageSerializer(instance=foliage)
         data = serializer.data
 
-        assert set(data.keys()) == set(["id", "rose", "foliage", "foliage_time"])
+        assert set(data.keys()) == set(["id", "foliage", "foliage_time"])
 
     def test_serializer_values(self, foliage):
         serializer = FoliageSerializer(instance=foliage)
@@ -211,27 +239,27 @@ class TestFoliageSerializer:
 
     def test_create_foliage(self, rose):
         data = {
-            "rose": rose.id,
             "foliage": "new foliage description",
             "foliage_time": "2023-08-25",
         }
 
-        serializer = FoliageSerializer(data=data)
+        serializer = FoliageSerializer(data=data, context={"rose": rose})
         assert serializer.is_valid()
 
-        instance = serializer.save()
+        instance = serializer.save(rose=rose)
         assert instance.rose.id == rose.id
         assert instance.foliage == "new foliage description"
         assert instance.foliage_time == date(2023, 8, 25)
 
     def test_update_foliage(self, foliage):
         data = {
-            "rose": foliage.rose.id,
             "foliage": "updated foliage description",
             "foliage_time": "2023-09-25",
         }
 
-        serializer = FoliageSerializer(instance=foliage, data=data)
+        serializer = FoliageSerializer(
+            instance=foliage, data=data, context={"rose": foliage.rose}
+        )
         assert serializer.is_valid()
 
         updated_instance = serializer.save()
@@ -246,7 +274,7 @@ class TestSizeSerializer:
         serializer = SizeSerializer(instance=size)
         data = serializer.data
 
-        assert set(data.keys()) == set(["id", "rose", "height", "width", "date_added"])
+        assert set(data.keys()) == set(["id", "height", "width", "date_added"])
 
     def test_serializer_values(self, size):
         serializer = SizeSerializer(instance=size)
@@ -258,16 +286,15 @@ class TestSizeSerializer:
 
     def test_create_size(self, rose):
         data = {
-            "rose": rose.id,
             "height": "40.5",
             "width": "35.7",
             "date_added": "2023-08-30",
         }
 
-        serializer = SizeSerializer(data=data)
+        serializer = SizeSerializer(data=data, context={"rose": rose})
         assert serializer.is_valid()
 
-        instance = serializer.save()
+        instance = serializer.save(rose=rose)
         assert instance.rose.id == rose.id
         assert instance.height == Decimal("40.5")
         assert instance.width == Decimal("35.7")
@@ -275,13 +302,14 @@ class TestSizeSerializer:
 
     def test_update_size(self, size):
         data = {
-            "rose": size.rose.id,
             "height": "45.8",
             "width": "38.2",
             "date_added": "2023-09-30",
         }
 
-        serializer = SizeSerializer(instance=size, data=data)
+        serializer = SizeSerializer(
+            instance=size, data=data, context={"rose": size.rose}
+        )
         assert serializer.is_valid()
 
         updated_instance = serializer.save()
@@ -292,14 +320,17 @@ class TestSizeSerializer:
     def test_read_only_id_field(self, size):
         data = {
             "id": "poop",
-            "rose": size.rose.id,
             "height": "50.0",
             "width": "40.0",
             "date_added": "2023-10-01",
         }
 
-        serializer = SizeSerializer(instance=size, data=data)
+        serializer = SizeSerializer(
+            instance=size, data=data, context={"rose": size.rose}
+        )
         assert serializer.is_valid()
 
         updated_instance = serializer.save()
         assert updated_instance.id == size.id
+        assert updated_instance.height == Decimal("50.0")
+        assert updated_instance.width == Decimal("40.0")
