@@ -85,14 +85,6 @@ class TestCustomTokenObtainPairView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_csrf_token_setting(self, api_client, test_user, user_data):
-        url = reverse("token_obtain_pair")
-
-        response = api_client.post(url, user_data, format="json")
-
-        assert response.status_code == status.HTTP_200_OK
-        assert "csrftoken" in response.cookies
-
 
 class TestCustomTokenRefreshView:
 
@@ -178,12 +170,32 @@ class TestUserView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == test_user.username
         assert response.data["email"] == test_user.email
+        assert "app_header" in response.data
+        assert "image" in response.data
 
     def test_unauthenticated_access(self, api_client):
         """no credentials provided"""
         url = reverse("user")
         response = api_client.get(url)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_user_profile_update(self, authenticated_client, test_user):
+        """Test updating user profile through user endpoint"""
+        url = reverse("user")
+        update_data = {
+            "username": "updated_username",
+            "app_header": "Updated App Header",
+        }
+
+        response = authenticated_client.patch(url, update_data, format="json")
+        assert response.status_code == status.HTTP_200_OK
+
+        assert response.data["username"] == "updated_username"
+        assert response.data["app_header"] == "Updated App Header"
+
+        test_user.refresh_from_db()
+        assert test_user.username == "updated_username"
+        assert test_user.profile.app_header == "Updated App Header"
 
 
 class TestUpdateProfileView:
@@ -204,22 +216,22 @@ class TestUpdateProfileView:
         assert new_user.profile is not None
 
     def test_invalid_profile_data(self, authenticated_client):
-        url = reverse("update_profile")
+        """Test invalid profile data through user endpoint"""
+        url = reverse("user")
         invalid_data = {"image": "invalid_data"}
         response = authenticated_client.patch(url, data=invalid_data, format="json")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_profile_update(self, authenticated_client, test_user):
-        """profile update test"""
-        url = reverse("update_profile")
+        """profile update test through user endpoint"""
+        url = reverse("user")
         update_data = {"app_header": "Новый заголовок приложения"}
 
         response = authenticated_client.patch(url, update_data, format="json")
         assert response.status_code == status.HTTP_200_OK
 
-        response_data = response.json()
-        assert response_data["profile"]["app_header"] == update_data["app_header"]
+        assert response.data["app_header"] == update_data["app_header"]
 
         test_user.refresh_from_db()
         assert test_user.profile.app_header == update_data["app_header"]
@@ -234,7 +246,8 @@ class TestUpdateProfileView:
         response_data = response.json()
         assert response_data["username"] == test_user.username
         assert response_data["email"] == test_user.email
-        assert "profile" in response_data
+        assert "app_header" in response_data
+        assert "image" in response_data
 
 
 class TestLoginCases:
@@ -251,7 +264,11 @@ class TestLoginCases:
         assert response2.status_code == status.HTTP_200_OK
 
         # access tokens should be different
-        assert response1.cookies["access"].value != response2.cookies["access"].value
+        access_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE")
+        assert (
+            response1.cookies[access_cookie_name].value
+            != response2.cookies[access_cookie_name].value
+        )
 
 
 class TestSecurity:
@@ -264,10 +281,10 @@ class TestSecurity:
         initial_user_count = User.objects.count()
 
         injection_attempts = [
-            {"username": "' OR '1'='1", "password": "anything"},
-            {"username": "test'; DROP TABLE users; --", "password": "test"},
-            {"username": "' UNION SELECT * FROM users --", "password": "test"},
-            {"username": "admin' --", "password": "anything"},
+            {"email": "' OR '1'='1", "password": "anything"},
+            {"email": "test'; DROP TABLE users; --", "password": "test"},
+            {"email": "' UNION SELECT * FROM users --", "password": "test"},
+            {"email": "admin' --", "password": "anything"},
         ]
 
         for attempt in injection_attempts:

@@ -17,8 +17,7 @@ class TestUserSerializer:
         """user's serializer contains expected fields"""
         serializer = UserSerializer(test_user)
 
-        assert set(serializer.data.keys()) == {"id", "username", "email", "profile"}
-        assert set(serializer.data["profile"].keys()) == {"app_header", "image"}
+        assert set(serializer.data.keys()) == {"id", "username", "email", "app_header", "image"}
 
     def test_profile_data_included(self, test_user):
         """profile data is included in user's serializer output"""
@@ -27,7 +26,50 @@ class TestUserSerializer:
 
         serializer = UserSerializer(test_user)
 
-        assert serializer.data["profile"]["app_header"] == expected_value
+        assert serializer.data["app_header"] == expected_value
+
+    def test_profile_image_included(self, test_user):
+        """profile image is included in user's serializer output"""
+        serializer = UserSerializer(test_user)
+        
+        assert "image" in serializer.data
+
+    def test_read_only_fields(self, test_user):
+        """Test that id and email are read-only"""
+        original_email = test_user.email
+        
+        data = {
+            "id": 999,
+            "email": "fancy_boy@evil.com",
+            "username": "new_fancy_username",
+            "app_header": "new fancy header"
+        }
+        
+        serializer = UserSerializer(instance=test_user, data=data)
+        assert serializer.is_valid()
+        
+        updated_user = serializer.save()
+        assert updated_user.id == test_user.id 
+        assert updated_user.email == original_email
+        assert updated_user.username == "new_fancy_username"
+
+    def test_profile_update_through_serializer(self, test_user):
+        """Test that profile fields are updated correctly"""
+        original_header = test_user.profile.app_header
+        
+        data = {
+            "username": test_user.username,
+            "app_header": "Updated App Header"
+        }
+        
+        serializer = UserSerializer(instance=test_user, data=data)
+        assert serializer.is_valid()
+        
+        updated_user = serializer.save()
+        updated_user.refresh_from_db()
+        
+        assert updated_user.profile.app_header == "Updated App Header"
+        assert updated_user.profile.app_header != original_header
 
 
 class TestCustomTokenObtainPairSerializer:
@@ -48,6 +90,8 @@ class TestCustomTokenObtainPairSerializer:
 
         assert "user" in data
         assert data["user"]["username"] == test_user.username
+        assert "app_header" in data["user"]
+        assert "email" in data["user"]
 
 
 class TestTokenRefreshSerializer:
@@ -85,7 +129,6 @@ class TestTokenRefreshSerializer:
         assert "Отсутствует контекст запроса" in serializer.errors["non_field_errors"]
 
     def test_validate_with_invalid_token(self):
-
         request = RequestFactory().post("/")
         cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
         request.COOKIES[cookie_name] = "invalid_token"
@@ -98,7 +141,6 @@ class TestTokenRefreshSerializer:
         assert "Недействительный или истекший refresh токен" in error_msg
 
     def test_validate_with_expired_token(self, expired_refresh_client):
-
         expired_token = expired_refresh_client.cookies.get(
             settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
         )
@@ -115,7 +157,6 @@ class TestTokenRefreshSerializer:
         assert "Недействительный или истекший refresh токен" in error_msg
 
     def test_validate_with_malformed_token(self):
-
         request = RequestFactory().post("/")
         cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
         request.COOKIES[cookie_name] = "malformed_token"
@@ -129,7 +170,6 @@ class TestTokenRefreshSerializer:
 
     def test_validate_with_different_cookie_name(self, test_user, settings):
         """in case a cookie name has been changed in settings, it should still work"""
-
         original_cookie_refresh = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH")
         settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"] = "custom_refresh_cookie"
 
@@ -158,7 +198,6 @@ class TestRegisterSerializer:
 
     def test_validate_passwords_dont_match(self, register_data):
         """test validate method when passwords don't match"""
-
         register_data["password2"] = "incorrect_password"
 
         serializer = RegisterSerializer(data=register_data)
@@ -178,3 +217,4 @@ class TestRegisterSerializer:
         assert user.check_password(register_data["password"])
         assert hasattr(user, "profile")
         assert user.profile is not None
+        assert user.profile.app_header == "Изменить название"
