@@ -10,7 +10,7 @@ class TestAdjustmentViewSet:
     def test_list_all_entities(
         self, authenticated_client, breeder, pest, fungus, group, create_multiple_roses
     ):
-        url = reverse("adjustment-list")
+        url = reverse("adjustments-list")
         response = authenticated_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
@@ -31,7 +31,7 @@ class TestAdjustmentViewSet:
         Rose.objects.all().delete()
         model.objects.all().delete()
 
-        url = reverse("adjustment-list")
+        url = reverse("adjustments-list")
         response = authenticated_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
@@ -59,7 +59,7 @@ class TestAdjustmentViewSet:
             for i in range(5)
         ]
 
-        url = reverse("adjustment-list")
+        url = reverse("adjustments-list")
         response = authenticated_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
