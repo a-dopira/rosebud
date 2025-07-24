@@ -28,7 +28,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class BreederSerializer(serializers.ModelSerializer):
     class Meta:
         model = Breeder
-        fields = ["id", "name"]  # исключаем slug как в оригинале
+        fields = ["id", "name"]
 
 
 class PestSerializer(serializers.ModelSerializer):

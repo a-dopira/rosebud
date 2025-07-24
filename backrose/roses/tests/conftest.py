@@ -1,7 +1,11 @@
+import os
+import shutil
+import tempfile
 import pytest
 from PIL import Image
 from io import BytesIO
 from django.db.models import Count
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from decimal import Decimal
 from datetime import date
@@ -207,3 +211,17 @@ def video(rose):
         video="https://example.com/test-video",
         descr="fancy video description",
     )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def temp_media_root():
+    """create temporary media dir"""
+    temp_dir = tempfile.mkdtemp()
+    original_media_root = settings.MEDIA_ROOT
+    settings.MEDIA_ROOT = temp_dir
+
+    yield temp_dir
+
+    # purification after tests
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    settings.MEDIA_ROOT = original_media_root

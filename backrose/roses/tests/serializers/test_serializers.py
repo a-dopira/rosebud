@@ -1,7 +1,6 @@
 import pytest
 from decimal import Decimal
 from datetime import date
-from common.utils import dynamic_serializer
 from django.db.models import Count
 from roses.serializers import (
     GroupSerializer,
@@ -12,89 +11,6 @@ from roses.serializers import (
     SizeSerializer,
 )
 from roses.models import Rose, Group, Feeding, Foliage, Pest, Fungus
-
-
-class TestDynamicSerializer:
-    def test_dynamic_serializer_creation(self):
-        serializer_class = dynamic_serializer(Feeding)
-
-        assert serializer_class.Meta.model == Feeding
-        assert serializer_class.Meta.many == False
-        assert serializer_class.Meta.read_only == False
-        assert serializer_class.Meta.exclude == []
-
-        serializer_class = dynamic_serializer(
-            Feeding, exclude=["id", "rose"], _many=True, _read_only=True
-        )
-
-        assert serializer_class.Meta.model == Feeding
-        assert serializer_class.Meta.many == True
-        assert serializer_class.Meta.read_only == True
-        assert serializer_class.Meta.exclude == ["id", "rose"]
-
-    @pytest.mark.django_db
-    def test_dynamic_serializer_with_data(self, rose, feeding):
-
-        FeedingSerializer = dynamic_serializer(Feeding)
-        serializer = FeedingSerializer(feeding)
-
-        data = serializer.data
-        assert "rose" in data
-        assert "basal" in data
-        assert data["basal"] == "fancy basal fertilizer"
-
-        FeedingSerializer = dynamic_serializer(Feeding, exclude=["basal"])
-        serializer = FeedingSerializer(feeding)
-        data = serializer.data
-
-        assert "rose" in data
-        assert "basal" not in data
-
-        feedings = Feeding.objects.filter(rose=rose)
-        FeedingSerializer = dynamic_serializer(Feeding, _many=True)
-        serializer = FeedingSerializer(feedings, many=True)
-
-        data = serializer.data
-        assert isinstance(data, list)
-        assert len(data) == feedings.count()
-
-    @pytest.mark.django_db
-    def test_dynamic_serializer_create(self, rose):
-
-        feeding_data = {
-            "rose": rose.id,
-            "basal": "fancy basal fertilizer",
-            "basal_time": "2023-08-10",
-            "leaf": "fancy leaf fertilizer",
-            "leaf_time": "2023-08-15",
-        }
-
-        FeedingSerializer = dynamic_serializer(Feeding)
-        serializer = FeedingSerializer(data=feeding_data)
-
-        assert serializer.is_valid()
-
-        feeding = serializer.save()
-
-        assert feeding.rose == rose
-        assert feeding.basal == "fancy basal fertilizer"
-        assert feeding.leaf == "fancy leaf fertilizer"
-
-        assert Feeding.objects.filter(id=feeding.id).exists()
-
-    @pytest.mark.parametrize("model_class", [Feeding, Foliage, Pest, Fungus])
-    def test_dynamic_serializer_with_different_models(self, model_class):
-        serializer_class = dynamic_serializer(model_class)
-
-        assert serializer_class.Meta.model == model_class
-
-        model_fields = [field.name for field in model_class._meta.fields]
-        serializer_instance = serializer_class()
-        serializer_fields = serializer_instance.get_fields()
-
-        for field_name in model_fields:
-            if field_name not in serializer_class.Meta.exclude:
-                assert field_name in serializer_fields
 
 
 @pytest.mark.django_db

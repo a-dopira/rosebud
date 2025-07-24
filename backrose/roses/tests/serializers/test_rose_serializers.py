@@ -32,9 +32,9 @@ class TestRoseSerializer:
         assert len(data["foliages"]) == 1
         assert data["foliages"][0]["foliage"] == "some tasty beer"
 
-        assert len(data["rosephotos"]) == 1
-        assert data["rosephotos"][0]["descr"] == "fancy photo description"
-        assert data["rosephotos"][0]["year"] == 2023
+        assert len(data["photos"]) == 1
+        assert data["photos"][0]["descr"] == "fancy photo description"
+        assert data["photos"][0]["year"] == 2023
 
         assert len(data["sizes"]) == 1
         assert data["sizes"][0]["width"] == "25.50"
@@ -158,3 +158,40 @@ class TestRoseListSerializer:
 
         for field in excluded_fields:
             assert field not in data
+
+
+@pytest.mark.django_db
+class TestRoseCreateSerializer:
+
+    def test_create_serializer_fields(self):
+        serializer = RoseCreateSerializer()
+        expected_fields = {
+            "id",
+            "title",
+            "title_eng",
+            "group",
+            "breeder",
+            "photo",
+            "description",
+            "landing_date",
+            "observation",
+            "susceptibility",
+            "const_width",
+            "const_height",
+        }
+        assert set(serializer.fields.keys()) == expected_fields
+
+    def test_create_rose(self, breeder, group, fancy_image):
+        data = {
+            "title": "test rose",
+            "title_eng": "test rose eng",
+            "group": group.id,
+            "breeder": breeder.id,
+            "photo": fancy_image,
+            "description": "test description",
+        }
+        serializer = RoseCreateSerializer(data=data)
+        assert serializer.is_valid(), f"Errors: {serializer.errors}"
+
+        instance = serializer.save()
+        assert instance.title == "test rose"
