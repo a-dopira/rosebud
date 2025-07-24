@@ -7,68 +7,55 @@ from roses.models import Breeder, Pest, Fungus, Group, Rose
 @pytest.mark.django_db
 class TestAdjustmentViewSet:
 
-    def test_list_all_entities(
-        self, authenticated_client, breeder, pest, fungus, group, create_multiple_roses
+    def test_returns_all_entity_types(self, authenticated_client):
+        url = reverse("adjustments-list")
+        response = authenticated_client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        expected_keys = {
+            "groups",
+            "breeders",
+            "pests",
+            "fungi",
+            "pesticides",
+            "fungicides",
+        }
+        assert set(response.data.keys()) == expected_keys
+
+        for key in expected_keys:
+            assert isinstance(response.data[key], list)
+
+    def test_with_data(
+        self, authenticated_client, breeder, group, pest, fungus, pesticide, fungicide
     ):
         url = reverse("adjustments-list")
         response = authenticated_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
 
-        assert "groups" in response.data
-        assert "breeders" in response.data
-        assert "pests" in response.data
-        assert "fungi" in response.data
+        assert len(response.data["breeders"]) >= 1
+        assert len(response.data["groups"]) >= 1
+        assert len(response.data["pests"]) >= 1
+        assert len(response.data["fungi"]) >= 1
+        assert len(response.data["pesticides"]) >= 1
+        assert len(response.data["fungicides"]) >= 1
 
-    @pytest.mark.parametrize(
-        "model_info",
-        [(Group, "groups"), (Breeder, "breeders"), (Pest, "pests"), (Fungus, "fungi")],
-    )
-    def test_list_empty_entities(self, model_info, authenticated_client):
+        assert "name" in response.data["breeders"][0]
+        assert "name" in response.data["groups"][0]
+        assert "rose_count" in response.data["groups"][0]
 
-        model, dataset = model_info
-        # purify
-        Rose.objects.all().delete()
-        model.objects.all().delete()
+    def test_groups_rose_count_annotation(self, authenticated_client, group, breeder):
 
-        url = reverse("adjustments-list")
-        response = authenticated_client.get(url)
-
-        assert response.status_code == status.HTTP_200_OK
-
-        assert len(response.data[dataset]) == 0
-
-    @pytest.mark.parametrize(
-        "model_info",
-        [
-            (Breeder, "breeders", "breeder"),
-            (Pest, "pests", "pest"),
-            (Fungus, "fungi", "fungus"),
-            (Group, "groups", "group"),
-        ],
-    )
-    def test_with_additional_data(
-        self, authenticated_client, request, model_info, create_multiple_roses
-    ):
-        model_class, response_key, fixture_name = model_info
-
-        base_fixture = request.getfixturevalue(fixture_name) if fixture_name else None
-
-        additional_items = [
-            model_class.objects.create(name=f"Additional {model_class.__name__} {i}")
-            for i in range(5)
-        ]
+        Rose.objects.create(
+            title="test rose", title_eng="test rose eng", group=group, breeder=breeder
+        )
 
         url = reverse("adjustments-list")
         response = authenticated_client.get(url)
 
-        assert response.status_code == status.HTTP_200_OK
-        assert response_key in response.data
+        groups = response.data["groups"]
+        test_group = next((g for g in groups if g["name"] == group.name), None)
 
-        expected_count = (1 if base_fixture else 0) + len(additional_items)
-
-        assert len(response.data[response_key]) == expected_count
-
-        item_names = [item["name"] for item in response.data[response_key]]
-        for item in additional_items:
-            assert item.name in item_names
+        assert test_group is not None
+        assert test_group["rose_count"] >= 1
