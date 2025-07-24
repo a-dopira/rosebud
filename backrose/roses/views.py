@@ -100,6 +100,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
 
+    # to do:
+    # need to add ProtectedError in case of trying to delete group with roses both for backend and frontend
+
 
 class BreederViewSet(viewsets.ModelViewSet):
     queryset = Breeder.objects.all()

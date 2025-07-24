@@ -19,7 +19,7 @@ frontend/.prettierignore
 # Django
 backrose/*.sqlite3
 backrose/userprofile/management/*
-backrose/staticfiles/*
+backrose/staticfiles/
 backrose/media/images/
 backrose/userprofile/debug_middleware.py
 

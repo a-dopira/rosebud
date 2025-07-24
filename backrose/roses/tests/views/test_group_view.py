@@ -27,12 +27,12 @@ class TestGroupViewSet:
 
     def test_create_group(self, authenticated_client):
         url = reverse("group-list")
-        data = {"name": "test group"}
+        data = {"name": "fancy group"}
 
         response = authenticated_client.post(url, data, format="json")
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data["name"] == "test group"
+        assert response.data["name"] == "fancy group"
 
     def test_unique_name_validation(self, authenticated_client, group):
         url = reverse("group-list")

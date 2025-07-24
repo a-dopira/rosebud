@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from roses.models import Breeder, Pest, Fungus, Group, Rose
+from roses.models import Rose
 
 
 @pytest.mark.django_db
