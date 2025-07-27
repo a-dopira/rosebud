@@ -7,7 +7,7 @@ const useCollection = (endpoint, type) => {
   const { api } = useAxios();
   const { showNotification } = useNotification();
   const { loadAllData } = useContext(DataContext);
-
+  
   const refresh = useCallback(async () => {
     await loadAllData(true);
   }, [loadAllData]);
@@ -48,13 +48,16 @@ const useCollection = (endpoint, type) => {
     [api, endpoint, showNotification, refresh]
   );
 
-  const addRelationship = useCallback(
-    async (id, relatedIds, relationType) => {
+  const updateRelationships = useCallback(
+    async (id, relationshipIds, relationType) => {
       try {
-        await api.post(`${endpoint}/${id}/${relationType}/`, {
-          data: relatedIds,
+        const relationshipField = relationType === 'pests' ? 'pest_ids' : 'fungi_ids';
+        
+        await api.patch(`${endpoint}/${id}/`, {
+          [relationshipField]: relationshipIds,
         });
-        showNotification('Связи успешно добавлены');
+        
+        showNotification('Связи успешно обновлены');
         await refresh();
       } catch (error) {
         const errorMessage =
@@ -67,32 +70,11 @@ const useCollection = (endpoint, type) => {
     },
     [api, endpoint, showNotification, refresh]
   );
-
-  const removeRelationship = useCallback(
-    async (id, relatedIds, relationType) => {
-      try {
-        await api.delete(`${endpoint}/${id}/${relationType}/`, {
-          data: relatedIds,
-        });
-        showNotification('Связи успешно удалены');
-        await refresh();
-      } catch (error) {
-        const errorMessage =
-          error.response?.data?.detail ||
-          error.response?.data?.errors?.[0]?.detail ||
-          error.message;
-        showNotification(errorMessage);
-        throw error;
-      }
-    },
-    [api, endpoint, showNotification, refresh]
-  );
-
+  
   return {
     create,
     remove,
-    addRelationship,
-    removeRelationship,
+    updateRelationships,
   };
 };
 

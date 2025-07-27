@@ -123,74 +123,10 @@ class PesticideViewSet(viewsets.ModelViewSet):
     queryset = Pesticide.objects.prefetch_related("pests")
     serializer_class = PesticideSerializer
 
-    @action(detail=True, methods=["post"], url_path="pests")
-    def add_pests(self, request, pk=None):
-
-        pesticide = self.get_object()
-        pest_ids = request.data.get("data", [])
-
-        if not isinstance(pest_ids, list):
-            return Response(
-                {"errors": [{"detail": "data должно быть массивом ID"}]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        pests = Pest.objects.filter(id__in=pest_ids)
-        if len(pests) != len(pest_ids):
-            return Response(
-                {"errors": [{"detail": "Некоторые вредители не найдены"}]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        pesticide.pests.add(*pests)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["delete"], url_path="pests")
-    def remove_pests(self, request, pk=None):
-
-        pesticide = self.get_object()
-        pest_ids = request.data.get("data", [])
-
-        pests = Pest.objects.filter(id__in=pest_ids)
-        pesticide.pests.remove(*pests)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class FungicideViewSet(viewsets.ModelViewSet):
     queryset = Fungicide.objects.prefetch_related("fungi")
     serializer_class = FungicideSerializer
-
-    @action(detail=True, methods=["post"], url_path="fungi")
-    def add_fungi(self, request, pk=None):
-
-        fungicide = self.get_object()
-        fungus_ids = request.data.get("data", [])
-
-        if not isinstance(fungus_ids, list):
-            return Response(
-                {"errors": [{"detail": "data должно быть массивом ID"}]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        fungi = Fungus.objects.filter(id__in=fungus_ids)
-        if len(fungi) != len(fungus_ids):
-            return Response(
-                {"errors": [{"detail": "Некоторые грибки не найдены"}]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        fungicide.fungi.add(*fungi)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["delete"], url_path="fungi")
-    def remove_fungi(self, request, pk=None):
-
-        fungicide = self.get_object()
-        fungus_ids = request.data.get("data", [])
-
-        fungi = Fungus.objects.filter(id__in=fungus_ids)
-        fungicide.fungi.remove(*fungi)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SizeViewSet(NestedViewSet):

@@ -32,52 +32,15 @@ const AdjustForm = memo(
       setValue({ id: '', name: '' });
     }, [value, collection, setValue]);
 
-    const handleAddRelated = useCallback(
-      async (selectedItems) => {
-        if (!value?.id || selectedItems.length === 0) return;
-
-        const itemIds = selectedItems.map((item) => item.id);
-        await collection.addRelationship(value.id, itemIds, relationType);
+    const handleUpdateItems = useCallback(
+      async (newRelationshipIds) => {
+        if (!value?.id) return;
+        
+        await collection.updateRelationships(value.id, newRelationshipIds, relationType);
         setRelatedPopupVisible(false);
       },
       [value, collection, relationType]
     );
-
-    const handleRemoveRelated = useCallback(
-      async (relatedItemId) => {
-        if (!value?.id) return;
-        await collection.removeRelationship(value.id, [relatedItemId], relationType);
-      },
-      [value, collection, relationType]
-    );
-
-    const getRelatedItems = useCallback(() => {
-      if (value?.id && relationType) {
-        const selectedItem = list.find((item) => item.id === value.id);
-        return selectedItem?.[relationType] || [];
-      }
-      return [];
-    }, [value, list, relationType]);
-
-    const prepareModalData = useCallback(() => {
-      if (!relatedEntities || !value?.id) return null;
-
-      const currentRelatedItems = getRelatedItems();
-      const availableRelatedItems = relatedEntities.filter(
-        (item) => !currentRelatedItems.some((related) => related.id === item.id)
-      );
-
-      const itemTypeName = relationType === 'pests' ? 'вредителей' : 'грибков';
-
-      return {
-        currentItems: currentRelatedItems,
-        availableItems: availableRelatedItems,
-        itemTypeName,
-        title: `Управление ${itemTypeName}`,
-      };
-    }, [relatedEntities, value, getRelatedItems, relationType]);
-
-    const modalData = prepareModalData();
 
     return (
       <form className="mb-6 space-y-2">
@@ -93,19 +56,15 @@ const AdjustForm = memo(
           isItemSelected={!!value?.id}
         />
 
-        {modalData && (
-          <RelatedItemsModal
-            isOpen={relatedPopupVisible}
-            onClose={() => setRelatedPopupVisible(false)}
-            title={modalData.title}
-            itemName={value?.name || ''}
-            currentItems={modalData.currentItems}
-            availableItems={modalData.availableItems}
-            onRemoveItem={handleRemoveRelated}
-            onAddItems={handleAddRelated}
-            itemTypeName={modalData.itemTypeName}
-          />
-        )}
+        <RelatedItemsModal
+          isOpen={relatedPopupVisible}
+          onClose={() => setRelatedPopupVisible(false)}
+          selectedItem={value}
+          relatedEntities={relatedEntities}
+          relationType={relationType}
+          onUpdateItems={handleUpdateItems}
+          allItems={list}
+        />
       </form>
     );
   }
