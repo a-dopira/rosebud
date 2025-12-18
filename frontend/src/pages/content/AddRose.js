@@ -1,7 +1,7 @@
 import { useState, useContext, Fragment } from 'react';
 import useAxios from '../../hooks/useAxios';
 import DataContext from '../../context/DataContext';
-import Dropdown from '../../utils/DropdownField';
+import DropdownSelect from '../../utils/DropdownSelect';
 import { useNotification } from '../../context/NotificationContext';
 
 function AddRose() {
@@ -63,11 +63,12 @@ function AddRose() {
       <label className="form-label font-bold inline-block min-w-[245px]">
         {label}:
       </label>
-      <Dropdown
+      <DropdownSelect
         value={value}
         onChange={onChange}
         options={options}
-        className="w-full"
+        isRequired={isRequired}
+        placeholder="Выберите или введите..."
       />
     </div>
   );

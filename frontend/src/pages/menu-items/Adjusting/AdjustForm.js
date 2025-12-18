@@ -1,7 +1,7 @@
 import { memo, useState, useCallback } from 'react';
 import useCollection from '../../../hooks/useCollection';
 import { useNotification } from '../../../context/NotificationContext';
-import Dropdown from '../../../utils/DropdownField';
+import DropdownSelect from '../../../utils/DropdownSelect';
 import RelatedItemsModal from './RelatedModal';
 import ActionButtons from './RelatedButtons';
 
@@ -45,7 +45,13 @@ const AdjustForm = memo(
     return (
       <form className="mb-6 space-y-2">
         <label className="label-partials">{label}</label>
-        <Dropdown value={value} onChange={setValue} options={list} className="w-full" />
+        
+        <DropdownSelect
+          value={value}
+          options={list}
+          onChange={setValue}
+          placeholder="Выберите..."
+        />
 
         <ActionButtons
           onAdd={handleAdd}
@@ -63,7 +69,7 @@ const AdjustForm = memo(
           relatedEntities={relatedEntities}
           relationType={relationType}
           onUpdateItems={handleUpdateItems}
-          allItems={list}
+          items={list}
         />
       </form>
     );

@@ -1,14 +1,31 @@
 import { useState, memo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const SortDropdown = memo(({ sortOrder, onSortSelect, className }) => {
+const SortDropdown = memo(({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
   const handleSort = (type) => {
-    onSortSelect(type);
+    const sp = new URLSearchParams(searchParams);
+
+    if (type === "asc") {
+      sp.set("ordering", "title");
+    } else if (type === "desc") {
+      sp.set("ordering", "-title");
+    } else {
+      sp.delete("ordering");
+    }
+
+    sp.set("page", "1");
+
+    navigate(`?${sp.toString()}`);
     setIsOpen(false);
   };
+
+  const sortOrder = searchParams.get("ordering");
 
   return (
     <div className={`relative ml-auto ${className}`}>

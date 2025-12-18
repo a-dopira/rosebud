@@ -27,13 +27,11 @@ SESSION_COOKIE_SECURE = False  # if samesite=None then True
 
 CSRF_COOKIE_SECURE = False  # if samesite=None then True
 
-CSRF_COOKIE_HTTPONLY = False
-
 CSRF_COOKIE_NAME = "csrftoken"
 
-SESSION_COOKIE_SAMESITE = "Strict"  # None for cross-domain
+SESSION_COOKIE_SAMESITE = "Strict"  # None for cross-domain otherwise strict
 
-CSRF_COOKIE_SAMESITE = "Strict"  # None for cross-domain
+CSRF_COOKIE_SAMESITE = "Strict"  # None for cross-domain otherwise strict
 
 USE_X_FORWARDED_HOST = True
 
@@ -130,7 +128,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_REFRESH": "refresh",
     "AUTH_COOKIE_DOMAIN": None,
     "AUTH_COOKIE_SECURE": False,  # true if https and samesite=none
-    "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
+    "AUTH_COOKIE_HTTP_ONLY": False,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Strict",  # None for cross domain
     "BLACKLIST_AFTER_ROTATION": True,

@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, useCallback, useRef, memo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-import DataContext from '../../context/DataContext';
 import { RoseListContext } from '../../context/RoseListContext';
 
 import Loader from '../../utils/Loaders/Loader';
@@ -20,9 +19,9 @@ const RoseGrid = memo(function RoseGrid() {
   });
 
   const gridRef = useRef(null);
-  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const { filter, setFilter, sortOrder, setSortOrder } = useContext(DataContext);
   const {
     rosesList,
     rosesMessage,
@@ -31,7 +30,6 @@ const RoseGrid = memo(function RoseGrid() {
     deleteRose,
     handlePage,
     isLoading,
-    clearCache,
   } = useContext(RoseListContext);
 
   const getScrollPosition = useCallback(() => window.scrollY, []);
@@ -47,13 +45,14 @@ const RoseGrid = memo(function RoseGrid() {
   }, [isLoading, rosesList]);
 
   useEffect(() => {
-    if (
-      location.pathname.includes('/home/collection') &&
-      (Object.keys(filter).length > 0 || location.state?.resetFilter)
-    ) {
-      setFilter({});
+    if (!isLoading && gridRef.current) {
+      const savedPosition = sessionStorage.getItem("scrollPosition");
+      if (savedPosition) {
+        window.scrollTo(0, parseInt(savedPosition));
+        sessionStorage.removeItem("scrollPosition");
+      }
     }
-  }, [location.pathname, location.state, filter, setFilter]);
+  }, [isLoading, rosesList]);
 
   const openDeleteModal = useCallback((rose) => {
     setDeleteModal({
@@ -85,21 +84,27 @@ const RoseGrid = memo(function RoseGrid() {
     }
   }, [deleteModal, deleteRose]);
 
+    const handleSortSelect = useCallback(
+    (sortType) => {
+      sessionStorage.setItem("scrollPosition", getScrollPosition().toString());
+
+      const sp = new URLSearchParams(searchParams);
+      if (sortType === "AZ") sp.set("ordering", "title");
+      else if (sortType === "ZA") sp.set("ordering", "-title");
+      else sp.delete("ordering");
+
+      sp.set("page", "1");
+      navigate(`?${sp.toString()}`, { replace: false });
+    },
+    [navigate, searchParams, getScrollPosition]
+  );
+
   const handlePageChange = useCallback(
     (newPage) => {
-      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
+      sessionStorage.setItem("scrollPosition", getScrollPosition().toString());
       handlePage(newPage);
     },
     [handlePage, getScrollPosition]
-  );
-
-  const handleSortSelect = useCallback(
-    (sortType) => {
-      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
-      clearCache();
-      setSortOrder(sortType);
-    },
-    [setSortOrder, getScrollPosition, clearCache]
   );
 
   if (isLoading) {
@@ -132,7 +137,7 @@ const RoseGrid = memo(function RoseGrid() {
           </div>
         )}
 
-        <SortDropdown sortOrder={sortOrder} onSortSelect={handleSortSelect} />
+        <SortDropdown onSortSelect={handleSortSelect} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">
@@ -154,12 +159,12 @@ const RoseGrid = memo(function RoseGrid() {
           isOpen={deleteModal.isOpen}
           onClose={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
           title="Подтверждение удаления"
-          roseName={deleteModal.selectedRose?.name || 'Роза'}
+          roseName={deleteModal.selectedRose?.title || 'Роза'}
         >
           <div className="text-center">
             <p className="mb-6 text-gray-700">
               Вы уверены, что хотите удалить{' '}
-              {deleteModal.selectedRose?.name || 'эту розу'}?
+              {deleteModal.selectedRose?.title || 'эту розу'}?
             </p>
 
             {deleteModal.error && (

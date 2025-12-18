@@ -1,26 +1,12 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 let requests = 0;
 const subscribers = new Set();
 
 function notifySubscribers() {
   subscribers.forEach((callback) => callback(requests > 0));
-}
-
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + '=') {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
 }
 
 const axiosInstance = axios.create({
@@ -31,21 +17,19 @@ const axiosInstance = axios.create({
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve();
-    }
-  });
-
+const processQueue = (error) => {
+  const queue = failedQueue;
   failedQueue = [];
+
+  queue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve();
+  });
 };
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = Cookies.get('csrftoken')
     if (csrftoken) {
       config.headers['X-CSRFToken'] = csrftoken;
     }
@@ -138,14 +122,14 @@ function useAxios() {
   const [isLoading, setIsLoading] = useState(requests > 0);
 
   useEffect(() => {
-    const handleLoadingChange = (isLoading) => {
+    const processLoading = (isLoading) => {
       setIsLoading(isLoading);
     };
 
-    subscribers.add(handleLoadingChange);
+    subscribers.add(processLoading);
 
     return () => {
-      subscribers.delete(handleLoadingChange);
+      subscribers.delete(processLoading);
     };
   }, []);
 

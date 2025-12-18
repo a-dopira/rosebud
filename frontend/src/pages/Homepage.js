@@ -1,5 +1,5 @@
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
-import { memo, useContext, useEffect } from 'react';
+import { Routes, Route, Navigate, useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { memo, useEffect } from 'react';
 
 import Menu from './menu/Menu';
 import Profile from './profile/Profile';
@@ -11,20 +11,29 @@ import RoseLayout from './content/RoseLayout';
 import { RoseProvider } from '../context/RoseContext';
 import { RoseListProvider } from '../context/RoseListContext';
 
-import DataContext from '../context/DataContext';
-
 const RoseList = memo(function RoseList() {
   const { groupName } = useParams();
   const location = useLocation();
-  const { setFilter } = useContext(DataContext);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const sp = new URLSearchParams(searchParams);
+
     if (groupName) {
-      setFilter({ group: groupName });
-    } else if (location.pathname.includes('/home/collection')) {
-      setFilter({});
+      sp.set("group", groupName);
+      sp.set("page", "1");
+      sp.delete("search");
+      navigate(`${location.pathname}?${sp.toString()}`, { replace: true });
+      return;
     }
-  }, [groupName, location.pathname, setFilter]);
+
+    if (location.pathname.includes("/home/collection")) {
+      if ([...sp.keys()].length > 0) {
+        navigate(location.pathname, { replace: true });
+      }
+    }
+  }, [groupName, location.pathname, navigate]);
 
   return (
     <RoseListProvider>
