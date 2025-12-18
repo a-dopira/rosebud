@@ -46,10 +46,10 @@ const RoseGrid = memo(function RoseGrid() {
 
   useEffect(() => {
     if (!isLoading && gridRef.current) {
-      const savedPosition = sessionStorage.getItem("scrollPosition");
+      const savedPosition = sessionStorage.getItem('scrollPosition');
       if (savedPosition) {
         window.scrollTo(0, parseInt(savedPosition));
-        sessionStorage.removeItem("scrollPosition");
+        sessionStorage.removeItem('scrollPosition');
       }
     }
   }, [isLoading, rosesList]);
@@ -84,16 +84,16 @@ const RoseGrid = memo(function RoseGrid() {
     }
   }, [deleteModal, deleteRose]);
 
-    const handleSortSelect = useCallback(
+  const handleSortSelect = useCallback(
     (sortType) => {
-      sessionStorage.setItem("scrollPosition", getScrollPosition().toString());
+      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
 
       const sp = new URLSearchParams(searchParams);
-      if (sortType === "AZ") sp.set("ordering", "title");
-      else if (sortType === "ZA") sp.set("ordering", "-title");
-      else sp.delete("ordering");
+      if (sortType === 'AZ') sp.set('ordering', 'title');
+      else if (sortType === 'ZA') sp.set('ordering', '-title');
+      else sp.delete('ordering');
 
-      sp.set("page", "1");
+      sp.set('page', '1');
       navigate(`?${sp.toString()}`, { replace: false });
     },
     [navigate, searchParams, getScrollPosition]
@@ -101,7 +101,7 @@ const RoseGrid = memo(function RoseGrid() {
 
   const handlePageChange = useCallback(
     (newPage) => {
-      sessionStorage.setItem("scrollPosition", getScrollPosition().toString());
+      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
       handlePage(newPage);
     },
     [handlePage, getScrollPosition]

@@ -11,21 +11,21 @@ const SortDropdown = memo(({ className }) => {
   const handleSort = (type) => {
     const sp = new URLSearchParams(searchParams);
 
-    if (type === "asc") {
-      sp.set("ordering", "title");
-    } else if (type === "desc") {
-      sp.set("ordering", "-title");
+    if (type === 'asc') {
+      sp.set('ordering', 'title');
+    } else if (type === 'desc') {
+      sp.set('ordering', '-title');
     } else {
-      sp.delete("ordering");
+      sp.delete('ordering');
     }
 
-    sp.set("page", "1");
+    sp.set('page', '1');
 
     navigate(`?${sp.toString()}`);
     setIsOpen(false);
   };
 
-  const sortOrder = searchParams.get("ordering");
+  const sortOrder = searchParams.get('ordering');
 
   return (
     <div className={`relative ml-auto ${className}`}>

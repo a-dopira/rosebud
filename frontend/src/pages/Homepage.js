@@ -1,4 +1,12 @@
-import { Routes, Route, Navigate, useParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { memo, useEffect } from 'react';
 
 import Menu from './menu/Menu';
@@ -21,14 +29,14 @@ const RoseList = memo(function RoseList() {
     const sp = new URLSearchParams(searchParams);
 
     if (groupName) {
-      sp.set("group", groupName);
-      sp.set("page", "1");
-      sp.delete("search");
+      sp.set('group', groupName);
+      sp.set('page', '1');
+      sp.delete('search');
       navigate(`${location.pathname}?${sp.toString()}`, { replace: true });
       return;
     }
 
-    if (location.pathname.includes("/home/collection")) {
+    if (location.pathname.includes('/home/collection')) {
       if ([...sp.keys()].length > 0) {
         navigate(location.pathname, { replace: true });
       }

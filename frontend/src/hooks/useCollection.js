@@ -7,7 +7,7 @@ const useCollection = (endpoint, type) => {
   const { api } = useAxios();
   const { showNotification } = useNotification();
   const { loadAllData } = useContext(DataContext);
-  
+
   const refresh = useCallback(async () => {
     await loadAllData(true);
   }, [loadAllData]);
@@ -52,11 +52,11 @@ const useCollection = (endpoint, type) => {
     async (id, relationshipIds, relationType) => {
       try {
         const relationshipField = relationType === 'pests' ? 'pest_ids' : 'fungi_ids';
-        
+
         await api.patch(`${endpoint}/${id}/`, {
           [relationshipField]: relationshipIds,
         });
-        
+
         showNotification('Связи успешно обновлены');
         await refresh();
       } catch (error) {
@@ -70,7 +70,7 @@ const useCollection = (endpoint, type) => {
     },
     [api, endpoint, showNotification, refresh]
   );
-  
+
   return {
     create,
     remove,

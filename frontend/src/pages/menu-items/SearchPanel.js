@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate,useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Magnifier from '../../utils/Magnifier';
 
 function SearchPanel() {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -13,14 +13,13 @@ function SearchPanel() {
     if (!q) return;
 
     const next = new URLSearchParams(searchParams);
-    next.set("search", q);
-    next.set("page", "1");
-    next.delete("group");
+    next.set('search', q);
+    next.set('page', '1');
+    next.delete('group');
 
     navigate(`/home/search?${next.toString()}`);
-    setInputValue("");
+    setInputValue('');
   };
-
 
   return (
     <div

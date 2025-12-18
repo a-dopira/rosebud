@@ -29,7 +29,7 @@ const processQueue = (error) => {
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const csrftoken = Cookies.get('csrftoken')
+    const csrftoken = Cookies.get('csrftoken');
     if (csrftoken) {
       config.headers['X-CSRFToken'] = csrftoken;
     }

@@ -35,8 +35,12 @@ const AdjustForm = memo(
     const handleUpdateItems = useCallback(
       async (newRelationshipIds) => {
         if (!value?.id) return;
-        
-        await collection.updateRelationships(value.id, newRelationshipIds, relationType);
+
+        await collection.updateRelationships(
+          value.id,
+          newRelationshipIds,
+          relationType
+        );
         setRelatedPopupVisible(false);
       },
       [value, collection, relationType]
@@ -45,7 +49,7 @@ const AdjustForm = memo(
     return (
       <form className="mb-6 space-y-2">
         <label className="label-partials">{label}</label>
-        
+
         <DropdownSelect
           value={value}
           options={list}
