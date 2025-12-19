@@ -1,21 +1,22 @@
 import { RoseLoader } from './RoseLoader';
-import useAxios from '../../hooks/useAxios';
 import { memo } from 'react';
 
 const MemoizedRoseLoader = memo(RoseLoader);
 
-const Loader = () => {
-  const { isLoading } = useAxios();
-
-  if (!isLoading) {
-    return null;
+function Loader({ fullscreen = true, className = '' }) {
+  if (!fullscreen) {
+    return (
+      <div className={`flex items-center justify-center ${className}`}>
+        <MemoizedRoseLoader />
+      </div>
+    );
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
       <MemoizedRoseLoader />
     </div>
   );
-};
+}
 
 export default Loader;

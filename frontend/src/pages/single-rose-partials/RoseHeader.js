@@ -8,7 +8,7 @@ import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 import Loader from '../../utils/Loaders/Loader';
 
 function RoseHeader() {
-  const { rose, setRose } = useContext(RoseContext);
+  const { rose, setRose, roseLoading, roseError } = useContext(RoseContext);
   const { breeders } = useContext(DataContext);
   const { showNotification } = useNotification();
 
@@ -71,9 +71,19 @@ function RoseHeader() {
 
   const isStackedLayout = windowWidth < 768;
 
-  if (!rose) {
-    return <Loader />;
+  if (roseLoading) {
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <Loader fullscreen={false} />
+      </div>
+    );
   }
+
+  if (roseError) {
+    return <div className="p-6 text-red-700">{roseError}</div>;
+  }
+
+  if (!rose) return null; 
 
   return (
     <div className={`flex flex-col ${!isStackedLayout ? 'md:flex-row' : ''}`}>

@@ -153,9 +153,9 @@ export const AuthProvider = ({ children }) => {
     setAuthLoading(true);
     try {
       const userData = await fetchUserProfile();
-      if (userData) {
+      if (userData) 
         return true;
-      }
+
       const refreshResult = await refreshToken();
       return refreshResult;
     } catch (error) {
@@ -166,13 +166,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const initAuth = async () => {
-      setAuthLoading(true);
-      await checkAuth();
-      setAuthLoading(false);
-    };
-
-    initAuth();
+    checkAuth();
   }, []);
 
   const context = useMemo(

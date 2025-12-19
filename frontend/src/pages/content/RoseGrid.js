@@ -2,8 +2,8 @@ import { useState, useContext, useEffect, useCallback, useRef, memo } from 'reac
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { RoseListContext } from '../../context/RoseListContext';
-
 import Loader from '../../utils/Loaders/Loader';
+
 import {
   Pagination,
   RoseCard,
@@ -22,37 +22,20 @@ const RoseGrid = memo(function RoseGrid() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const {
-    rosesList,
-    rosesMessage,
-    totalPages,
-    currentPage,
-    deleteRose,
-    handlePage,
-    isLoading,
-  } = useContext(RoseListContext);
+  const { rosesList, rosesMessage, totalPages, currentPage, deleteRose, handlePage, rosesLoading } =
+  useContext(RoseListContext);
 
   const getScrollPosition = useCallback(() => window.scrollY, []);
 
   useEffect(() => {
-    if (!isLoading && gridRef.current) {
+    if (!rosesLoading && gridRef.current) {
       const savedPosition = sessionStorage.getItem('scrollPosition');
       if (savedPosition) {
         window.scrollTo(0, parseInt(savedPosition));
         sessionStorage.removeItem('scrollPosition');
       }
     }
-  }, [isLoading, rosesList]);
-
-  useEffect(() => {
-    if (!isLoading && gridRef.current) {
-      const savedPosition = sessionStorage.getItem('scrollPosition');
-      if (savedPosition) {
-        window.scrollTo(0, parseInt(savedPosition));
-        sessionStorage.removeItem('scrollPosition');
-      }
-    }
-  }, [isLoading, rosesList]);
+  }, [rosesLoading, rosesList]);
 
   const openDeleteModal = useCallback((rose) => {
     setDeleteModal({
@@ -107,14 +90,6 @@ const RoseGrid = memo(function RoseGrid() {
     [handlePage, getScrollPosition]
   );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
-
   if (!rosesList) {
     return (
       <div className="animate-fade-in space-y-8">
@@ -127,7 +102,14 @@ const RoseGrid = memo(function RoseGrid() {
   }
 
   return (
-    <div className="animate-fade-in space-y-5" ref={gridRef}>
+    <div className="relative animate-fade-in space-y-5" ref={gridRef}>
+
+      {/* {rosesLoading && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/30 backdrop-blur-sm rounded-large">
+          <Loader fullscreen={false} />
+        </div>
+      )} */}
+
       <div className="flex justify-between items-center">
         {rosesMessage && (
           <div className="flex-grow">

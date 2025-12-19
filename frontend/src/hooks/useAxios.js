@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
 let requests = 0;
@@ -119,23 +118,9 @@ axiosInstance.interceptors.response.use(
 );
 
 function useAxios() {
-  const [isLoading, setIsLoading] = useState(requests > 0);
-
-  useEffect(() => {
-    const processLoading = (isLoading) => {
-      setIsLoading(isLoading);
-    };
-
-    subscribers.add(processLoading);
-
-    return () => {
-      subscribers.delete(processLoading);
-    };
-  }, []);
 
   return {
     api: axiosInstance,
-    isLoading,
   };
 }
 

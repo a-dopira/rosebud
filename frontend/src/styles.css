@@ -3,6 +3,10 @@
 @import 'tailwindcss/utilities';
 
 @layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
   @font-face {
     font-family: 'Hedwig Letters';
     src: url('./assets/fonts/HedvigLettersSerif_14pt-Regular.ttf');

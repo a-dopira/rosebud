@@ -12,16 +12,12 @@ import RoseContext from '../../context/RoseContext';
 
 function RoseLayout() {
   const { roseId } = useParams();
-  const { loadRose, rose } = useContext(RoseContext);
+  const { loadRose } = useContext(RoseContext);
 
   useEffect(() => {
     loadRose(roseId);
-  }, [roseId]);
-
-  if (!rose) {
-    return null;
-  }
-
+  }, [roseId, loadRose]);
+  
   return (
     <>
       <RoseHeader />

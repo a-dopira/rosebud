@@ -9,8 +9,7 @@ import { buildMessage } from '../utils/MessageBuilder';
 export const RoseListContext = createContext();
 
 export const RoseListProvider = ({ children }) => {
-  const { api, isLoading } = useAxios();
-
+  const { api } = useAxios();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -20,15 +19,15 @@ export const RoseListProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [rosesLoading, setRosesLoading] = useState(false);
+
   const requestCache = useRef({});
   const lastRequestKey = useRef(null);
 
   const buildApiParamsFromUrl = useCallback(() => {
     const sp = new URLSearchParams(location.search);
-
     const params = new URLSearchParams();
 
-    // поддерживаем: search, group, ordering, page
     const search = sp.get('search');
     const group = sp.get('group');
     const ordering = sp.get('ordering');
@@ -42,68 +41,52 @@ export const RoseListProvider = ({ children }) => {
     return { params, page: Number(page) || 1 };
   }, [location.search]);
 
-  const loadRoses = useCallback(
-    async (forceRefresh = false) => {
-      const { params, page } = buildApiParamsFromUrl();
-      const cacheKey = params.toString();
+  const loadRoses = useCallback(async (forceRefresh = false) => {
+    const { params, page } = buildApiParamsFromUrl();
+    const cacheKey = params.toString();
 
-      if (
-        !forceRefresh &&
-        lastRequestKey.current === cacheKey &&
-        requestCache.current[cacheKey]
-      ) {
-        const cached = requestCache.current[cacheKey];
+    // кеш — без лоадера
+    if (!forceRefresh && requestCache.current[cacheKey]) {
+      const cached = requestCache.current[cacheKey];
+      if (cached.timestamp > Date.now() - 5 * 60 * 1000) {
         setRosesList(cached.roses);
         setRosesMessage(cached.message);
         setTotalPages(cached.totalPages);
         setCurrentPage(page);
         return;
       }
+    }
 
-      lastRequestKey.current = cacheKey;
+    setRosesLoading(true);
+    try {
+      const response = await api.get(`/roses/?${params.toString()}`);
+      const roses = response.data.results || [];
+      const totalItems = response.data.count || 0;
+      const totalPagesCount = Math.max(1, Math.ceil(totalItems / 9));
 
-      if (!forceRefresh && requestCache.current[cacheKey]) {
-        const cached = requestCache.current[cacheKey];
-        if (cached.timestamp > Date.now() - 5 * 60 * 1000) {
-          setRosesList(cached.roses);
-          setRosesMessage(cached.message);
-          setTotalPages(cached.totalPages);
-          setCurrentPage(page);
-          return;
-        }
-      }
+      const message = buildMessage(params, roses);
 
-      try {
-        const response = await api.get(`/roses/?${params.toString()}`);
-        const roses = response.data.results || [];
-        const totalItems = response.data.count || 0;
-        const totalPagesCount = Math.max(1, Math.ceil(totalItems / 9));
+      requestCache.current[cacheKey] = {
+        timestamp: Date.now(),
+        roses,
+        message,
+        totalPages: totalPagesCount,
+      };
 
-        const message = buildMessage(params, roses);
+      setRosesList(roses);
+      setRosesMessage(message);
+      setTotalPages(totalPagesCount);
+      setCurrentPage(page);
+    } catch (e) {
+      setRosesMessage('Что-то пошло не так...');
+      setRosesList([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+    } finally {
+      setRosesLoading(false);
+    }
+  }, [api, buildApiParamsFromUrl]);
 
-        requestCache.current[cacheKey] = {
-          timestamp: Date.now(),
-          roses,
-          message,
-          totalPages: totalPagesCount,
-          count: totalItems,
-        };
-
-        setRosesList(roses);
-        setRosesMessage(message);
-        setTotalPages(totalPagesCount);
-        setCurrentPage(page);
-      } catch (e) {
-        setRosesMessage('Что-то пошло не так...');
-        setRosesList([]);
-        setTotalPages(1);
-        setCurrentPage(1);
-      }
-    },
-    [api, buildApiParamsFromUrl]
-  );
-
-  // грузим при любом изменении URL query
   useEffect(() => {
     loadRoses(false);
   }, [location.search, loadRoses]);
@@ -113,45 +96,22 @@ export const RoseListProvider = ({ children }) => {
     lastRequestKey.current = null;
   }, []);
 
-  const handlePage = useCallback(
-    (newPage) => {
-      const sp = new URLSearchParams(searchParams);
-      sp.set('page', String(newPage));
-      navigate(`?${sp.toString()}`, { replace: false });
-    },
-    [navigate, searchParams]
-  );
+  const handlePage = useCallback((newPage) => {
+    const sp = new URLSearchParams(searchParams);
+    sp.set('page', String(newPage));
+    navigate(`?${sp.toString()}`, { replace: false });
+  }, [navigate, searchParams]);
 
-  const deleteRose = useCallback(
-    async (roseId) => {
-      try {
-        await api.delete(`/roses/${roseId}/`);
-
-        // после удаления — чистим кэш и перезагружаем текущий URL
-        clearCache();
-
-        // если была 1 роза на странице и страница > 1 — откатимся на предыдущую
-        const sp = new URLSearchParams(searchParams);
-        const page = Number(sp.get('page') || 1);
-
-        if (rosesList.length === 1 && page > 1) {
-          sp.set('page', String(page - 1));
-          navigate(`?${sp.toString()}`, { replace: false });
-        } else {
-          // принудительно перечитать текущий URL
-          loadRoses(true);
-        }
-
-        return { success: true };
-      } catch (error) {
-        return {
-          success: false,
-          error: error?.response?.data?.detail || 'Ошибка при удалении розы',
-        };
-      }
-    },
-    [api, clearCache, loadRoses, navigate, rosesList.length, searchParams]
-  );
+  const deleteRose = useCallback(async (roseId) => {
+    try {
+      await api.delete(`/roses/${roseId}/`);
+      clearCache();
+      await loadRoses(true);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error?.response?.data?.detail || 'Ошибка при удалении розы' };
+    }
+  }, [api, clearCache, loadRoses]);
 
   const context = {
     rosesList,
@@ -160,11 +120,8 @@ export const RoseListProvider = ({ children }) => {
     currentPage,
     deleteRose,
     handlePage,
-    clearCache,
-    isLoading,
+    rosesLoading,
   };
 
-  return (
-    <RoseListContext.Provider value={context}>{children}</RoseListContext.Provider>
-  );
+  return <RoseListContext.Provider value={context}>{children}</RoseListContext.Provider>;
 };
