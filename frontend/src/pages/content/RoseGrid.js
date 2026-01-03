@@ -1,7 +1,9 @@
-import { useState, useContext, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useContext, useCallback, useRef, memo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
-import { RoseListContext } from '../../context/RoseListContext';
+import { RoseListStateContext } from '../../context/RoseListContext';
+import { RoseListActionsContext } from '../../context/RoseListContext';
 import Loader from '../../utils/Loaders/Loader';
 
 import {
@@ -12,65 +14,43 @@ import {
 import { GenericModal } from '../../utils/RoseComponents/ModalProduct';
 
 const RoseGrid = memo(function RoseGrid() {
-  const [deleteModal, setDeleteModal] = useState({
-    isOpen: false,
-    selectedRose: null,
-    error: null,
-  });
+  const [selectedRose, setSelectedRose] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   const gridRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { rosesList, rosesMessage, totalPages, currentPage, deleteRose, handlePage, rosesLoading } =
-  useContext(RoseListContext);
+  const { rosesList, rosesMessage, totalPages, currentPage, rosesLoading } =
+    useContext(RoseListStateContext);
 
-  const getScrollPosition = useCallback(() => window.scrollY, []);
-
-  useEffect(() => {
-    if (!rosesLoading && gridRef.current) {
-      const savedPosition = sessionStorage.getItem('scrollPosition');
-      if (savedPosition) {
-        window.scrollTo(0, parseInt(savedPosition));
-        sessionStorage.removeItem('scrollPosition');
-      }
-    }
-  }, [rosesLoading, rosesList]);
+  const { deleteRose, handlePage } = useContext(RoseListActionsContext);
 
   const openDeleteModal = useCallback((rose) => {
-    setDeleteModal({
-      isOpen: true,
-      selectedRose: rose,
-      error: null,
-    });
+    setSelectedRose(rose);
+    setDeleteError(null);
   }, []);
 
   const handleRoseDeletion = useCallback(async () => {
-    const { selectedRose } = deleteModal;
-
     if (!selectedRose?.id) {
-      setDeleteModal((prev) => ({ ...prev, error: 'Неверный ID розы' }));
+      setDeleteError('Неверный ID розы');
       return;
     }
 
     try {
       const result = await deleteRose(selectedRose.id);
-
       if (!result.success) {
-        setDeleteModal((prev) => ({ ...prev, error: result.error }));
+        setDeleteError(result.error);
         return;
       }
-
-      setDeleteModal({ isOpen: false, selectedRose: null, error: null });
+      setSelectedRose(null);
     } catch (error) {
-      setDeleteModal((prev) => ({ ...prev, error: 'Ошибка при удалении розы' }));
+      setDeleteError('Ошибка при удалении розы');
     }
-  }, [deleteModal, deleteRose]);
+  }, [selectedRose, deleteRose]);
 
   const handleSortSelect = useCallback(
     (sortType) => {
-      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
-
       const sp = new URLSearchParams(searchParams);
       if (sortType === 'AZ') sp.set('ordering', 'title');
       else if (sortType === 'ZA') sp.set('ordering', '-title');
@@ -79,16 +59,17 @@ const RoseGrid = memo(function RoseGrid() {
       sp.set('page', '1');
       navigate(`?${sp.toString()}`, { replace: false });
     },
-    [navigate, searchParams, getScrollPosition]
+    [navigate, searchParams]
   );
 
   const handlePageChange = useCallback(
     (newPage) => {
-      sessionStorage.setItem('scrollPosition', getScrollPosition().toString());
       handlePage(newPage);
     },
-    [handlePage, getScrollPosition]
+    [handlePage]
   );
+
+  console.log('rose grid');
 
   if (!rosesList) {
     return (
@@ -103,12 +84,13 @@ const RoseGrid = memo(function RoseGrid() {
 
   return (
     <div className="relative animate-fade-in space-y-5" ref={gridRef}>
-
-      {/* {rosesLoading && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/30 backdrop-blur-sm rounded-large">
-          <Loader fullscreen={false} />
-        </div>
-      )} */}
+      {rosesLoading &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <Loader fullscreen />
+          </div>,
+          document.body
+        )}
 
       <div className="flex justify-between items-center">
         {rosesMessage && (
@@ -136,22 +118,24 @@ const RoseGrid = memo(function RoseGrid() {
         />
       )}
 
-      {deleteModal.isOpen && (
+      {selectedRose && (
         <GenericModal
-          isOpen={deleteModal.isOpen}
-          onClose={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
+          isOpen={!!selectedRose}
+          onClose={() => {
+            setSelectedRose(null);
+            setDeleteError(null);
+          }}
           title="Подтверждение удаления"
-          roseName={deleteModal.selectedRose?.title || 'Роза'}
+          roseName={selectedRose.title || 'Роза'}
         >
           <div className="text-center">
             <p className="mb-6 text-gray-700">
-              Вы уверены, что хотите удалить{' '}
-              {deleteModal.selectedRose?.title || 'эту розу'}?
+              Вы уверены, что хотите удалить {selectedRose.title || 'эту розу'}?
             </p>
 
-            {deleteModal.error && (
+            {deleteError && (
               <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                {deleteModal.error}
+                {deleteError}
               </div>
             )}
 
@@ -163,7 +147,7 @@ const RoseGrid = memo(function RoseGrid() {
                 Да, удалить
               </button>
               <button
-                onClick={() => setDeleteModal((prev) => ({ ...prev, isOpen: false }))}
+                onClick={() => setSelectedRose(null)}
                 className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
               >
                 Нет, отмена

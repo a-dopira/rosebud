@@ -32,6 +32,7 @@ axiosInstance.interceptors.request.use(
     if (csrftoken) {
       config.headers['X-CSRFToken'] = csrftoken;
     }
+    config.headers['X-Requested-With'] = 'XMLHttpRequest';
 
     requests = Math.min(1000, requests + 1);
     notifySubscribers();
@@ -118,7 +119,6 @@ axiosInstance.interceptors.response.use(
 );
 
 function useAxios() {
-
   return {
     api: axiosInstance,
   };

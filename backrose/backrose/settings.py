@@ -13,7 +13,7 @@ load_dotenv(env_path)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -128,7 +128,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_REFRESH": "refresh",
     "AUTH_COOKIE_DOMAIN": None,
     "AUTH_COOKIE_SECURE": False,  # true if https and samesite=none
-    "AUTH_COOKIE_HTTP_ONLY": False,  # False to allow js access cookie
+    "AUTH_COOKIE_HTTP_ONLY": True,  # False to allow js access cookie
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Strict",  # None for cross domain
     "BLACKLIST_AFTER_ROTATION": True,

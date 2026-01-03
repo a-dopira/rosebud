@@ -79,11 +79,17 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @REFRESH_SCHEMA
 class CustomTokenRefreshView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = TokenRefreshSerializer
 
     def post(self, request, *args, **kwargs):
+        refresh_cookie_name = settings.SIMPLE_JWT.get("AUTH_COOKIE_REFRESH", "refresh")
+        refresh_token = request.COOKIES.get(refresh_cookie_name)
+
+        if not refresh_token:
+            return Response({"detail": "No refresh cookie"}, status=status.HTTP_401_UNAUTHORIZED)
+
         serializer = TokenRefreshSerializer(
-            data=request.data, context={"request": request}
+            data={"refresh": refresh_token},
+            context={"request": request},
         )
 
         try:
@@ -91,23 +97,19 @@ class CustomTokenRefreshView(APIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
-        data = serializer.validated_data
+        access = serializer.validated_data["access"]
 
-        response = Response(
-            {"detail": "Token refreshed successfully"}, status=status.HTTP_200_OK
-        )
-
-        response.set_cookie(
-            settings.SIMPLE_JWT.get("AUTH_COOKIE"),
-            str(data["access"]),
+        resp = Response({"detail": "Token refreshed successfully"}, status=status.HTTP_200_OK)
+        resp.set_cookie(
+            settings.SIMPLE_JWT.get("AUTH_COOKIE", "access"),
+            str(access),
             max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds(),
-            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE"),
-            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY"),
-            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE"),
+            secure=settings.SIMPLE_JWT.get("AUTH_COOKIE_SECURE", False),
+            httponly=settings.SIMPLE_JWT.get("AUTH_COOKIE_HTTP_ONLY", True),
+            samesite=settings.SIMPLE_JWT.get("AUTH_COOKIE_SAMESITE", "Lax"),
             path=settings.SIMPLE_JWT.get("AUTH_COOKIE_PATH", "/"),
         )
-
-        return response
+        return resp
 
 
 @LOGOUT_SCHEMA

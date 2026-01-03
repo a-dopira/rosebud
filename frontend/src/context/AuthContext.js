@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [authError, setAuthError] = useState(null);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const { api } = useAxios();
@@ -67,10 +66,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Registration error:', error);
       if (error.response && error.response.data) {
-        setAuthError(error.response.data);
         showNotification('Ошибка регистрации. Проверьте введенные данные.');
       } else {
-        setAuthError({ message: 'Ошибка при соединении с сервером' });
         showNotification('Ошибка соединения с сервером.');
       }
       return false;
@@ -95,10 +92,8 @@ export const AuthProvider = ({ children }) => {
       return false;
     } catch (error) {
       if (error.response && error.response.data) {
-        setAuthError(error.response.data);
         showNotification('Ошибка обновления профиля. Проверьте введенные данные.');
       } else {
-        setAuthError({ message: 'Ошибка при соединении с сервером' });
         showNotification('Ошибка соединения с сервером.');
       }
       return false;
@@ -153,8 +148,7 @@ export const AuthProvider = ({ children }) => {
     setAuthLoading(true);
     try {
       const userData = await fetchUserProfile();
-      if (userData) 
-        return true;
+      if (userData) return true;
 
       const refreshResult = await refreshToken();
       return refreshResult;

@@ -12,7 +12,7 @@ function RoseHeader() {
   const { breeders } = useContext(DataContext);
   const { showNotification } = useNotification();
 
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState(null);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const { api } = useAxios();
@@ -26,6 +26,9 @@ function RoseHeader() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const openModal = (type) => setModal(type);
+  const closeModal = () => setModal(null);
+
   const updateRose = async (event) => {
     event.preventDefault();
     showNotification(null);
@@ -35,7 +38,7 @@ function RoseHeader() {
       .patch(`roses/${rose.id}/`, updatedRose)
       .then((response) => {
         setRose(response.data);
-        setModal(null);
+        closeModal();
         showNotification(`Роза ${response.data.title} успешно обновлена.`);
       })
       .catch((error) => {
@@ -53,13 +56,13 @@ function RoseHeader() {
 
   const handleDeleteRose = async () => {
     await api.delete(`roses/${rose.id}/`);
-    setModal(null);
+    closeModal();
     showNotification('Роза успешно удалена.');
   };
 
   const handleDeletePhoto = async () => {
     await api.delete(`roses/${rose.id}/photo/`);
-    setModal(null);
+    closeModal();
     setRose((prevRose) => ({
       ...prevRose,
       photo: null,
@@ -67,7 +70,7 @@ function RoseHeader() {
     showNotification('Фотография успешно удалена.');
   };
 
-  const closeModal = () => setModal(false);
+  // const closeModal = () => setModal(false);
 
   const isStackedLayout = windowWidth < 768;
 
@@ -83,7 +86,7 @@ function RoseHeader() {
     return <div className="p-6 text-red-700">{roseError}</div>;
   }
 
-  if (!rose) return null; 
+  if (!rose) return null;
 
   return (
     <div className={`flex flex-col ${!isStackedLayout ? 'md:flex-row' : ''}`}>
@@ -98,7 +101,7 @@ function RoseHeader() {
           />
           <button
             className="absolute top-1/2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 btn-red"
-            onClick={() => setModal(true)}
+            onClick={() => openModal('deletePhoto')}
           >
             Удалить
           </button>
@@ -177,13 +180,13 @@ function RoseHeader() {
             <div className="flex items-center justify-center space-x-10">
               <button
                 className="inline-block btn-red text-xl h-11"
-                onClick={() => setModal(true)}
+                onClick={() => openModal('edit')}
               >
                 Изменить
               </button>
               <button
                 className="inline-block btn-red text-xl h-11"
-                onClick={() => setModal(true)}
+                onClick={() => openModal('delete')}
               >
                 Удалить
               </button>
@@ -194,7 +197,7 @@ function RoseHeader() {
 
       {/* edit modal */}
       <GenericModal
-        isOpen={modal}
+        isOpen={modal === 'edit'}
         onClose={closeModal}
         title="Редактирование"
         roseName={rose.title}
@@ -300,7 +303,7 @@ function RoseHeader() {
       </GenericModal>
 
       <GenericModal
-        isOpen={modal}
+        isOpen={modal === 'delete'}
         onClose={closeModal}
         title="Удаление розы"
         roseName={rose.title}
@@ -319,7 +322,7 @@ function RoseHeader() {
       </GenericModal>
 
       <GenericModal
-        isOpen={modal}
+        isOpen={modal === 'deletePhoto'}
         onClose={closeModal}
         title="Удаление фотографии"
         roseName={rose.title}

@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import useAxios from '../hooks/useAxios';
 
 const RoseContext = createContext();
@@ -9,21 +9,24 @@ export function RoseProvider({ children }) {
   const [roseLoading, setRoseLoading] = useState(false);
   const [roseError, setRoseError] = useState(null);
 
-  const loadRose = async (id) => {
-    setRoseLoading(true);
-    setRoseError(null);
-    try {
-      const response = await api.get(`/roses/${id}/`);
-      setRose(response.data);
-      return response.data;
-    } catch (e) {
-      setRose(null);
-      setRoseError('Не удалось загрузить розу');
-      return null;
-    } finally {
-      setRoseLoading(false);
-    }
-  };
+  const loadRose = useCallback(
+    async (id) => {
+      setRoseLoading(true);
+      setRoseError(null);
+      try {
+        const response = await api.get(`/roses/${id}/`);
+        setRose(response.data);
+        return response.data;
+      } catch (e) {
+        setRose(null);
+        setRoseError('Не удалось загрузить розу');
+        return null;
+      } finally {
+        setRoseLoading(false);
+      }
+    },
+    [api]
+  );
 
   const data = { rose, setRose, loadRose, roseLoading, roseError };
 

@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 export const GenericModal = ({
-  isOpen,
+  isOpen = false,
   onClose,
   title,
   children,

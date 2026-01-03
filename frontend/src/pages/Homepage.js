@@ -41,7 +41,7 @@ const RoseList = memo(function RoseList() {
         navigate(location.pathname, { replace: true });
       }
     }
-  }, [groupName, location.pathname, navigate]);
+  }, [groupName, location.pathname]);
 
   return (
     <RoseListProvider>

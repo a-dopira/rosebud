@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import RoseContext from '../../../context/RoseContext';
 import RoseNoteSizes from './RoseNoteSizes';
 import useAxios from '../../../hooks/useAxios';
@@ -11,9 +11,14 @@ function RoseNote() {
   const { rose, setRose } = useContext(RoseContext);
   const { showNotification } = useNotification();
 
-  const [observation, setObservation] = useState(rose.observation);
-  const [susceptibility, setSusceptibility] = useState(rose.susceptibility);
+  const [observation, setObservation] = useState('');
+  const [susceptibility, setSusceptibility] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setObservation(rose?.observation ?? '');
+    setSusceptibility(rose?.susceptibility ?? '');
+  }, [rose?.id]);
 
   const updateRose = async (event) => {
     event.preventDefault();

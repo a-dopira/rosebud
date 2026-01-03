@@ -1,5 +1,7 @@
 import { useEffect, useContext } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
+
+import Loader from '../../utils/Loaders/Loader';
 import RoseHeader from '../single-rose-partials/RoseHeader';
 import RoseMenu from '../single-rose-partials/RosePartials/RoseMenu';
 import MedControl from '../single-rose-partials/RosePartials/RoseVermins';
@@ -12,12 +14,16 @@ import RoseContext from '../../context/RoseContext';
 
 function RoseLayout() {
   const { roseId } = useParams();
-  const { loadRose } = useContext(RoseContext);
+  const { rose, loadRose, roseLoading, roseError } = useContext(RoseContext);
 
   useEffect(() => {
     loadRose(roseId);
   }, [roseId, loadRose]);
-  
+
+  if (roseLoading) return <Loader fullscreen />;
+  if (roseError) return <div>{roseError}</div>;
+  if (!rose) return null;
+
   return (
     <>
       <RoseHeader />
